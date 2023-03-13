@@ -1,0 +1,267 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% uminho/uminho-defaults.ldf
+%% NOVA thesis configuration file
+%%
+%% Customization for UNIVERSIDADE DO MINHO (strings and cover)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\typeout{NT FILE uminho/uminho-defaults.ldf}%
+
+%-----------------------------------------------------------------
+% memoir customization
+%-----------------------------------------------------------------
+\ntmemoirsetup{12pt}   % A4paper with main text at 11pt
+\openany         % Two print single paged
+
+%-----------------------------------------------------------------
+% novathesis customization
+%-----------------------------------------------------------------
+\ntsetup{secondcover=true}
+\ntsetup{fontstyle=newsgott}
+\ntsetup{statement=true}
+
+\ifdocprovisional{\ntsetup{docstatus=final}}{}
+\ifdocfinal{\ntaddfile{cover}[1]{./NOVAthesisFiles/Schools/uminho/cover-final.tex}}{}
+\ntsetup{spine=no}
+
+% --------------------------------------------------------
+% PRINT ORDER FOR frontmatter AND mainmatter
+\ntsetprintorder{frontmatter}{
+  copyright;       % (*) The copyright page
+  acknowledgements;% (*) Print the acknowledgments
+  statement;       % The statement page
+  quote;           % (*) Print the quote
+  abstracts;       % Print abstracts in multiple languages.
+  alllistof;       % Print all the listof defined in “7_list_of.tex”
+  printglossaries; % Print the Glossary, Acronyms, Symbols, etc…
+}
+
+%-----------------------------------------------------------------
+% Other stuff
+%-----------------------------------------------------------------
+\abstractorder(pt):={pt,en}
+\abstractorder(en):={pt,en}
+\abstractorder(fr):={pt,fr}
+\abstractorder(it):={pt,it}
+\abstractorder(es):={pt,es}
+\abstractorder(de):={pt,de}
+
+\commastring(pt):={\\}
+\commastring(en):={\\}
+\commastring(fr):={\\}
+\commastring(it):={\\}
+\commastring(es):={\\}
+\commastring(de):={\\}
+
+\andstring(pt):={\\}
+\andstring(en):={\\}
+\andstring(fr):={\\}
+\andstring(it):={\\}
+\andstring(es):={\\}
+\andstring(de):={\\}
+
+
+
+%-----------------------------------------------------------------
+% local strings
+%-----------------------------------------------------------------
+\newdata{ofstr}
+\ofstr(pt):={ de }
+\ofstr(en):={, }
+
+\newdata{doctype}
+\doctype(pt,phd):={Tese de Doutoramento}
+\doctype(pt,phdprop):={Proposta de Tese de Doutoramento}
+\doctype(pt,phdplan):={Plano de Tese de Doutoramento}
+\doctype(en,phd):={Doctorate Thesis}
+\doctype(en,phdprop):={Doctorate Thesis Proposal}
+\doctype(en,phdplan):={Doctorate Thesis Plan}
+
+\doctype(pt,msc):={Dissertação de Mestrado}
+\doctype(pt,mscplan):={Plano de Dissertação de Mestrado}
+\doctype(en,msc):={Master Thesis}
+\doctype(en,mscplan):={Master Thesis Plan}
+
+\newdata{advisersrt}
+\advisersrt(pt):={Trabalho efetuado sob a orientação de:}
+\advisersrt(en):={Work developed under the supervision of:}
+
+\newdata{placestr}
+\placestr(pt):={Local}
+\placestr(en):={Place}
+
+\newdata{datestr}
+\datestr(pt):={Data}
+\datestr(en):={Date}
+
+
+%-----------------------------------------------------------------
+% Abstracts
+%-----------------------------------------------------------------
+\NTAddToHook{abstract/pre}{%
+  \let\oldchapterheadstart=\chapterheadstart%
+  % \preto{\chapterheadstart}{{\noindent\newsgottbf\Large\thedoctitle(\option{/@nt/currentlang},main)}}%
+  \preto{\chapterheadstart}{\vspace*{-2cm}}
+}
+\NTAddToHook{abstract/mid}{%
+  % \let\oldchapterheadstart=\chapterheadstart%
+  {{\noindent\newsgottbf\Large\thedoctitle(\option{/@nt/currentlang},main)}\\[1ex]}%
+}
+\NTAddToHook{abstract/post}{%
+  \let\chapterheadstart=\oldchapterheadstart%
+}
+
+\NTAddToHook{mainmatter/post}{%
+  \counterwithout{figure}{chapter}%
+  \counterwithout{table}{chapter}%
+}
+
+\NTAddToHook{dedicatory/pre}{%
+  \thispagestyle{plain}%
+}
+
+\NTAddToHook{quote/pre}{%
+  \thispagestyle{plain}%
+}
+
+
+%-----------------------------------------------------------------
+% Remainder customization
+%-----------------------------------------------------------------
+
+% Colorscheme as viewed in PDF Reader
+\definecolor{uminhoGREY}{RGB}{151, 153, 155}
+\definecolor{uminhoRED}{RGB}{164, 52, 58}
+
+
+% University
+\university(pt):={Universidade do Minho}
+\university(en):={Universidade do Minho}
+\university(fr):={Universidade do Minho}
+\university(it):={Universidade do Minho}
+\university(logo,RGB):={uminho-insignia-color}
+\university(logo,GRAY):={uminho-insignia-mono}
+
+% Comiittee printing order
+\committeeorder():={c,r,m}%  
+
+% Cover background images
+\thesiscover(phd,1-1,textcolor):={white}
+\thesiscover(phd,1-1,bgcolor):={uminhoGREY}
+\thesiscover(phd,1-2,bgcolor):={uminhoRED}
+\thesiscover(phd,2-1,textcolor):={uminhoGREY}
+\thesiscover(phd,N-1,bgcolor):={uminhoRED}
+\thesiscover(phd,N-2,bgcolor):={uminhoGREY}
+
+\thesiscover(msc,1-1,textcolor):={uminhoGREY}
+\thesiscover(msc,1-1,bgcolor):={white}
+\thesiscover(msc,1-2,bgcolor):={uminhoGREY}
+\thesiscover(msc,2-1,textcolor):={uminhoGREY}
+\thesiscover(msc,N-1,bgcolor):={uminhoGREY}
+\thesiscover(msc,N-2,bgcolor):={white}
+
+
+% Spine info
+\spine(logo,university)={\theuniversity(logo,RGB)}
+\spine(logo,school)={\theschool(logo,RGB)}
+\spine(author)={\thedocauthor(name,short)}
+\spine(title)={\thedoctitle(\option{/novathesis/coverlang},main)}
+\spine(year)={\thentdocdate(year)}
+% \spine(top)={116pt}
+\spine(top)={9cm}
+\spine(margin)={3mm}
+\spine(font)={}
+
+% Set margins for "normal" pages
+\margin(screen,top):={3.5cm}
+\margin(screen,bottom):={2.5cm}
+\margin(screen,left):={2.5cm}
+\margin(screen,right):={2.5cm}
+\margin(paper,top):={3.5cm}
+\margin(paper,bottom):={2.5cm}
+\margin(paper,left):={2.5cm}
+\margin(paper,right):={2.5cm}
+
+% Set margins for cover pages
+% \margin(cover,phd,top):={3.67cm}
+\margin(cover,top):={0cm}
+\margin(cover,bottom):={1.0cm}
+\margin(cover,left):={7.87cm}
+\margin(cover,right):={2.0cm}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Draw the cover page
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% University and School logos
+\ntaddtocover[vspace=-0.6mm,halign=l,height=2.6cm]{1-1}{%
+  \includegraphics[height=2.5cm]{\theuniversity(logo,RGB)}%
+  \includegraphics[height=2.5cm]{\theschool(logo,RGB)}%
+}
+
+% University and School logos
+\ntaddtocover[vspace=-0.6mm,,halign=l,height=2.6cm]{2-1}{%
+  \hspace*{-0.5pt}%
+  \includegraphics[height=2.5cm]{\theuniversity(logo,GRAY)}%
+  \hspace{1pt}%
+  \includegraphics[height=2.5cm]{\theschool(logo,GRAY)}%
+}
+
+
+% University and School names
+\ntaddtocover[vspace=1cm,halign=l,height=5.25cm,valign=t]{1-1,2-1}{%
+  \fontsize{14}{14}\selectfont%
+  \addfontfeature{LetterSpace=2.5}%
+  \textbf{\theuniversity(\option{/novathesis/coverlang})}%
+  \\%
+  \addfontfeature{LetterSpace=1.2}%
+  \newsgottlig\theschool(\option{/novathesis/coverlang})%
+}
+
+% Author name
+\ntaddtocover[vspace=0mm,halign=l]{1-1,2-1}{%
+  \fontsize{16}{16}\selectfont%
+  \addfontfeature{LetterSpace=3.5}%
+  \thedocauthor(name)%
+}
+
+% Title of Dissertation
+\ntaddtocover[vspace=0.8cm,halign=l,height=5.5cm,valign=t]{1-1,2-1}{%
+  \fontsize{17pt}{20.4bp}\selectfont%
+  \addfontfeature{LetterSpace=2.9}%
+  \textbf{\thedoctitle(\option{/novathesis/coverlang},main,cover)}
+}
+
+% Degree info
+\ntaddtocover[vspace=0mm,halign=l,height=3.9cm,valign=t]{2-1}{%
+  \vfill
+  \fontsize{17pt}{20.4bp}\selectfont%
+  \thedoctype(\option{/novathesis/coverlang},\option{/novathesis/docdegree})%
+  \\%
+  \thedegreename(\option{/novathesis/coverlang})%
+  \ifdatadefined{specialization}(\option{/novathesis/coverlang}){%
+    \\%
+    \thespecialization(\option{/novathesis/coverlang})%
+  }{}%
+}
+
+% Advisers
+\ntaddtocover[vspace=0.5cm,halign=l]{2-1}{%
+  \fontsize{14}{14}\selectfont%
+  \theadvisersrt(\option{/novathesis/coverlang})\\%
+  \textbf{\ntprintpersons{0.9}{0}{adviser}{a,c}}%
+}
+
+% Date
+\ntaddtocover[vspace=1,halign=l]{1-1,2-1}{%
+  \fontsize{11}{11}\selectfont%
+  % \ifdraftdoc
+    % \textbf{DRAFT: \today}
+  % \else
+    \thentdocdate(month)\theofstr(\option{/novathesis/coverlang})\thentdocdate(year)
+  % \fi
+}
+

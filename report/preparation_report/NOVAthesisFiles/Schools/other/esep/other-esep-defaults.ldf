@@ -1,0 +1,167 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% other/esep/defaults.ldf
+%% NOVA thesis configuration file
+%%
+%% Customization for ESEP/ESENF (strings and cover)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\typeout{NT FILE other/esep/defaults.ldf}%
+
+\ntsetup{secondcover=true}    % Shall a second cover page be forced?
+\ntsetup{fontstyle=calibri}
+
+% University
+\university(pt):={Escola Superior de Enfermagem do Porto}
+\university(en):={Nursing School of Porto}%%TBD
+\university(fr):={Escola Superior de Enfermagem do Porto}%%TBD
+\university(it):={Escola Superior de Enfermagem do Porto}%%TBD
+
+% Faculty / School
+\school(pt):={Escola Superior de Enfermagem do Porto}
+\school(en):={Nursing School of Porto}%%TBD
+\school(fr):={Escola Superior de Enfermagem do Porto}%%TBD
+\school(it):={Escola Superior de Enfermagem do Porto}%%TBD
+
+% Comiittee printing order
+\committeeorder():={c,r,m}% 
+
+% Cover background images
+\thesiscover(1-1,bgcolor):={white}
+\thesiscover(1-1,image):={other-esep-cover}
+
+% Spine info
+\spine(logo)={other-esep-logo_horiz}
+\spine(logo,angle)={90}
+\spine(author)={\thedocauthor(name,short)}
+\spine(title)={\thedoctitle(\option{/novathesis/coverlang},main)}
+\spine(year)={\thentdocdate(year)}
+
+% Set margins for "normal" pages
+\margin(screen,top):={2.5cm}
+\margin(screen,bottom):={2.5cm}
+\margin(screen,left):={3.25cm}
+\margin(screen,right):={3.25cm}
+\margin(paper,top):={2.5cm}
+\margin(paper,bottom):={2.5cm}
+\margin(paper,left):={4cm}
+\margin(paper,right):={2.5cm}
+
+% Set margins for cover pages
+\margin(cover,top):={1.0cm}
+\margin(cover,bottom):={1.5cm}
+\margin(cover,left):={7cm}
+\margin(cover,right):={0.5cm}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Draw the cover page
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% ESEP logo
+\ntaddtocover[vspace=2.2cm]{1-1,2-1}{%
+  \noindent%
+  \fontsize{15}{15}\selectfont%
+  \textbf{\MakeTextUppercase{\theschool(\option{/novathesis/coverlang})}}%
+}
+
+% Degree name
+\ntaddtocover[vspace=0.5cm]{1-1,2-1}{%
+  \fontsize{15}{15}\selectfont%
+  \thedegreename(\option{/novathesis/coverlang})%
+}
+
+% Title of Dissertation 1
+\ntaddtocover[vspace=6.5cm, height=4cm, valign=t]{1-1}{%
+    \centering%
+    \fontsize{15}{15}\selectfont%
+    \MakeTextUppercase{\thedoctitle(\option{/novathesis/coverlang},main,cover)}\\[1ex]%
+    \fontsize{12}{12}\selectfont%
+    Dissertação%
+}
+
+% % Title of Dissertation 2
+\ntaddtocover[vspace=6.5cm, height=4cm, valign=t]{2-1}{%
+    \centering%
+    \fontsize{15}{15}\selectfont\scshape%
+    \thedoctitle(\option{/novathesis/coverlang},main,cover)\\[1ex]%
+    \thedoctitle(en,main,cover)%
+}
+
+% Advisers 2
+\ntaddtocover[vspace=2cm]{2-1}{%
+  % \fontseries{mc}
+  \parbox[t][4cm]{\textwidth}{%
+    \centering%
+    \fontsize{11}{11}\selectfont%
+    \ntprintpersons{0.8}{2}{adviser}{a,c}%
+  }%
+}
+\ntaddtocover[vspace=2cm]{1-1}{%
+  \parbox[t][4cm]{\textwidth}{%
+  ~%
+  }%
+}
+
+% Author name
+\ntaddtocover[vspace=1]{1-1,2-1}{%
+  \fontsize{12}{12}\selectfont
+  \textbf{\thedocauthor(name)}
+}
+
+% Date
+\ntaddtocover[vspace=2]{1-1,2-1}{%
+  \fontsize{12}{12}\selectfont
+    \textbf{\thentdocdate(month), \thentdocdate(year)}
+}
+
+%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %% Draw the second cover page
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% % ESEP logo
+% \ntaddtocover[vspace=2.2cm]{2-1}{%
+%   \ntcoverbackground
+%   \fontsize{15}{15}\selectfont
+%   \expandafter\MakeUppercase\expandafter{\textbf{\theschool(\option{/novathesis/coverlang})}}
+% }
+%
+% % % Degree name
+% \ntaddtocover[vspace=0.5cm]{2-1}{%
+%   \fontsize{15}{15}\selectfont
+%   \thedegreename(\option{/novathesis/coverlang})
+% }
+%
+% % % Title of Dissertation
+% \ntaddtocover[vspace=6.5cm]{2-1}{%
+%   % \fontseries{mc}
+%   \fontsize{15}{15}\selectfont
+%   \scshape
+%   \thedoctitle(\option{/novathesis/coverlang},main,cover)\\[1ex]
+%   \thedoctitle(\option{/novathesis/coverlang},main,cover)[en]
+% }
+%
+% % Author name
+% \ntaddtocover[vspace=1]{2-1}{%
+%   \fontsize{12}{12}\selectfont
+%   \textbf{\thedocauthor(name)}
+% }
+%
+% % Date
+% \ntaddtocover[vspace=1]{2-1}{%
+%   \fontsize{12}{12}\selectfont
+%   \ifdraftdoc
+%     \textbf{DRAFT: \today}
+%   \else
+%     \thentdocdate(month), \thentdocdate(year)
+%   \fi
+% }
+%
+% % % Final space
+% \ntaddtocover[vspace=1cm]{2-1}{%
+%   ~
+% }
+%
+%

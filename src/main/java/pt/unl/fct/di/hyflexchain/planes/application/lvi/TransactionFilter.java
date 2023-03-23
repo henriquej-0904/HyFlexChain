@@ -1,27 +1,15 @@
 package pt.unl.fct.di.hyflexchain.planes.application.lvi;
 
-import java.util.EnumMap;
-
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.TransactionState;
 import pt.unl.fct.di.hyflexchain.util.TimeInterval;
-import pt.unl.fct.di.hyflexchain.util.filter.Filter;
+import pt.unl.fct.di.hyflexchain.util.TypedProperties;
 
 /**
  * A Filter for Transactions used in the Ledger View Interface
  */
-public class TransactionFilter extends Filter<TransactionFilter.Type, Object> {
-	
+public class TransactionFilter extends TypedProperties<TransactionFilter.Type> {
 
-	/**
-	 * @param m
-	 */
-	public TransactionFilter(EnumMap<Type, ? extends Object> m) {
-		super(m);
-	}
 
-	/**
-	 * @param type
-	 */
 	public TransactionFilter() {
 		super(TransactionFilter.Type.class);
 	}
@@ -29,7 +17,7 @@ public class TransactionFilter extends Filter<TransactionFilter.Type, Object> {
 	/**
 	 * The type of each filter value
 	 */
-	public enum Type
+	public static enum Type
 	{
 		/**
 		 * The status of the transaction

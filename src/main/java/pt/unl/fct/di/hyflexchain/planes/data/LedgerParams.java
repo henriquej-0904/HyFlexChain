@@ -12,7 +12,7 @@ public class LedgerParams extends TypedProperties<LedgerParams.Type>
 	/**
 	 * Max number of parallel chains for a specific consensus mechanism.
 	 */
-	public static record MaxParallelChains(int n, ConsensusType consensusType) {}
+	public static record MaxParallelChains(int maxChains, ConsensusType consensusType) {}
 
 	/**
 	 * The type of each parameter value

@@ -3,7 +3,9 @@
 const crypto = require("node:crypto");
 const KeyPair = require("./KeyPair");
 
-
+/**
+ * A crypto utils class
+ */
 class Crypto
 {
 	PASSPHRASE = "top secret";
@@ -114,6 +116,11 @@ class Crypto
 			this.decodePublicKey(keyPair[0]),
 			this.decodePrivateKey(keyPair[1])
 		);
+	}
+
+	getSigInstance()
+	{
+		return crypto.createSign("SHA256withECDSA");
 	}
 
 }

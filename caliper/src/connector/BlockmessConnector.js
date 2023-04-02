@@ -5,6 +5,8 @@ const {ConnectorBase, CaliperUtils, ConfigUtil, TxStatus} = require('@hyperledge
 const Crypto = require("../util/crypto/Crypto");
 const KeyPair = require("../util/crypto/KeyPair");
 
+const Transaction = require("./BlockmessTransaction");
+
 import axios from 'axios';
 
 /**
@@ -140,10 +142,15 @@ class BlockmessConnector extends ConnectorBase
         this.httpClient = undefined;
     }
 
+    /**
+     * Submit a transaction to the blockmess blockchain.
+     * @param {Transaction} request Methods call data.
+     * @return {Promise<TxStatus>} Result and stats of the transaction invocation.
+     */
 	async _sendSingleRequest(request)
 	{
 		//TODO: send requests to blockmess
-		throw new Error('Method "_sendSingleRequest" is not implemented for Blockmess Connector.');
+		
 	}
 
 	

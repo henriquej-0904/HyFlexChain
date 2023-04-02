@@ -11,7 +11,7 @@ import pt.unl.fct.di.blockmess.cryptonode.util.Utils;
 
 public class Transaction
 {
-	private byte[] origin, dest, publicKey, signature;
+	private byte[] origin, dest, signature;
 
 	private int value;
 
@@ -92,20 +92,6 @@ public class Transaction
 		this.nonce = nonce;
 	}
 
-	/**
-	 * @return the publicKey
-	 */
-	public byte[] getPublicKey() {
-		return publicKey;
-	}
-
-	/**
-	 * @param publicKey the publicKey to set
-	 */
-	public void setPublicKey(byte[] publicKey) {
-		this.publicKey = publicKey;
-	}
-
 
 	public byte[] sign(PrivateKey key) throws InvalidKeyException, SignatureException
 	{
@@ -123,7 +109,7 @@ public class Transaction
 	public boolean checkSignature() throws InvalidKeyException, SignatureException, InvalidKeySpecException
 	{
 		Signature sig = Crypto.createSignatureInstance();
-		sig.initVerify(Crypto.getPublicKey(this.publicKey));
+		sig.initVerify(Crypto.getPublicKey(this.origin));
 		sig.update(this.origin);
 		sig.update(this.dest);
 		sig.update(Utils.toBytes(this.value));
@@ -132,6 +118,21 @@ public class Transaction
 		return sig.verify(this.signature);
 	}
 
-	
+	/**
+	 * Calculate a Hash for this transaction.
+	 * @return The Hash of this transaction.
+	 */
+	public String getHash()
+	{
+		var digest = Crypto.getSha256Digest();
+
+		digest.update(this.origin);
+		digest.update(this.dest);
+		digest.update(Utils.toBytes(this.value));
+		digest.update(Utils.toBytes(this.nonce));
+		digest.update(this.signature);
+
+		return Utils.toBase64(digest.digest());
+	}
 	
 }

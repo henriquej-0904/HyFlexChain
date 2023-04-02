@@ -2,6 +2,8 @@ package pt.unl.fct.di.blockmess.cryptonode.util;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.StringReader;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -23,6 +25,9 @@ import java.security.spec.X509EncodedKeySpec;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
+
+import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
+import org.bouncycastle.openssl.PEMParser;
 
 public class Crypto {
 
@@ -129,13 +134,20 @@ public class Crypto {
     public static PublicKey getPublicKey(byte[] publicKey) throws InvalidKeySpecException
     {
         try {
-            X509EncodedKeySpec encodedCoinKey = new X509EncodedKeySpec(publicKey,
+            PEMParser pemParser = new PEMParser(new StringReader(new String(publicKey)));
+            SubjectPublicKeyInfo spki = (SubjectPublicKeyInfo) pemParser.readObject();
+            pemParser.close();
+
+            byte [] spkiEncoded = spki.getEncoded();
+
+
+            X509EncodedKeySpec encodedCoinKey = new X509EncodedKeySpec(spkiEncoded,
                 DEFAULT_ASYMMETRIC_ALGORITHM);
             KeyFactory keyFactory = KeyFactory.getInstance(DEFAULT_ASYMMETRIC_ALGORITHM);
 
             return keyFactory.generatePublic(encodedCoinKey);
 
-        } catch (NoSuchAlgorithmException e) {
+        } catch (IOException | NoSuchAlgorithmException e) {
             throw new Error(e);
         }
     }

@@ -14,7 +14,6 @@ import blockmess.applicationInterface.ApplicationInterface;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.InternalServerErrorException;
 import jakarta.ws.rs.WebApplicationException;
-import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 import pt.unl.fct.di.blockmess.cryptonode.api.Transaction;
 import pt.unl.fct.di.blockmess.cryptonode.api.server.CryptoNodeAPI;
@@ -68,7 +67,7 @@ public class CryptoNodeResource extends ApplicationInterface implements CryptoNo
     }
 
     @Override
-    public final void sendTransaction(Transaction tx)
+    public final String sendTransaction(Transaction tx)
     {
         try {
             if (verifySignature(tx))
@@ -84,8 +83,7 @@ public class CryptoNodeResource extends ApplicationInterface implements CryptoNo
         // LOG.info(String.format("ORIGIN: %s, DEST: %s, TYPE: %s, VALUE: %d",
         // originId, destId, transaction.getType(), value));
 
-        throw new WebApplicationException(
-                Response.status(Status.ACCEPTED).build());
+        return tx.getHash();
     }
 
     protected byte[] toJson(Object obj)

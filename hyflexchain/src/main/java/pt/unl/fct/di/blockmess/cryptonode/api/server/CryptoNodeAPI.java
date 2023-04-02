@@ -16,9 +16,12 @@ public interface CryptoNodeAPI
 
 	/**
 	 * Transfers money from an origin to a destination.
+	 * 
+	 * @param transaction The transaction to send
+	 * @return The Transaction Id (hash).
 	 */
     @Path("/transaction")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    void sendTransaction(Transaction transaction);
+    String sendTransaction(Transaction transaction);
 }

@@ -1,0 +1,15 @@
+{
+    "caliper": {
+        "blockchain": "blockmess",
+        "command" : {
+            "start": "docker-compose -f ./networks/ethereum/1node-clique/docker-compose.yml up -d && sleep 60",
+            "end" : "docker-compose -f ./networks/ethereum/1node-clique/docker-compose.yml down"
+          }
+    },
+    "blockmess": {
+        "url": [
+            "https://localhost:10800/api/rest"
+        ],
+        "blockmess_config_folder" : ""
+    }
+}

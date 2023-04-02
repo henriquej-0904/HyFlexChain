@@ -10,6 +10,7 @@
         "url": [
             "https://localhost:10800/api/rest"
         ],
+        "connection_timeout" : "1000",
         "blockmess_config_folder" : ""
     }
 }

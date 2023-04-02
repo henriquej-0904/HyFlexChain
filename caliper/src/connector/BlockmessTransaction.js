@@ -1,9 +1,9 @@
 'use strict';
 
-const CryptoUtils = require("../util/crypto/Crypto");
-const crypto = require("node:crypto");
+import CryptoUtils from "../util/crypto/Crypto";
+import crypto from "node:crypto";
 
-import { Buffer } from 'buffer';
+//import { Buffer } from 'buffer';
 
 /**
  * Represents a Blockmess Crypto Node Transaction
@@ -62,7 +62,7 @@ class BlockmessTransaction
 
 
 	/**
-	 * 
+	 * Sign transaction
 	 * @param {crypto.KeyObject} privKey 
 	 * @param {CryptoUtils} cryptoUtils 
 	 */
@@ -85,4 +85,4 @@ class BlockmessTransaction
 	
 }
 
-module.exports = BlockmessTransaction;
+export default BlockmessTransaction;

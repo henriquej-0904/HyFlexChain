@@ -1,6 +1,6 @@
 'use strict';
 
-const BlockmessConnector = require('./BlockmessConnector');
+import BlockmessConnector from './BlockmessConnector';
 
 async function ConnectorFactory(workerIndex) {
     const connector = new BlockmessConnector(workerIndex);
@@ -13,4 +13,5 @@ async function ConnectorFactory(workerIndex) {
     return connector;
 }
 
-module.exports.ConnectorFactory = ConnectorFactory;
+const _ConnectorFactory = ConnectorFactory;
+export { _ConnectorFactory as ConnectorFactory };

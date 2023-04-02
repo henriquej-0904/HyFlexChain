@@ -1,6 +1,6 @@
 'use strict';
 
-const crypto = require("node:crypto");
+import crypto from "node:crypto";
 
 /**
  * A key pair of public/private keys
@@ -37,4 +37,4 @@ class KeyPair
 	}
 }
 
-module.exports = KeyPair;
+export default KeyPair;

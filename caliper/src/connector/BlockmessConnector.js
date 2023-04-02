@@ -2,10 +2,10 @@
 
 const {ConnectorBase, CaliperUtils, ConfigUtil, TxStatus} = require('@hyperledger/caliper-core');
 
-const Crypto = require("../util/crypto/Crypto");
-const KeyPair = require("../util/crypto/KeyPair");
+const Crypto = require("../util/crypto/Crypto").default;
+const KeyPair = require("../util/crypto/KeyPair").default;
 
-const Transaction = require("./BlockmessTransaction");
+const Transaction = require("./BlockmessTransaction").default;
 
 import axios from 'axios';
 
@@ -149,8 +149,44 @@ class BlockmessConnector extends ConnectorBase
      */
 	async _sendSingleRequest(request)
 	{
-		//TODO: send requests to blockmess
-		
+		//TODO: sign transaction & send request to blockmess
+		request.sign(this.context.getKeyPair().getPrivateKey(), this.crypto);
+
+        let status = new TxStatus();
+
+        const onFailure = (err) => {
+            status.SetStatusFail();
+            logger.error(`Failed tx.`);
+            logger.error(err);
+        };
+
+        const onSuccess = (reply) => {
+            status.SetID(reply);
+            status.SetResult(reply);
+            status.SetVerification(true);
+            status.SetStatusSuccess();
+        };
+
+        return this.httpClient.post("/crypto-node/transaction", request,
+        {
+            headers : {
+                "Content-Type" : "application/json"
+            }
+        }).then(response => {
+            if (response.status == 200)
+            {
+                onSuccess(response.data);
+                return status;
+            }
+            else
+            {
+                onFailure(response.statusText);
+                return status;
+            }
+        }).catch(reason => {
+            onFailure(reason);
+            return status;
+        });
 	}
 
 	

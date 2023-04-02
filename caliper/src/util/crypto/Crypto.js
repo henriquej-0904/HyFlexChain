@@ -1,7 +1,7 @@
 'use strict';
 
-const crypto = require("node:crypto");
-const KeyPair = require("./KeyPair");
+import { generateKeyPairSync, createPublicKey, createPrivateKey, createSign } from "node:crypto";
+import KeyPair from "./KeyPair";
 
 /**
  * A crypto utils class
@@ -15,7 +15,7 @@ class Crypto
 	 * @returns {KeyPair} key pair
 	 */
 	genKeyPairEC() {
-		let res = crypto.generateKeyPairSync(
+		let res = generateKeyPairSync(
 			"ec",
 			{
 				namedCurve: "secp256r1"
@@ -78,7 +78,7 @@ class Crypto
 	 */
 	decodePublicKey(pubKey)
 	{
-		return crypto.createPublicKey(
+		return createPublicKey(
 			{
 				key: pubKey,
 				type: "spki",
@@ -94,7 +94,7 @@ class Crypto
 	 */
 	decodePrivateKey(privKey)
 	{
-		return crypto.createPrivateKey(
+		return createPrivateKey(
 			{
 				key: privKey,
 				type: "pkcs8",
@@ -120,9 +120,9 @@ class Crypto
 
 	getSigInstance()
 	{
-		return crypto.createSign("SHA256withECDSA");
+		return createSign("SHA256withECDSA");
 	}
 
 }
 
-module.exports = Crypto;
+export default Crypto;

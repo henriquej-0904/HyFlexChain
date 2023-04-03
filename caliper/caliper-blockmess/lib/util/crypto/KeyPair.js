@@ -1,6 +1,6 @@
 'use strict';
 
-import crypto from "node:crypto";
+const {KeyObject} = require("node:crypto");
 
 /**
  * A key pair of public/private keys
@@ -9,11 +9,12 @@ class KeyPair
 {
 	/**
 	 * 
-	 * @param {crypto.KeyObject} pubKey 
-	 * @param {crypto.KeyObject} privKey 
+	 * @param {KeyObject} pubKey 
+	 * @param {KeyObject} privKey 
 	 */
 	constructor(pubKey, privKey)
 	{
+		
 		this.pubKey = pubKey;
 		this.privKey = privKey;
 	}

@@ -1,7 +1,7 @@
 'use strict';
 
-const { generateKeyPairSync, createPublicKey, createPrivateKey, createSign } =require("node:crypto");
-const KeyPair = require("./KeyPair").default;
+const { generateKeyPairSync, createPublicKey, createPrivateKey, createSign } = require('node:crypto');
+const KeyPair = require("./KeyPair");
 
 /**
  * A crypto utils class

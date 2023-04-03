@@ -1,0 +1,12 @@
+test:
+  workers:
+    number: 4
+  rounds:
+    - label: Submit Transactions.
+      txNumber: 5000
+      rateControl:
+          type: fixed-load
+          opts:
+            transactionLoad: 5
+      workload:
+        module: benchmarks/CreateTransaction.js

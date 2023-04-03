@@ -2,12 +2,14 @@
 
 const {ConnectorBase, CaliperUtils, ConfigUtil, TxStatus} = require('@hyperledger/caliper-core');
 
-const Crypto = require("../util/crypto/Crypto").default;
+const CryptoUtils = require("../util/crypto/Crypto").default;
 const KeyPair = require("../util/crypto/KeyPair").default;
 
 const Transaction = require("./BlockmessTransaction").default;
+const Context = require("./Context").default;
+const WorkerArgs = require("./WorkerArgs").default;
 
-import axios from 'axios';
+const axios = require('axios').default;
 
 /**
  * A connector for the Blockmess System.
@@ -34,7 +36,7 @@ class BlockmessConnector extends ConnectorBase
         this.httpClient = undefined;
         this.context = undefined;
 
-        this.crypto = new Crypto();
+        this.cryptoUtils = new CryptoUtils();
     }
 
     /**
@@ -85,11 +87,11 @@ class BlockmessConnector extends ConnectorBase
         let keyPairs = [];
         
         for (let i = 0 ; i < number ; i++) {
-            keyPairs[i] = this.crypto.genKeyPairEC();
+            keyPairs[i] = this.cryptoUtils.genKeyPairEC();
         }
 
         let encodedKeyPairs = keyPairs.map(
-            keyPair => this.crypto.encodeKeyPair(keyPair)
+            keyPair => this.cryptoUtils.encodeKeyPair(keyPair)
         );
 
         let encodedPublicKeys = encodedKeyPairs.map(
@@ -113,11 +115,11 @@ class BlockmessConnector extends ConnectorBase
      * Creates a client instance to the specified replica.
      * @param {Number} roundIndex The zero-based round index of the test.
      * @param {WorkerArgs} args worker arguments.
-     * @return {object} The assembled Blockmess context.
+     * @return {Context} The assembled Blockmess context.
      * @async
      */
     async getContext(roundIndex, args) {
-        let context = new Context(args, this.workerIndex, this.crypto);
+        let context = new Context(args, this.workerIndex, this.cryptoUtils);
         this.context = context;
 
         // connect to replica
@@ -134,7 +136,7 @@ class BlockmessConnector extends ConnectorBase
     }
 
     /**
-     * Release the given Ethereum context.
+     * Release the given Blockmess context.
      * @async
      */
     async releaseContext() {
@@ -150,7 +152,7 @@ class BlockmessConnector extends ConnectorBase
 	async _sendSingleRequest(request)
 	{
 		//TODO: sign transaction & send request to blockmess
-		request.sign(this.context.getKeyPair().getPrivateKey(), this.crypto);
+		request.sign(this.context.getKeyPair().getPrivateKey(), this.cryptoUtils);
 
         let status = new TxStatus();
 
@@ -188,103 +190,6 @@ class BlockmessConnector extends ConnectorBase
             return status;
         });
 	}
-
-	
-}
-
-/**
- * A wrapper for worker context.
- */
-class Context
-{
-    /**
-     * Create a context for the worker
-     * @param {WorkerArgs} workerArgs
-     * @param {Number} workerIndex
-     * @param {Crypto} crypto 
-     */
-    constructor(workerArgs, workerIndex, crypto)
-    {
-        this.url = workerArgs.getUrl();
-        this.keyPair = crypto.decodeKeyPair(workerArgs.getKeyPair());
-        this.encodedPublicKeys = workerArgs.getPublicKeys();
-        this.encodedPublicKey = this.encodedPublicKeys[workerIndex];
-    }
-
-    /**
-     * @returns {string} the url of the replica to connect to
-     */
-    getUrl()
-    {
-        return this.url;
-    }
-
-    /**
-     * @returns {KeyPair} the key pair of this worker
-     */
-    getKeyPair()
-    {
-        return this.keyPair;
-    }
-
-    /**
-     * @returns {string} the encoded public key of this worker
-     */
-    getEncodedPublicKey()
-    {
-        return this.encodedPublicKey;
-    }
-
-    /**
-     * @returns {string[]} the encoded public keys of all workers
-     */
-    getEncodedPublicKeys()
-    {
-        return this.publicKeys;
-    }
-}
-
-/**
- * A wrapper for worker args.
- */
-class WorkerArgs
-{
-    /**
-     * Create a new Worker Args
-     * @param {string} url the url of the replica to connect to
-     * @param {string[]} keyPair the key pair of this worker
-     * @param {string[]} publicKeys the public keys of all workers
-     */
-    constructor(url, keyPair, publicKeys)
-    {
-        this.url = url;
-        this.keyPair = keyPair;
-        this.publicKeys = publicKeys;
-    }
-
-    /**
-     * @returns {string} the url of the replica to connect to
-     */
-    getUrl()
-    {
-        return this.url;
-    }
-
-    /**
-     * @returns {string[]} the key pair of this worker
-     */
-    getKeyPair()
-    {
-        return this.keyPair;
-    }
-
-    /**
-     * @returns {string[]} the public keys of all workers
-     */
-    getPublicKeys()
-    {
-        return this.publicKeys;
-    }
 }
 
 module.exports = BlockmessConnector;

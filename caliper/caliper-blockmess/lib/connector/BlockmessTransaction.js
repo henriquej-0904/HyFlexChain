@@ -1,7 +1,9 @@
 'use strict';
 
-import CryptoUtils from "../util/crypto/Crypto";
-import crypto from "node:crypto";
+const CryptoUtils = require( "../util/crypto/Crypto").default;
+const crypto = require("node:crypto");
+
+const Util = require('../util/Util').default;
 
 //import { Buffer } from 'buffer';
 
@@ -10,19 +12,19 @@ import crypto from "node:crypto";
  */
 class BlockmessTransaction
 {
+	/**
+	 * Create a new transaction
+	 * @param {string} origin 
+	 * @param {string} dest 
+	 * @param {Number} value 
+	 */
 	constructor(origin, dest, value)
 	{
 		this.origin = Buffer.from(origin, "utf-8");
 		this.dest = Buffer.from(dest, "utf-8");
 		this.value = value;
-		this.nonce = this.getRandomInt(0, Number.MAX_SAFE_INTEGER);
+		this.nonce = Util.getRandomInt(0, Number.MAX_SAFE_INTEGER);
 		this.signature = undefined;
-	}
-
-	getRandomInt(min, max) {
-		min = Math.ceil(min);
-		max = Math.floor(max);
-		return Math.floor(Math.random() * (max - min) + min); // The maximum is exclusive and the minimum is inclusive
 	}
 
 	/**
@@ -85,4 +87,4 @@ class BlockmessTransaction
 	
 }
 
-export default BlockmessTransaction;
+module.exports = BlockmessTransaction;

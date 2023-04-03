@@ -37,4 +37,4 @@ class KeyPair
 	}
 }
 
-export default KeyPair;
+module.exports = KeyPair;

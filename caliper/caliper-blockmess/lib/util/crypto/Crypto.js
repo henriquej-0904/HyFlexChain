@@ -1,7 +1,7 @@
 'use strict';
 
-import { generateKeyPairSync, createPublicKey, createPrivateKey, createSign } from "node:crypto";
-import KeyPair from "./KeyPair";
+const { generateKeyPairSync, createPublicKey, createPrivateKey, createSign } =require("node:crypto");
+const KeyPair = require("./KeyPair").default;
 
 /**
  * A crypto utils class
@@ -125,4 +125,4 @@ class Crypto
 
 }
 
-export default Crypto;
+module.exports = Crypto;

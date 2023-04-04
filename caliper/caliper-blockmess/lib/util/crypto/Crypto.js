@@ -18,7 +18,7 @@ class Crypto
 		let res = generateKeyPairSync(
 			"ec",
 			{
-				namedCurve: "secp256r1"
+				namedCurve: "secp521r1"
 			}
 		);
 
@@ -120,7 +120,8 @@ class Crypto
 
 	getSigInstance()
 	{
-		return createSign("SHA256withECDSA");
+		// AKA ECDSA-with-SHA256
+		return createSign("SHA256");
 	}
 
 }

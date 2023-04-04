@@ -16,11 +16,11 @@
 
 const WorkloadModuleBase = require('@hyperledger/caliper-core').WorkloadModuleBase;
 
-const BlockmessTransaction = require("../connector/BlockmessTransaction").default;
+const BlockmessTransaction = require("../connector/BlockmessTransaction");
 
-const Context = require("../connector/Context").default;
+const Context = require("../connector/Context");
 
-const Util = require('../util/Util').default;
+const Util = require('../util/Util');
 
 /**
  * Workload module for the benchmark round.
@@ -35,23 +35,14 @@ class CreateTransactionWorkload extends WorkloadModuleBase {
     }
 
     /**
-     * @return {Context} the context.
-     */
-    getContext()
-    {
-        return this.sutContext;
-    }
-
-    /**
      * Assemble TXs for the round.
      * @return {Promise<TxStatus[]>}
      */
     async submitTransaction() {
         this.txIndex++;
 
-        const context = this.getContext();
-        const originPubKey = context.getEncodedPublicKey();
-        const destPubKey = this.getRandPubKey(context);
+        const originPubKey = this.sutContext.encodedPublicKey;
+        const destPubKey = this.getRandPubKey();
         const val = Util.getRandomInt32();
 
         const tx = new BlockmessTransaction(originPubKey, destPubKey, val);
@@ -61,12 +52,12 @@ class CreateTransactionWorkload extends WorkloadModuleBase {
 
     /**
      * Get a rand pub key from the array of public keys
-     * @param {Context} context 
      * @return {string} random public key
      */
-    getRandPubKey(context)
+    getRandPubKey()
     {
-        const pubKeys = context.getEncodedPublicKeys();
+        
+        const pubKeys = this.sutContext.encodedPublicKeys;
         const i = Util.getRandomIntExcept(0, pubKeys.length, this.workerIndex);
         return pubKeys[i];
     }

@@ -2,14 +2,16 @@
 
 const {ConnectorBase, CaliperUtils, ConfigUtil, TxStatus} = require('@hyperledger/caliper-core');
 
-const CryptoUtils = require("../util/crypto/Crypto").default;
-const KeyPair = require("../util/crypto/KeyPair").default;
+const CryptoUtils = require("../util/crypto/Crypto");
+const KeyPair = require("../util/crypto/KeyPair");
 
-const Transaction = require("./BlockmessTransaction").default;
-const Context = require("./Context").default;
-const WorkerArgs = require("./WorkerArgs").default;
+const Transaction = require("./BlockmessTransaction");
+const Context = require("./Context");
+const WorkerArgs = require("./WorkerArgs");
 
 const axios = require('axios').default;
+
+const Logger = CaliperUtils.getLogger('BlockmessConnector');
 
 /**
  * A connector for the Blockmess System.
@@ -60,11 +62,11 @@ class BlockmessConnector extends ConnectorBase
             );
         }
 
-        if (!blockmessConfig.blockmess_config_folder) {
+        /* if (!blockmessConfig.blockmess_config_folder) {
             throw new Error(
                 'No Blockmess config folder was given. Please check your network configuration. '
             );
-        }
+        } */
     }
 
     async init(workerInit) {
@@ -80,7 +82,7 @@ class BlockmessConnector extends ConnectorBase
      * Generate key pairs for all workers and
      * prepare args.
      * @param {Number} number of workers to prepare
-     * @returns {WorkerArgs[]} worker args
+     * @returns {Promise<object[]>} worker args
      * @async
      */
     async prepareWorkerArguments(number) {
@@ -107,6 +109,7 @@ class BlockmessConnector extends ConnectorBase
                 encodedPublicKeys
             );
         }
+
         return workersArgs;
     }
 
@@ -114,12 +117,12 @@ class BlockmessConnector extends ConnectorBase
      * Return the Blockmess context associated with the given callback module name.
      * Creates a client instance to the specified replica.
      * @param {Number} roundIndex The zero-based round index of the test.
-     * @param {WorkerArgs} args worker arguments.
+     * @param {object} args worker arguments.
      * @return {Context} The assembled Blockmess context.
      * @async
      */
     async getContext(roundIndex, args) {
-        let context = new Context(args, this.workerIndex, this.cryptoUtils);
+        let context = new Context(WorkerArgs.fromArgs(args), this.workerIndex, this.cryptoUtils);
         this.context = context;
 
         // connect to replica
@@ -158,8 +161,8 @@ class BlockmessConnector extends ConnectorBase
 
         const onFailure = (err) => {
             status.SetStatusFail();
-            logger.error(`Failed tx.`);
-            logger.error(err);
+            Logger.error(`Failed tx.`);
+            Logger.error(err);
         };
 
         const onSuccess = (reply) => {

@@ -9,4 +9,4 @@ test:
           opts:
             transactionLoad: 5
       workload:
-        module: benchmarks/CreateTransaction.js
+        module: lib/benchmarks/CreateTransaction.js

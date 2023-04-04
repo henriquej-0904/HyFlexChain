@@ -5,8 +5,6 @@
 	"version": "1.0.0",
 	"bundledDependencies": [],
 	"dependencies": {
-		"@hyperledger/caliper-cli": "0.5.0",
-		"@hyperledger/caliper-core": "0.5.0",
 		"axios": "1.3.4"
 	}
 }

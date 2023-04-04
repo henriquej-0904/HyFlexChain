@@ -1,11 +1,11 @@
 'use strict';
 
-const CryptoUtils = require( "../util/crypto/Crypto").default;
+const CryptoUtils = require( "../util/crypto/Crypto");
 const crypto = require("node:crypto");
 
-const Util = require('../util/Util').default;
+const Util = require('../util/Util');
 
-//import { Buffer } from 'buffer';
+const Buffer = require('buffer').Buffer;
 
 /**
  * Represents a Blockmess Crypto Node Transaction
@@ -16,7 +16,7 @@ class BlockmessTransaction
 	 * Create a new transaction
 	 * @param {string} origin 
 	 * @param {string} dest 
-	 * @param {Number} value 
+	 * @param {number} value 
 	 */
 	constructor(origin, dest, value)
 	{
@@ -74,11 +74,13 @@ class BlockmessTransaction
 		sig.update(this.origin);
 		sig.update(this.dest);
 
-		let buff = Buffer.alloc(4 + 8);
-		buff.writeInt32BE(this.value);
-		buff.writeBigInt64BE(this.nonce);
+		let buff1 = Buffer.alloc(4);
+		buff1.writeInt32BE(this.value);
+		sig.update(buff1);
 
-		sig.update(buff);
+		let buff2 = Buffer.alloc(8);
+		buff2.writeBigInt64BE(BigInt(this.nonce));
+		sig.update(buff2);
 
 		sig.end();
 

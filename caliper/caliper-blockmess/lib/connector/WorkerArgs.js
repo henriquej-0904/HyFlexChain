@@ -6,6 +6,15 @@
 class WorkerArgs
 {
     /**
+     * Construct args from an object with the required fields.
+     * @param {object} obj 
+     */
+    static fromArgs(obj)
+    {
+        return new WorkerArgs(obj.url, obj.keyPair, obj.publicKeys);
+    }
+
+    /**
      * Create a new Worker Args
      * @param {string} url the url of the replica to connect to
      * @param {string[]} keyPair the key pair of this worker

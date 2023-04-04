@@ -1,7 +1,8 @@
 'use strict';
 
-const CryptoUtils = require("../util/crypto/Crypto").default;
-const WorkerArgs = require("./WorkerArgs").default;
+const CryptoUtils = require("../util/crypto/Crypto");
+const KeyPair = require("../util/crypto/KeyPair");
+const WorkerArgs = require("./WorkerArgs");
 
 /**
  * A wrapper for worker context.

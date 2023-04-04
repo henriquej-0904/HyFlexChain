@@ -1,6 +1,6 @@
 {
     "caliper": {
-        "blockchain": "index.js"
+        "blockchain": "./index.js"
     },
     "blockmess": {
         "url": [

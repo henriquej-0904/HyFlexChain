@@ -2,11 +2,51 @@ test:
   workers:
     number: 4
   rounds:
-    - label: Submit Transactions.
-      txNumber: 5000
+    - label: Prepare System
+      txNumber: 250
       rateControl:
           type: fixed-load
           opts:
             transactionLoad: 5
+      workload:
+        module: lib/benchmarks/CreateTransaction.js
+    
+    - label: Submit Transactions 1
+      description: Test description for transfering money between accounts.
+      txNumber: 5000
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 50
+      workload:
+        module: lib/benchmarks/CreateTransaction.js
+
+    - label: Submit Transactions 2
+      description: Test description for transfering money between accounts.
+      txNumber: 10000
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 100
+      workload:
+        module: lib/benchmarks/CreateTransaction.js
+
+    - label: Submit Transactions 3
+      description: Test description for transfering money between accounts.
+      txNumber: 100000
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 500
+      workload:
+        module: lib/benchmarks/CreateTransaction.js
+
+    - label: Submit Transactions 4
+      description: Test description for transfering money between accounts.
+      txNumber: 100000
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 1000
       workload:
         module: lib/benchmarks/CreateTransaction.js

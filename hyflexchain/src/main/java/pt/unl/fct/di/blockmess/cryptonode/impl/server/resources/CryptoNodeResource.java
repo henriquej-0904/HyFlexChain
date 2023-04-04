@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import blockmess.applicationInterface.ApplicationInterface;
+import jakarta.inject.Singleton;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.InternalServerErrorException;
 import jakarta.ws.rs.WebApplicationException;
@@ -21,6 +22,7 @@ import pt.unl.fct.di.blockmess.cryptonode.impl.server.config.ServerConfig;
 import pt.unl.fct.di.blockmess.cryptonode.util.Utils;
 import pt.unl.fct.di.blockmess.cryptonode.util.result.Result;
 
+@Singleton
 public class CryptoNodeResource extends ApplicationInterface implements CryptoNodeAPI
 {
     protected static final Logger LOG = Logger.getLogger(CryptoNodeResource.class.getSimpleName());
@@ -44,7 +46,7 @@ public class CryptoNodeResource extends ApplicationInterface implements CryptoNo
         return res.getLeft();
     }
 
-    protected Void executeOrderedRequest(Transaction tx)
+    protected void executeOrderedRequest(Transaction tx)
     {
         byte[] requestBytes = toJson(tx);
         byte[] resultBytes = invokeOrdered(requestBytes);
@@ -52,7 +54,7 @@ public class CryptoNodeResource extends ApplicationInterface implements CryptoNo
         @SuppressWarnings("unchecked")
         Result<Void> result = this.fromJson(resultBytes, Result.class);
 
-        return result.resultOrThrow();
+        result.resultOrThrow();
     }
 
     protected boolean verifySignature(Transaction tx)
@@ -70,10 +72,11 @@ public class CryptoNodeResource extends ApplicationInterface implements CryptoNo
     public final String sendTransaction(Transaction tx)
     {
         try {
-            if (verifySignature(tx))
+            if (!verifySignature(tx))
                 throw new WebApplicationException(Status.UNAUTHORIZED);
         } catch (WebApplicationException e) {
             LOG.info(e.getMessage());
+            
             throw e;
         }
 
@@ -83,7 +86,7 @@ public class CryptoNodeResource extends ApplicationInterface implements CryptoNo
         // LOG.info(String.format("ORIGIN: %s, DEST: %s, TYPE: %s, VALUE: %d",
         // originId, destId, transaction.getType(), value));
 
-        return tx.getHash();
+        return tx.calcHash();
     }
 
     protected byte[] toJson(Object obj)
@@ -120,10 +123,12 @@ public class CryptoNodeResource extends ApplicationInterface implements CryptoNo
             Result<Void> result = null;
 
             try {
-                if (verifySignature(tx))
+                if (!verifySignature(tx))
                     throw new WebApplicationException(Status.UNAUTHORIZED);
 
                 result = Result.ok();
+
+                LOG.info("Send Transaction - OK");
             } catch (WebApplicationException e) {
                 LOG.info(e.getMessage());
                 result = Result.error(e);

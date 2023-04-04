@@ -122,7 +122,7 @@ public class Transaction
 	 * Calculate a Hash for this transaction.
 	 * @return The Hash of this transaction.
 	 */
-	public String getHash()
+	public String calcHash()
 	{
 		var digest = Crypto.getSha256Digest();
 

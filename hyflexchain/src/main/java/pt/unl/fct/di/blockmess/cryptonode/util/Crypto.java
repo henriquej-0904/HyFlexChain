@@ -37,7 +37,7 @@ public class Crypto {
 	public static final String DEFAULT_SIGNATURE_PROVIDER = "BC";
 
     public static final String DEFAULT_ASYMMETRIC_ALGORITHM = "EC";
-    public static final AlgorithmParameterSpec DEFAULT_ASYMMETRIC_GEN_KEY_SPEC = new ECGenParameterSpec("secp256r1");
+    public static final AlgorithmParameterSpec DEFAULT_ASYMMETRIC_GEN_KEY_SPEC = new ECGenParameterSpec("secp521r1");
 
 
     public static final String KEYSTORE_PWD = "keystorepwd";

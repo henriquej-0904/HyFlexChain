@@ -3,8 +3,6 @@ package pt.unl.fct.di.blockmess.cryptonode.impl.server;
 import java.net.InetAddress;
 import java.net.URI;
 
-import javax.net.ssl.SSLContext;
-
 import org.glassfish.jersey.jdkhttp.JdkHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 
@@ -36,15 +34,16 @@ public class CryptoNodeServer
 
 			ServerConfig.init(replicaId, blockmessPort);
 
-			CryptoNodeResource resource = new CryptoNodeResource();
+			//CryptoNodeResource resource = new CryptoNodeResource();
             
-			URI uri = new URI(String.format("https://%s:%d/api/rest", ip, port));
+			// URI uri = new URI(String.format("https://%s:%d/api/rest", ip, port));
+			URI uri = new URI(String.format("http://%s:%d/api/rest", ip, port));
 
 			ResourceConfig config = new ResourceConfig();
-			config.register(resource);
+			config.register(CryptoNodeResource.class);
             
-			SSLContext sslContext = ServerConfig.getSSLContext();
-			JdkHttpServerFactory.createHttpServer(uri, config, sslContext);
+			// SSLContext sslContext = ServerConfig.getSSLContext();
+			JdkHttpServerFactory.createHttpServer(uri, config);
 
 			System.out.println("CryptoNode is running on " + uri.toString());
 		} catch (Exception e) {

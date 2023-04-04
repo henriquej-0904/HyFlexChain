@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 
-import blockmess.applicationInterface.ApplicationInterface;
+import applicationInterface.ApplicationInterface;
 import jakarta.inject.Singleton;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.InternalServerErrorException;
@@ -23,23 +23,32 @@ import pt.unl.fct.di.blockmess.cryptonode.util.Utils;
 import pt.unl.fct.di.blockmess.cryptonode.util.result.Result;
 
 @Singleton
-public class CryptoNodeResource extends ApplicationInterface implements CryptoNodeAPI
+public class CryptoNodeResource implements CryptoNodeAPI
 {
     protected static final Logger LOG = Logger.getLogger(CryptoNodeResource.class.getSimpleName());
 
+    protected static BlockmessConnector blockmess;
+
+    /**
+     * @return the blockmess
+     */
+    public static BlockmessConnector getBlockmess() {
+        return blockmess;
+    }
+
+    public static void setBlockmess(BlockmessConnector blockmess)
+    {
+        CryptoNodeResource.blockmess = blockmess;
+    }
+
     public CryptoNodeResource()
 	{
-		super(new String[]
-            {
-                "port=" + ServerConfig.getBlockmessPort(),
-                "redirectFile=blockmess-logs/" + ServerConfig.getReplicaId() + ".log",
-                "genesisUUID=" + UUID.randomUUID()
-            });
+		
 	}
 
     protected byte[] invokeOrdered(byte[] request)
     {
-        var res = invokeSyncOperation(request);
+        var res = blockmess.invokeSyncOperation(request);
         if (res.getLeft() == null)
             throw new InternalServerErrorException("Invoke ordered returned null");
 
@@ -52,12 +61,12 @@ public class CryptoNodeResource extends ApplicationInterface implements CryptoNo
         byte[] resultBytes = invokeOrdered(requestBytes);
 
         @SuppressWarnings("unchecked")
-        Result<Void> result = this.fromJson(resultBytes, Result.class);
+        Result<Void> result = fromJson(resultBytes, Result.class);
 
         result.resultOrThrow();
     }
 
-    protected boolean verifySignature(Transaction tx)
+    protected static boolean verifySignature(Transaction tx)
     {
         try {
             return tx.checkSignature();
@@ -89,7 +98,7 @@ public class CryptoNodeResource extends ApplicationInterface implements CryptoNo
         return tx.calcHash();
     }
 
-    protected byte[] toJson(Object obj)
+    protected static byte[] toJson(Object obj)
     {
         try {
             return Utils.json.writeValueAsBytes(obj);
@@ -98,7 +107,7 @@ public class CryptoNodeResource extends ApplicationInterface implements CryptoNo
         }
     }
 
-    protected <T> T fromJson(byte[] json, Class<T> valueType)
+    protected static <T> T fromJson(byte[] json, Class<T> valueType)
     {
         try {
             return Utils.json.readValue(json, valueType);
@@ -107,7 +116,7 @@ public class CryptoNodeResource extends ApplicationInterface implements CryptoNo
         }
     }
 
-    protected <T> T fromJson(byte[] json, TypeReference<T> valueTypeRef)
+    protected static <T> T fromJson(byte[] json, TypeReference<T> valueTypeRef)
     {
         try {
             return Utils.json.readValue(json, valueTypeRef);
@@ -116,30 +125,45 @@ public class CryptoNodeResource extends ApplicationInterface implements CryptoNo
         }
     }
 
-    @Override
-    public byte[] processOperation(byte[] operation) {
-        try {
-            Transaction tx = fromJson(operation, Transaction.class);
-            Result<Void> result = null;
+    public static class BlockmessConnector extends ApplicationInterface
+    {
 
-            try {
-                if (!verifySignature(tx))
-                    throw new WebApplicationException(Status.UNAUTHORIZED);
-
-                result = Result.ok();
-
-                LOG.info("Send Transaction - OK");
-            } catch (WebApplicationException e) {
-                LOG.info(e.getMessage());
-                result = Result.error(e);
-            }
-
-            byte[] res = toJson(result);
-            return res;
-        } catch (Exception e) {
-            Utils.logError(e, LOG);
-            return null;
+        public BlockmessConnector() {
+            super(new String[]
+            {
+                "port=" + ServerConfig.getBlockmessPort(),
+                "redirectFile=blockmess-logs/" + ServerConfig.getReplicaId() + ".log",
+                "genesisUUID=" + UUID.randomUUID()
+            });
         }
+
+        @Override
+        public byte[] processOperation(byte[] operation) {
+            try {
+                Result<Void> result = null;
+    
+                try {
+                    Transaction tx = fromJson(operation, Transaction.class);
+    
+                    if (!verifySignature(tx))
+                        throw new WebApplicationException(Status.UNAUTHORIZED);
+    
+                    result = Result.ok();
+    
+                    LOG.info("Send Transaction - OK");
+                } catch (WebApplicationException e) {
+                    LOG.info(e.getMessage());
+                    result = Result.error(e);
+                }
+    
+                byte[] res = toJson(result);
+                return res;
+            } catch (Exception e) {
+                Utils.logError(e, LOG);
+                return null;
+            }
+        }
+        
     }
 }
 

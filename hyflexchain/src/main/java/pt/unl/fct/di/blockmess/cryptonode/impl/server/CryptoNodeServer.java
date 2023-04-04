@@ -34,7 +34,8 @@ public class CryptoNodeServer
 
 			ServerConfig.init(replicaId, blockmessPort);
 
-			//CryptoNodeResource resource = new CryptoNodeResource();
+			// init blockmess
+			CryptoNodeResource.setBlockmess(new CryptoNodeResource.BlockmessConnector());
             
 			// URI uri = new URI(String.format("https://%s:%d/api/rest", ip, port));
 			URI uri = new URI(String.format("http://%s:%d/api/rest", ip, port));

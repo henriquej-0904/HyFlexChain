@@ -7,4 +7,4 @@ mvn deploy:deploy-file \
 -Durl=file:./blockmess/blockmess_lib/ \
 -DrepositoryId=blockmess_lib \
 -DupdateReleaseInfo=true \
--Dfile=../Blockmess/target/BlockmessLib.jar
+-Dfile=../../Blockmess/target/BlockmessLib.jar

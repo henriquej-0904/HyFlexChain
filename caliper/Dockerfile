@@ -14,7 +14,8 @@ COPY --chown=node:node caliper-blockmess/sut.yaml ./
 
 RUN caliper bind --caliper-bind-file sut.yaml
 
-COPY caliper-blockmess/lib ./lib
+COPY --chown=node:node caliper-blockmess/lib ./lib
+COPY --chown=node:node caliper-blockmess/launch-master.sh ./
 
 ENV CALIPER_BENCHCONFIG=config/benchmark.yaml
 ENV CALIPER_NETWORKCONFIG=config/networkconfig.json

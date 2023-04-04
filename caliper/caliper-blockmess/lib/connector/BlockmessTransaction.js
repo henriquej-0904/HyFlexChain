@@ -31,21 +31,21 @@ class BlockmessTransaction
 	 * @return the origin
 	 */
 	getOrigin() {
-		return this.origin;
+		return this.origin.toString('base64');
 	}
 
 	/**
 	 * @return the dest
 	 */
 	getDest() {
-		return this.dest;
+		return this.dest.toString('base64');
 	}
 
 	/**
 	 * @return the signature
 	 */
 	getSignature() {
-		return this.signature;
+		return this.signature.toString('base64');
 	}
 
 	/**

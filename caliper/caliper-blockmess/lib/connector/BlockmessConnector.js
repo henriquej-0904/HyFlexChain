@@ -157,6 +157,16 @@ class BlockmessConnector extends ConnectorBase
 		//TODO: sign transaction & send request to blockmess
 		request.sign(this.context.getKeyPair().getPrivateKey(), this.cryptoUtils);
 
+        const data = {
+            origin : request.getOrigin(),
+            dest : request.getDest(),
+            signature : request.getSignature(),
+            value : request.getValue(),
+            nonce : request.getNonce()
+        }
+
+        // Logger.error(JSON.stringify(data));
+
         let status = new TxStatus();
 
         const onFailure = (err) => {
@@ -172,7 +182,7 @@ class BlockmessConnector extends ConnectorBase
             status.SetStatusSuccess();
         };
 
-        return this.httpClient.post("/crypto-node/transaction", request,
+        return this.httpClient.post("/crypto-node/transaction", data,
         {
             headers : {
                 "Content-Type" : "application/json"

@@ -1,6 +1,6 @@
 test:
   workers:
-    number: 4
+    number: 2
   rounds:
     - label: Prepare System
       txNumber: 250
@@ -10,8 +10,8 @@ test:
             transactionLoad: 5
       workload:
         module: lib/benchmarks/CreateTransaction.js
-    
-    - label: Submit Transactions 1
+
+    - label: Submit Transactions 50 tps
       description: Test description for transfering money between accounts.
       txNumber: 5000
       rateControl:
@@ -20,33 +20,14 @@ test:
           tps: 50
       workload:
         module: lib/benchmarks/CreateTransaction.js
-
-    - label: Submit Transactions 2
-      description: Test description for transfering money between accounts.
-      txNumber: 10000
-      rateControl:
-        type: fixed-rate
-        opts:
-          tps: 100
-      workload:
-        module: lib/benchmarks/CreateTransaction.js
-
-    - label: Submit Transactions 3
-      description: Test description for transfering money between accounts.
-      txNumber: 100000
-      rateControl:
-        type: fixed-rate
-        opts:
-          tps: 500
-      workload:
-        module: lib/benchmarks/CreateTransaction.js
-
-    - label: Submit Transactions 4
-      description: Test description for transfering money between accounts.
-      txNumber: 100000
-      rateControl:
-        type: fixed-rate
-        opts:
-          tps: 1000
-      workload:
-        module: lib/benchmarks/CreateTransaction.js
+  
+monitors:
+  resource:
+  - module: docker
+    options:
+      interval: 5
+      containers:
+      - /replica-0
+      - /replica-1
+      - /replica-2
+      - /replica-3

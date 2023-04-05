@@ -6,7 +6,6 @@ import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.UUID;
 import java.util.logging.Logger;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -129,12 +128,29 @@ public class CryptoNodeResource implements CryptoNodeAPI
     {
 
         public BlockmessConnector() {
-            super(new String[]
+            super(defaultBlockmessProperties());
+        }
+
+        public BlockmessConnector(String[] blockmessProperties) {
+            super(concat(defaultBlockmessProperties(), blockmessProperties));
+        }
+
+        public static String[] defaultBlockmessProperties()
+        {
+            return new String[]
             {
                 "port=" + ServerConfig.getBlockmessPort(),
                 "redirectFile=blockmess-logs/" + ServerConfig.getReplicaId() + ".log",
                 "genesisUUID=" + UUID.randomUUID()
-            });
+            };
+        }
+
+        protected static String[] concat(String[] array1, String[] array2)
+        {
+            var res = new String[array1.length + array2.length];
+            System.arraycopy(array1, 0, res, 0, array1.length);
+            System.arraycopy(array2, 0, res, array1.length, array2.length);
+            return res;
         }
 
         @Override

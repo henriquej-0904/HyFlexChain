@@ -20,6 +20,8 @@ COPY --chown=node:node caliper-blockmess/launch-master.sh ./
 ENV CALIPER_BENCHCONFIG=config/benchmark.yaml
 ENV CALIPER_NETWORKCONFIG=config/networkconfig.json
 
+USER root
+
 ENTRYPOINT [  ]
 
 CMD [ "/bin/sh" ]

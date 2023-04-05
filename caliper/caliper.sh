@@ -11,4 +11,5 @@ docker build -t caliper-blockmess .
 
 docker run --rm -it --network host \
     -v "$(pwd)/caliper-blockmess/config:/hyperledger/caliper/workspace/config" \
+    -v /var/run/docker.sock:/var/run/docker.sock \
     --name caliper caliper-blockmess  # caliper launch manager --caliper-bind-file sut.yaml

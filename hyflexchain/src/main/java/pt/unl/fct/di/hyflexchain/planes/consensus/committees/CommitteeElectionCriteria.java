@@ -4,13 +4,17 @@ package pt.unl.fct.di.hyflexchain.planes.consensus.committees;
  * Represents the criteria used to elect a specific
  * committee for a consensus mechanism.
  * 
- * @param size Committee cardinality
+ * @param size Max size of the committee
+ * @param sizeThreshold The min number of active participants
+ * to be able to execute the committee functions
  * @param randSource The type of randomness source used to elect a committee
+ * @param validity An object to verify if a committee is still valid to be used.
  */
 public record CommitteeElectionCriteria(
 	int size,
-	RandSource randSource/**,
-	committee validity criteria */
+	int sizeThreshold,
+	RandSource randSource,
+	CommitteeValidity validity
 ) {
 	
 	/**

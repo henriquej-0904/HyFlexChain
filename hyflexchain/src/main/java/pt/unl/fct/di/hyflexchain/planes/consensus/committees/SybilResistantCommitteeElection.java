@@ -1,7 +1,7 @@
 package pt.unl.fct.di.hyflexchain.planes.consensus.committees;
 
+import pt.unl.fct.di.hyflexchain.planes.application.lvi.views.LedgerView;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusType;
-import pt.unl.fct.di.hyflexchain.planes.ledgerview.views.LedgerView;
 
 /**
  * An Interface for electing a committee of nodes with sysbil resistance.

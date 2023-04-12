@@ -1,10 +1,9 @@
-package pt.unl.fct.di.hyflexchain.planes.data.transaction;
+package pt.unl.fct.di.hyflexchain.planes.data.block;
 
 /**
- * The possible states of a transaction
+ * The possible states of a block
  */
-public enum TransactionState
-{
+public enum BlockState {
 	/**
 	 * The finalized state
 	 */

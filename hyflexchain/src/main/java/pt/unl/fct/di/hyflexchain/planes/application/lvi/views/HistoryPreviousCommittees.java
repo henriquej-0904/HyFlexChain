@@ -1,4 +1,4 @@
-package pt.unl.fct.di.hyflexchain.planes.ledgerview.views;
+package pt.unl.fct.di.hyflexchain.planes.application.lvi.views;
 
 /**
  * A view of the previous committees.

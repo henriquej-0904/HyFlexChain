@@ -22,6 +22,7 @@ public interface SybilResistantCommitteeElection {
 
 
 	/**
+	 * TODO:
 	 * com base na base elietoral (dest das transações) e randoms de blocos já finalizdados
 	 * 
 	 * threshold número elementos comité

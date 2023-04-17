@@ -6,9 +6,8 @@ package pt.unl.fct.di.hyflexchain.planes.data.transaction;
 public class HyFlexChainTransaction {
 
 	/**
-	* The type of transaction
-	*/
-	protected TransactionType type;
+	 * version
+	 */
 
 	/**
 	* The transaction id (a hash of the transaction data).
@@ -27,6 +26,8 @@ public class HyFlexChainTransaction {
 	 * If a contract account, the transaction will execute the contract code)
 	 */
 	protected String recipient;
+
+	protected String signatureType;
 
 	/**
 	 * The identifier of the sender.
@@ -49,6 +50,10 @@ public class HyFlexChainTransaction {
 	 * Optional field to include arbitrary data
 	 */
 	protected byte[] data;
+
+	//TODO: Add gas to transaction
+
+	//TODO smart contract (codigo, referencia)
 
 
 	/**

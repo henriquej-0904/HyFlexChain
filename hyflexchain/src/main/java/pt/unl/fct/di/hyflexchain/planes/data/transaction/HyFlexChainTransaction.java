@@ -1,32 +1,38 @@
 package pt.unl.fct.di.hyflexchain.planes.data.transaction;
 
 /**
- * Represents a HyFlexChain Transaction type
+ * Represents a HyFlexChain Transaction
  */
 public class HyFlexChainTransaction {
 
 	/**
-	 * version
+	 * The version of the transaction.
 	 */
+	protected String version;
 
 	/**
-	* The transaction id (a hash of the transaction data).
+	* The transaction id.
 	*/
 	protected String id;
 
 	/**
+	 * The hash of the transaction (excluding signature)
+	 */
+	protected String hash;
+
+	/**
 	 * The address of the sender, that will be signing the transaction.
-	 * This will be an externally-owned account as contract accounts cannot send transactions.
 	 */
 	protected String from;
 
 	/**
-	 * The receiving address (if an externally-owned account,
-	 * the transaction will transfer value.
-	 * If a contract account, the transaction will execute the contract code)
+	 * The receiving address.
 	 */
 	protected String recipient;
 
+	/**
+	 * The signature algorithm.
+	 */
 	protected String signatureType;
 
 	/**

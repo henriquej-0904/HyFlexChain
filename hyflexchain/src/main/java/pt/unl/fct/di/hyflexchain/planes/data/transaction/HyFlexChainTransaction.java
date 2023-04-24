@@ -11,11 +11,6 @@ public class HyFlexChainTransaction {
 	protected String version;
 
 	/**
-	* The transaction id.
-	*/
-	protected String id;
-
-	/**
 	 * The hash of the transaction (excluding signature)
 	 */
 	protected String hash;
@@ -23,12 +18,7 @@ public class HyFlexChainTransaction {
 	/**
 	 * The address of the sender, that will be signing the transaction.
 	 */
-	protected String from;
-
-	/**
-	 * The receiving address.
-	 */
-	protected String recipient;
+	protected String address;
 
 	/**
 	 * The signature algorithm.
@@ -48,9 +38,14 @@ public class HyFlexChainTransaction {
 	protected long nonce;
 
 	/**
-	 * The amount of cryptocurrency to transfer from sender to recipient.
+	 * The input transactions
 	 */
-	protected int value;
+	protected TxInput[] inputTxs;
+
+	/**
+	 * The output transactions
+	 */
+	protected UTXO[] outputTxs;
 
 	/**
 	 * Optional field to include arbitrary data

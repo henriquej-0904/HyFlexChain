@@ -1,16 +1,22 @@
 package pt.unl.fct.di.hyflexchain.planes.data;
 
+import java.util.EnumMap;
+import java.util.Properties;
+
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusType;
 
 /**
  * The parameters for the ledger.
  */
-public class LedgerParams
+public class LedgerConfig
 {
+	private final EnumMap<ConsensusType, Properties> configs;
+
 	/**
 	 * Create a Ledger params object
 	 */
-	public LedgerParams() {
+	public LedgerConfig(EnumMap<ConsensusType, Properties> configs) {
+		this.configs = configs;
 	}
 
 	/**

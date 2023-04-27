@@ -10,14 +10,11 @@ public interface TransactionInterface {
 	/**
 	 * Send transaction primitive:
 	 * submits a transaction for verification and,
-	 * if successfull, add it to the transaction pool.
-	 * Eventually, it will be inserted on a block and ordered
-	 * through a consensus mechanism. After that, the block is
-	 * appended to the Ledger.
+	 * if successfull, dispatch it to the system for ordering.
 	 * @param tx The transaction to send.
 	 * 
 	 * @return The generated transaction id.
 	 */
-	String sendTransaction(HyFlexChainTransaction tx);
+	String sendTransaction(HyFlexChainTransaction tx) throws InvalidTransactionException;
 
 }

@@ -1,6 +1,7 @@
 package pt.unl.fct.di.hyflexchain.planes.data.ledger.separated.inmemory;
 
-import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusType;
+import pt.unl.fct.di.hyflexchain.planes.application.lvi.LedgerViewConsensusInterface;
+import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
 import pt.unl.fct.di.hyflexchain.planes.data.ledger.separated.ConsensusSpecificLedger;
 
@@ -8,24 +9,26 @@ import pt.unl.fct.di.hyflexchain.planes.data.ledger.separated.ConsensusSpecificL
  * An implementation of the Separated Ledger using
  * an in memory approach
  */
-public class InMemoryLedger implements ConsensusSpecificLedger {
+public class InMemoryLedger implements ConsensusSpecificLedger,
+	LedgerViewConsensusInterface
+{
 
 	/**
 	 * The consensus mechanism used by this ledger.
 	 */
-	protected final ConsensusType consensus;
+	protected final ConsensusMechanism consensus;
 
 	/**
 	 * Create a new instance of the ledger for a specific consensus
 	 * mechanism
 	 * @param consensus The consensus mechanism used by this ledger.
 	 */
-	public InMemoryLedger(ConsensusType consensus) {
+	public InMemoryLedger(ConsensusMechanism consensus) {
 		this.consensus = consensus;
 	}
 
 	@Override
-	public ConsensusType getConsensusMechanism() {
+	public ConsensusMechanism getConsensusMechanism() {
 		return this.consensus;
 	}
 

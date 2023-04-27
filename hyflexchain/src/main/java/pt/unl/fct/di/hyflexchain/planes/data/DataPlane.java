@@ -1,6 +1,6 @@
 package pt.unl.fct.di.hyflexchain.planes.data;
 
-import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusType;
+import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
 import pt.unl.fct.di.hyflexchain.util.config.LedgerConfig;
@@ -21,7 +21,7 @@ public interface DataPlane {
 	 * @param block The ordered block
 	 * @param consensusType The type of consensus mechanism used to order the block
 	 */
-	void writeOrderedBlock(HyFlexChainBlock block, ConsensusType consensusType);
+	void writeOrderedBlock(HyFlexChainBlock block, ConsensusMechanism consensusType);
 
 	/**
 	 * Dispatch an unordered block to the Blockmess Layer to be ordered

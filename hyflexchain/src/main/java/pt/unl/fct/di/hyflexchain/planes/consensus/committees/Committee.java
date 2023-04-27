@@ -1,6 +1,6 @@
 package pt.unl.fct.di.hyflexchain.planes.consensus.committees;
 
-import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusType;
+import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 
 /**
  * A committee of nodes with the purpose of executing an instance of
@@ -12,7 +12,7 @@ public interface Committee
 	 * The Consensus mechanism for which this committee was elected.
 	 * @return The Consensus mechanism
 	 */
-	ConsensusType getConsensusMechanism();
+	ConsensusMechanism getConsensusMechanism();
 
 	/**
 	 * The cardinality of this committee.

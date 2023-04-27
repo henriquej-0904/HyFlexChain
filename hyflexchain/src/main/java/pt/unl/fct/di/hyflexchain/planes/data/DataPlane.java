@@ -3,6 +3,7 @@ package pt.unl.fct.di.hyflexchain.planes.data;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusType;
 import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
+import pt.unl.fct.di.hyflexchain.util.config.LedgerConfig;
 
 /**
  * Represents the Data Plane.
@@ -13,7 +14,7 @@ public interface DataPlane {
 	 * Get the applied Ledger parameters
 	 * @return The applied Ledger parameters
 	 */
-	LedgerConfig getLedgerParams();
+	LedgerConfig getLedgerConfig();
 
 	/**
 	 * Write an ordered block to the Ledger.

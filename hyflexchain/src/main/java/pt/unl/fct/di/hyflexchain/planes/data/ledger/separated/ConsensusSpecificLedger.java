@@ -6,7 +6,7 @@ import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
 /**
  * An interface for a consensus specific ledger implementation 
  */
-public interface SeparatedLedger
+public interface ConsensusSpecificLedger
 {
 	/**
 	 * Get the consensus mechanism of this ledger implementation.

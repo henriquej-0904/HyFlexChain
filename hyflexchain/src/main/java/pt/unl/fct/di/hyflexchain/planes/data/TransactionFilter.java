@@ -1,16 +1,18 @@
-package pt.unl.fct.di.hyflexchain.planes.application.lvi;
+package pt.unl.fct.di.hyflexchain.planes.data;
 
 import java.util.function.IntPredicate;
 
 import pt.unl.fct.di.hyflexchain.util.TimeInterval;
 
-public class BlockFilter {
-	
-
+/**
+ * A Filter for Transactions used in the Data Service Plane
+ */
+public class TransactionFilter {
 	/**
-	 * 
+	 * Create a filter
 	 */
-	public BlockFilter() {
+	public TransactionFilter() {
+		//super(TransactionFilter.Type.class);
 	}
 
 	/**
@@ -19,17 +21,17 @@ public class BlockFilter {
 	public static enum Type
 	{
 		/**
-		 * The last N blocks
+		 * The last N transactions
 		 */
 		LAST_N(Integer.class),
 
 		/**
-		 * Blocks between a time interval
+		 * Transaction between a time interval
 		 */
 		TIME_INTERVAL(TimeInterval.class),
 
 		/**
-		 * Blocks that contain transactions filtered by value.
+		 * Transactions filtered by value
 		 */
 		VALUE(IntPredicate.class);
 

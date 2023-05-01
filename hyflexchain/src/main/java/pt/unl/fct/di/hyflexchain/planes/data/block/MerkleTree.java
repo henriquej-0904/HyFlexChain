@@ -1,5 +1,8 @@
 package pt.unl.fct.di.hyflexchain.planes.data.block;
 
+import java.util.Collection;
+import java.util.Map;
+
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
 
 /**
@@ -9,9 +12,9 @@ public class MerkleTree
 {
 	/**
 	 * Create a new Merkle Tree based on a list of transactions.
-	 * @param transactions The list of transactions
+	 * @param txHashes The list of transaction hashes
 	 */
-	public MerkleTree(HyFlexChainTransaction[] transactions)
+	public MerkleTree(Collection<String> txHashes)
 	{
 
 	}

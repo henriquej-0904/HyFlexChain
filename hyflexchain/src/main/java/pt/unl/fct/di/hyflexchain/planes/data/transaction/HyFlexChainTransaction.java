@@ -62,5 +62,133 @@ public class HyFlexChainTransaction {
 	 */
 	public HyFlexChainTransaction() {
 	}
+
+	/**
+	 * @return the version
+	 */
+	public String getVersion() {
+		return version;
+	}
+
+	/**
+	 * @param version the version to set
+	 */
+	public void setVersion(String version) {
+		this.version = version;
+	}
+
+	/**
+	 * @return the hash
+	 */
+	public String getHash() {
+		return hash;
+	}
+
+	/**
+	 * @param hash the hash to set
+	 */
+	public void setHash(String hash) {
+		this.hash = hash;
+	}
+
+	/**
+	 * @return the address
+	 */
+	public String getAddress() {
+		return address;
+	}
+
+	/**
+	 * @param address the address to set
+	 */
+	public void setAddress(String address) {
+		this.address = address;
+	}
+
+	/**
+	 * @return the signatureType
+	 */
+	public String getSignatureType() {
+		return signatureType;
+	}
+
+	/**
+	 * @param signatureType the signatureType to set
+	 */
+	public void setSignatureType(String signatureType) {
+		this.signatureType = signatureType;
+	}
+
+	/**
+	 * @return the signature
+	 */
+	public String getSignature() {
+		return signature;
+	}
+
+	/**
+	 * @param signature the signature to set
+	 */
+	public void setSignature(String signature) {
+		this.signature = signature;
+	}
+
+	/**
+	 * @return the nonce
+	 */
+	public long getNonce() {
+		return nonce;
+	}
+
+	/**
+	 * @param nonce the nonce to set
+	 */
+	public void setNonce(long nonce) {
+		this.nonce = nonce;
+	}
+
+	/**
+	 * @return the inputTxs
+	 */
+	public TxInput[] getInputTxs() {
+		return inputTxs;
+	}
+
+	/**
+	 * @param inputTxs the inputTxs to set
+	 */
+	public void setInputTxs(TxInput[] inputTxs) {
+		this.inputTxs = inputTxs;
+	}
+
+	/**
+	 * @return the outputTxs
+	 */
+	public UTXO[] getOutputTxs() {
+		return outputTxs;
+	}
+
+	/**
+	 * @param outputTxs the outputTxs to set
+	 */
+	public void setOutputTxs(UTXO[] outputTxs) {
+		this.outputTxs = outputTxs;
+	}
+
+	/**
+	 * @return the data
+	 */
+	public byte[] getData() {
+		return data;
+	}
+
+	/**
+	 * @param data the data to set
+	 */
+	public void setData(byte[] data) {
+		this.data = data;
+	}
+
+	
 	
 }

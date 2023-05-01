@@ -7,6 +7,7 @@ import pt.unl.fct.di.hyflexchain.planes.application.lvi.views.UTXOset;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
 import pt.unl.fct.di.hyflexchain.planes.data.ledger.separated.blockchain.TxFinder;
+import pt.unl.fct.di.hyflexchain.planes.data.ledger.separated.blockchain.TxFinderList;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.TransactionId;
 
 /**
@@ -38,14 +39,14 @@ public interface Accounts
 	 * @param address The address of the account
 	 * @return All transactions where the specified account is the origin.
 	 */
-	List<TxFinder> locateTransactionsByOriginAccount(String address);
+	List<TxFinderList> locateTransactionsByOriginAccount(String address);
 
 	/**
 	 * Get all transactions where the specified account is the destination.
 	 * @param address The address of the account
 	 * @return All transactions where the specified account is the destination.
 	 */
-	List<TxFinder> locateTransactionsByDestAccount(String address);
+	List<TxFinderList> locateTransactionsByDestAccount(String address);
 
 	/**
 	 * Get all transactions according to the specified filter

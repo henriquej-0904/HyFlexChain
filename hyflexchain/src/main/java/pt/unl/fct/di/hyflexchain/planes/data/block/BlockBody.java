@@ -1,5 +1,10 @@
 package pt.unl.fct.di.hyflexchain.planes.data.block;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Optional;
+
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
 
 /**
@@ -20,7 +25,7 @@ public class BlockBody
 	/**
 	 * The list of transactions in this block
 	 */
-	protected HyFlexChainTransaction[] transactions;
+	protected LinkedHashMap<String, HyFlexChainTransaction> transactions;
 
 
 	/**
@@ -29,7 +34,8 @@ public class BlockBody
 	 * @param merkleTree The Merkle tree of this block’s transactions
 	 * @param transactions The list of transactions in this block
 	 */
-	public BlockBody(String version, MerkleTree merkleTree, HyFlexChainTransaction[] transactions) {
+	public BlockBody(String version, MerkleTree merkleTree,
+		LinkedHashMap<String, HyFlexChainTransaction> transactions) {
 		this.version = version;
 		this.merkleTree = merkleTree;
 		this.transactions = transactions;
@@ -41,9 +47,9 @@ public class BlockBody
 	 * 
 	 * @param transactions The list of transactions in this block
 	 */
-	public BlockBody(HyFlexChainTransaction[] transactions) {
+	public BlockBody(LinkedHashMap<String, HyFlexChainTransaction> transactions) {
 		this.version = Version.V1_0.getVersion();
-		this.merkleTree = new MerkleTree(transactions);
+		this.merkleTree = new MerkleTree(transactions.keySet());
 		this.transactions = transactions;
 	}
 
@@ -114,7 +120,7 @@ public class BlockBody
 	 * The list of transactions in this block
 	 * @return the transactions
 	 */
-	public HyFlexChainTransaction[] getTransactions() {
+	public LinkedHashMap<String, HyFlexChainTransaction> getTransactions() {
 		return transactions;
 	}
 
@@ -122,9 +128,37 @@ public class BlockBody
 	 * The list of transactions in this block
 	 * @param transactions the transactions to set
 	 */
-	public void setTransactions(HyFlexChainTransaction[] transactions) {
+	public void setTransactions(LinkedHashMap<String, HyFlexChainTransaction> transactions) {
 		this.transactions = transactions;
 	}
 
+	/**
+	 * Find a transaction given its tx hash.
+	 * @param txHash The hash of the transaction
+	 * @return The transaction
+	 */
+	public Optional<HyFlexChainTransaction> findTransaction(String txHash)
+	{
+		return Optional.ofNullable(this.transactions.get(txHash));
+	}
+
+
+	/**
+	 * Find a list of transaction given their tx hash.
+	 * @param txHashes The hashes of the transactions
+	 * @return The transactions
+	 */
+	public List<HyFlexChainTransaction> findTransactions(List<String> txHashes)
+	{
+		List<HyFlexChainTransaction> txs = new ArrayList<>(txHashes.size());
+
+		for (String txHash : txHashes) {
+			var tx = this.transactions.get(txHash);
+			if (tx != null)
+				txs.add(tx);
+		}
+
+		return txs;
+	}
 	
 }

@@ -2,9 +2,12 @@ package pt.unl.fct.di.hyflexchain.planes.data.ledger.separated.blockchain;
 
 import java.util.List;
 import java.util.Optional;
+
+import pt.unl.fct.di.hyflexchain.planes.application.lvi.views.HistoryPreviousCommittees;
 import pt.unl.fct.di.hyflexchain.planes.application.lvi.views.UTXOset;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.consensus.committees.Committee;
+import pt.unl.fct.di.hyflexchain.planes.data.TransactionFilter;
 import pt.unl.fct.di.hyflexchain.planes.data.block.BlockState;
 import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
 import pt.unl.fct.di.hyflexchain.planes.data.ledger.separated.ConsensusSpecificLedger;
@@ -46,7 +49,7 @@ public abstract class Blockchain implements ConsensusSpecificLedger
 	 * @param txFinders A list of all requested transactions.
 	 * @return All requested transactions.
 	 */
-	public abstract List<HyFlexChainTransaction> getTransactions(List<TxFinder> txFinders);
+	public abstract List<HyFlexChainTransaction> getTransactions(List<TxFinderList> txFinders);
 
 	/**
 	 * Append a block to the blockchain.
@@ -61,29 +64,23 @@ public abstract class Blockchain implements ConsensusSpecificLedger
 	}
 
 	@Override
-	public void writeOrderedBlock(HyFlexChainBlock block) {
+	public final void writeOrderedBlock(HyFlexChainBlock block) {
 		this.accounts.processNewBlock(block);
 		this.appendBlock(block);
 	}
 
 	@Override
-	public Committee getActiveCommittee() {
+	public final Committee getActiveCommittee() {
 		return this.activeCommittee;
 	}
 
 	@Override
-	public ConsensusMechanism getConsensusMechanism() {
+	public final ConsensusMechanism getConsensusMechanism() {
 		return this.consensus;
 	}
 
 	@Override
-	public UTXOset getLedgerViewUTXOset() {
-		// TODO: check utxo set implementation
-		return this.accounts.getLedgerViewUTXOset();
-	}
-
-	@Override
-	public Optional<HyFlexChainTransaction> getTransaction(TransactionId id)
+	public final Optional<HyFlexChainTransaction> getTransaction(TransactionId id)
 	{
 		return this.accounts.locateTransaction(id)
 			.flatMap(this::getTransaction);
@@ -91,7 +88,7 @@ public abstract class Blockchain implements ConsensusSpecificLedger
 
 
 	@Override
-	public Optional<TransactionState> getTransactionState(TransactionId id)
+	public final Optional<TransactionState> getTransactionState(TransactionId id)
 	{
 		return this.accounts.locateTransaction(id)
 			.flatMap((txFinder) -> this.getBlockState(txFinder.blockHash()))
@@ -99,14 +96,41 @@ public abstract class Blockchain implements ConsensusSpecificLedger
 	}
 
 	@Override
-	public List<HyFlexChainTransaction> getTransactionsByDestAccount(String address)
+	public final List<HyFlexChainTransaction> getTransactionsByDestAccount(String address)
 	{
 		return this.getTransactions(this.accounts.locateTransactionsByDestAccount(address));
 	}
 
 	@Override
-	public List<HyFlexChainTransaction> getTransactionsByOriginAccount(String address)
+	public final List<HyFlexChainTransaction> getTransactionsByOriginAccount(String address)
 	{
 		return this.getTransactions(this.accounts.locateTransactionsByOriginAccount(address));
 	}
+
+	@Override
+	public HistoryPreviousCommittees getLedgerViewPreviousCommittees(int lastN) {
+		throw new UnsupportedOperationException("getLedgerViewPreviousCommittees");
+	}
+
+	@Override
+	public UTXOset getLedgerViewUTXOset() {
+		throw new UnsupportedOperationException("getLedgerViewUTXOset");
+	}
+
+	@Override
+	public List<HyFlexChainTransaction> getTransactions(TransactionFilter filter) {
+		throw new UnsupportedOperationException("getTransactions");
+	}
+
+	@Override
+	public List<HyFlexChainTransaction> getTransactionsByDestAccount(String address, TransactionFilter filter) {
+		throw new UnsupportedOperationException("getTransactionsByDestAccount");
+	}
+
+	@Override
+	public List<HyFlexChainTransaction> getTransactionsByOriginAccount(String address, TransactionFilter filter) {
+		throw new UnsupportedOperationException("getTransactionsByOriginAccount");
+	}
+
+	
 }

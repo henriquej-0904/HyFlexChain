@@ -1,11 +1,16 @@
 package pt.unl.fct.di.hyflexchain.planes.data.ledger.separated.inmemory;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import pt.unl.fct.di.hyflexchain.planes.application.lvi.BlockFilter;
-import pt.unl.fct.di.hyflexchain.planes.application.lvi.LedgerViewConsensusInterface;
-import pt.unl.fct.di.hyflexchain.planes.application.lvi.TransactionFilter;
 import pt.unl.fct.di.hyflexchain.planes.application.lvi.views.HistoryPreviousCommittees;
 import pt.unl.fct.di.hyflexchain.planes.application.lvi.views.UTXOset;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
@@ -14,7 +19,11 @@ import pt.unl.fct.di.hyflexchain.planes.data.block.BlockState;
 import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
 import pt.unl.fct.di.hyflexchain.planes.data.ledger.LedgerState;
 import pt.unl.fct.di.hyflexchain.planes.data.ledger.separated.ConsensusSpecificLedger;
+import pt.unl.fct.di.hyflexchain.planes.data.ledger.separated.blockchain.Blockchain;
+import pt.unl.fct.di.hyflexchain.planes.data.ledger.separated.blockchain.TxFinder;
+import pt.unl.fct.di.hyflexchain.planes.data.ledger.separated.blockchain.TxFinderList;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
+import pt.unl.fct.di.hyflexchain.planes.data.transaction.TransactionId;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.TransactionState;
 import pt.unl.fct.di.hyflexchain.util.config.LedgerConfig;
 
@@ -22,12 +31,17 @@ import pt.unl.fct.di.hyflexchain.util.config.LedgerConfig;
  * An implementation of the Separated Ledger using
  * an in memory approach
  */
-public class InMemoryLedger implements ConsensusSpecificLedger
+public class InMemoryLedger extends Blockchain
 {
+	public final static int BLOCKCHAIN_INIT_SIZE = 1000;
+
 	/**
-	 * The consensus mechanism used by this ledger.
+	 * The blockchain: a map that preserves insertion order
+	 * and for each key (Block Id) corresponds a Block.
 	 */
-	protected final ConsensusMechanism consensus;
+	protected final Map<String, HyFlexChainBlock> blockchain;
+
+
 
 	/**
 	 * Create a new instance of the ledger for a specific consensus
@@ -35,69 +49,56 @@ public class InMemoryLedger implements ConsensusSpecificLedger
 	 * @param consensus The consensus mechanism used by this ledger.
 	 */
 	public InMemoryLedger(ConsensusMechanism consensus) {
-		this.consensus = consensus;
+		super(consensus, new InMemoryAccounts(consensus));
+
+		this.blockchain = new LinkedHashMap<>(BLOCKCHAIN_INIT_SIZE);
 	}
 
 	@Override
 	public InMemoryLedger init(LedgerConfig config)
 	{
-		//TODO: add init to in memory ledger
+		super.init(config);
+		// TODO: init Memory Ledger
+
 		return this;
 	}
 
 	@Override
-	public ConsensusMechanism getConsensusMechanism() {
-		return this.consensus;
+	public void appendBlock(HyFlexChainBlock block) {
+		this.blockchain.put(block.header().getMetaHeader().getHash(), block);
 	}
 
 	@Override
-	public void writeOrderedBlock(HyFlexChainBlock block) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'writeOrderedBlock'");
+	public Optional<HyFlexChainTransaction> getTransaction(TxFinder txFinder)
+	{
+		var block = this.blockchain.get(txFinder.blockHash());
+		if (block == null)
+			return Optional.empty();
+
+		return block.body().findTransaction(txFinder.txHash());
 	}
 
 	@Override
-	public Optional<HyFlexChainTransaction> getTransaction(String id) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'getTransaction'");
-	}
+	public List<HyFlexChainTransaction> getTransactions(List<TxFinderList> txFinders)
+	{
+		List<List<HyFlexChainTransaction>> txList = txFinders.stream()
+			.map((txFinderList) ->
+				new ImmutablePair<>(txFinderList,
+					this.blockchain.get(txFinderList.blockHash())
+					)
+			)
+			.filter((p) -> p.right != null)
+			.map((p) -> p.right.body().findTransactions(p.left.txHashes()))
+			.toList();
 
-	@Override
-	public Optional<TransactionState> getTransactionState(String id) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'getTransactionState'");
-	}
+		int total = txList.stream().mapToInt(List::size).sum();
+		
+		List<HyFlexChainTransaction> res = new ArrayList<>(total);
+		for (List<HyFlexChainTransaction> list : txList) {
+			res.addAll(list);
+		}
 
-	@Override
-	public Set<HyFlexChainTransaction> getTransactionsByOriginAccount(String originPubKey) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'getTransactionsByOriginAccount'");
-	}
-
-	@Override
-	public Set<HyFlexChainTransaction> getTransactionsByDestAccount(String destPubKey) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'getTransactionsByDestAccount'");
-	}
-
-	@Override
-	public Set<HyFlexChainTransaction> getTransactionsByOriginAccount(String originPubKey,
-			pt.unl.fct.di.hyflexchain.planes.data.TransactionFilter filter) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'getTransactionsByOriginAccount'");
-	}
-
-	@Override
-	public Set<HyFlexChainTransaction> getTransactionsByDestAccount(String destPubKey,
-			pt.unl.fct.di.hyflexchain.planes.data.TransactionFilter filter) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'getTransactionsByDestAccount'");
-	}
-
-	@Override
-	public Set<HyFlexChainTransaction> getTransactions(pt.unl.fct.di.hyflexchain.planes.data.TransactionFilter filter) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'getTransactions'");
+		return res;
 	}
 
 	@Override
@@ -113,7 +114,7 @@ public class InMemoryLedger implements ConsensusSpecificLedger
 	}
 
 	@Override
-	public Set<HyFlexChainBlock> getBlocks(BlockFilter filter) {
+	public List<HyFlexChainBlock> getBlocks(BlockFilter filter) {
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Unimplemented method 'getBlocks'");
 	}
@@ -123,29 +124,4 @@ public class InMemoryLedger implements ConsensusSpecificLedger
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Unimplemented method 'getLedger'");
 	}
-
-	@Override
-	public UTXOset getLedgerViewUTXOset() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'getLedgerViewUTXOset'");
-	}
-
-	@Override
-	public Committee getActiveCommittee() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'getActiveCommittee'");
-	}
-
-	@Override
-	public HistoryPreviousCommittees getLedgerViewPreviousCommittees(int lastN) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'getLedgerViewPreviousCommittees'");
-	}
-
-	
-
-	
-
-	
-	
 }

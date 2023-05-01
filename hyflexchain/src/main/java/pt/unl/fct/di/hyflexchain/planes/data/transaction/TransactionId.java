@@ -1,14 +1,12 @@
 package pt.unl.fct.di.hyflexchain.planes.data.transaction;
 
 /**
- * A transaction Id.
+ * The transaction Id is based on the address
+ * of the sender and the tx hash.
+ * 
+ * @param senderAddress The address
+ * of the sender of the transaction
+ * 
+ * @param txHash The hash of the transaction
  */
-public class TransactionId {
-
-	/**
-	 * Create a Transaction Id
-	 */
-	public TransactionId() {
-	}
-	
-}
+public record TransactionId(String senderAddress, String txHash) {}

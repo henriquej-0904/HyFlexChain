@@ -1,8 +1,8 @@
 package pt.unl.fct.di.hyflexchain.planes.data;
 
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import pt.unl.fct.di.hyflexchain.planes.application.lvi.BlockFilter;
 import pt.unl.fct.di.hyflexchain.planes.application.lvi.views.HistoryPreviousCommittees;
@@ -13,6 +13,7 @@ import pt.unl.fct.di.hyflexchain.planes.data.block.BlockState;
 import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
 import pt.unl.fct.di.hyflexchain.planes.data.ledger.LedgerState;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
+import pt.unl.fct.di.hyflexchain.planes.data.transaction.TransactionId;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.TransactionState;
 import pt.unl.fct.di.hyflexchain.util.config.MultiLedgerConfig;
 
@@ -61,7 +62,7 @@ public interface DataPlane {
 	 * @param consensus The consensus mechanism
 	 * @return The transaction.
 	 */
-	Optional<HyFlexChainTransaction> getTransaction(String id, ConsensusMechanism consensus);
+	Optional<HyFlexChainTransaction> getTransaction(TransactionId id, ConsensusMechanism consensus);
 
 	/**
 	 * Get the state of a transaction.
@@ -69,7 +70,7 @@ public interface DataPlane {
 	 * @param consensus The consensus mechanism
 	 * @return The state of the transaction.
 	 */
-	Optional<TransactionState> getTransactionState(String id, ConsensusMechanism consensus);
+	Optional<TransactionState> getTransactionState(TransactionId id, ConsensusMechanism consensus);
 
 	/**
 	 * Get all transactions where the specified account is the origin.
@@ -77,7 +78,7 @@ public interface DataPlane {
 	 * @param consensus The consensus mechanism
 	 * @return All transactions where the specified account is the origin.
 	 */
-	Set<HyFlexChainTransaction> getTransactionsByOriginAccount(String originPubKey, ConsensusMechanism consensus);
+	List<HyFlexChainTransaction> getTransactionsByOriginAccount(String originPubKey, ConsensusMechanism consensus);
 
 	/**
 	 * Get all transactions where the specified account is the destination.
@@ -85,7 +86,7 @@ public interface DataPlane {
 	 * @param consensus The consensus mechanism
 	 * @return All transactions where the specified account is the destination.
 	 */
-	Set<HyFlexChainTransaction> getTransactionsByDestAccount(String destPubKey, ConsensusMechanism consensus);
+	List<HyFlexChainTransaction> getTransactionsByDestAccount(String destPubKey, ConsensusMechanism consensus);
 
 	/**
 	 * Get all transactions according to the specified filter
@@ -95,7 +96,7 @@ public interface DataPlane {
 	 * @param consensus The consensus mechanism
 	 * @return All filtered transactions where the specified account is the origin.
 	 */
-	Set<HyFlexChainTransaction> getTransactionsByOriginAccount(String originPubKey, TransactionFilter filter, ConsensusMechanism consensus);
+	List<HyFlexChainTransaction> getTransactionsByOriginAccount(String originPubKey, TransactionFilter filter, ConsensusMechanism consensus);
 
 	/**
 	 * Get all transactions according to the specified filter
@@ -105,7 +106,7 @@ public interface DataPlane {
 	 * @param consensus The consensus mechanism
 	 * @return All filtered transactions where the specified account is the destination.
 	 */
-	Set<HyFlexChainTransaction> getTransactionsByDestAccount(String destPubKey, TransactionFilter filter, ConsensusMechanism consensus);
+	List<HyFlexChainTransaction> getTransactionsByDestAccount(String destPubKey, TransactionFilter filter, ConsensusMechanism consensus);
 
 	/**
 	 * Get all transactions according to the specified filter.
@@ -113,7 +114,7 @@ public interface DataPlane {
 	 * @param consensus The consensus mechanism
 	 * @return All filtered transactions.
 	 */
-	Set<HyFlexChainTransaction> getTransactions(TransactionFilter filter, ConsensusMechanism consensus);
+	List<HyFlexChainTransaction> getTransactions(TransactionFilter filter, ConsensusMechanism consensus);
 
 	//#endregion
 
@@ -142,7 +143,7 @@ public interface DataPlane {
 	 * @param consensus The consensus mechanism
 	 * @return All filtered blocks.
 	 */
-	Set<HyFlexChainBlock> getBlocks(BlockFilter filter, ConsensusMechanism consensus);
+	List<HyFlexChainBlock> getBlocks(BlockFilter filter, ConsensusMechanism consensus);
 
 	//#endregion
 

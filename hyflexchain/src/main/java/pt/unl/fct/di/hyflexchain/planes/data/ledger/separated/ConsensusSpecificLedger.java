@@ -1,5 +1,6 @@
 package pt.unl.fct.di.hyflexchain.planes.data.ledger.separated;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -13,6 +14,7 @@ import pt.unl.fct.di.hyflexchain.planes.data.block.BlockState;
 import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
 import pt.unl.fct.di.hyflexchain.planes.data.ledger.LedgerState;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
+import pt.unl.fct.di.hyflexchain.planes.data.transaction.TransactionId;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.TransactionState;
 import pt.unl.fct.di.hyflexchain.util.config.LedgerConfig;
 
@@ -45,53 +47,53 @@ public interface ConsensusSpecificLedger
 	 * @param id The id of the transaction
 	 * @return The transaction.
 	 */
-	Optional<HyFlexChainTransaction> getTransaction(String id);
+	Optional<HyFlexChainTransaction> getTransaction(TransactionId id);
 
 	/**
 	 * Get the state of a transaction.
 	 * @param id The id of the transaction
 	 * @return The state of the transaction.
 	 */
-	Optional<TransactionState> getTransactionState(String id);
+	Optional<TransactionState> getTransactionState(TransactionId id);
 
 	/**
 	 * Get all transactions where the specified account is the origin.
-	 * @param originPubKey The public key of the account
+	 * @param address The public key of the account
 	 * @return All transactions where the specified account is the origin.
 	 */
-	Set<HyFlexChainTransaction> getTransactionsByOriginAccount(String originPubKey);
+	List<HyFlexChainTransaction> getTransactionsByOriginAccount(String address);
 
 	/**
 	 * Get all transactions where the specified account is the destination.
-	 * @param destPubKey The public key of the account
+	 * @param address The address of the account
 	 * @return All transactions where the specified account is the destination.
 	 */
-	Set<HyFlexChainTransaction> getTransactionsByDestAccount(String destPubKey);
+	List<HyFlexChainTransaction> getTransactionsByDestAccount(String address);
 
 	/**
 	 * Get all transactions according to the specified filter
 	 * where the specified account is the origin.
-	 * @param pubKey The public key of the account
+	 * @param address The address of the account
 	 * @param filter The filter
 	 * @return All filtered transactions where the specified account is the origin.
 	 */
-	Set<HyFlexChainTransaction> getTransactionsByOriginAccount(String originPubKey, TransactionFilter filter);
+	List<HyFlexChainTransaction> getTransactionsByOriginAccount(String address, TransactionFilter filter);
 
 	/**
 	 * Get all transactions according to the specified filter
 	 * where the specified account is the destination.
-	 * @param pubKey The public key of the account
+	 * @param address The address of the account
 	 * @param filter The filter
 	 * @return All filtered transactions where the specified account is the destination.
 	 */
-	Set<HyFlexChainTransaction> getTransactionsByDestAccount(String destPubKey, TransactionFilter filter);
+	List<HyFlexChainTransaction> getTransactionsByDestAccount(String address, TransactionFilter filter);
 
 	/**
 	 * Get all transactions according to the specified filter.
 	 * @param filter The filter
 	 * @return All filtered transactions.
 	 */
-	Set<HyFlexChainTransaction> getTransactions(TransactionFilter filter);
+	List<HyFlexChainTransaction> getTransactions(TransactionFilter filter);
 
 	//#endregion
 
@@ -117,7 +119,7 @@ public interface ConsensusSpecificLedger
 	 * @param filter The filter
 	 * @return All filtered blocks.
 	 */
-	Set<HyFlexChainBlock> getBlocks(BlockFilter filter);
+	List<HyFlexChainBlock> getBlocks(BlockFilter filter);
 
 	//#endregion
 

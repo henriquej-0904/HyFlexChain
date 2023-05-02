@@ -6,8 +6,8 @@ import java.util.Optional;
 import pt.unl.fct.di.hyflexchain.planes.application.lvi.views.UTXOset;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
-import pt.unl.fct.di.hyflexchain.planes.data.ledger.separated.blockchain.TxFinder;
-import pt.unl.fct.di.hyflexchain.planes.data.ledger.separated.blockchain.TxFinderList;
+import pt.unl.fct.di.hyflexchain.planes.data.ledger.separated.TxFinder;
+import pt.unl.fct.di.hyflexchain.planes.data.ledger.separated.TxFinderList;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.TransactionId;
 
 /**

@@ -1,4 +1,4 @@
-package pt.unl.fct.di.hyflexchain.planes.data.ledger.separated.blockchain;
+package pt.unl.fct.di.hyflexchain.planes.data.ledger.separated;
 
 import java.util.List;
 import java.util.Optional;
@@ -10,14 +10,13 @@ import pt.unl.fct.di.hyflexchain.planes.consensus.committees.Committee;
 import pt.unl.fct.di.hyflexchain.planes.data.TransactionFilter;
 import pt.unl.fct.di.hyflexchain.planes.data.block.BlockState;
 import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
-import pt.unl.fct.di.hyflexchain.planes.data.ledger.separated.ConsensusSpecificLedger;
 import pt.unl.fct.di.hyflexchain.planes.data.ledger.separated.account.Accounts;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.TransactionId;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.TransactionState;
 import pt.unl.fct.di.hyflexchain.util.config.LedgerConfig;
 
-public abstract class Blockchain implements ConsensusSpecificLedger
+public abstract class AbstractSpecificConsensusLedger implements ConsensusSpecificLedger
 {
 	/**
 	 * The consensus mechanism used by this ledger.
@@ -32,7 +31,7 @@ public abstract class Blockchain implements ConsensusSpecificLedger
 	 * @param consensus
 	 * @param accounts
 	 */
-	public Blockchain(ConsensusMechanism consensus, Accounts accounts) {
+	public AbstractSpecificConsensusLedger(ConsensusMechanism consensus, Accounts accounts) {
 		this.consensus = consensus;
 		this.accounts = accounts;
 	}

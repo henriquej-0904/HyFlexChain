@@ -1,4 +1,4 @@
-package pt.unl.fct.di.hyflexchain.planes.data.ledger.separated.blockchain;
+package pt.unl.fct.di.hyflexchain.planes.data.ledger.separated;
 
 /**
  * A way to locate a list of transactions in the same block on the ledger.

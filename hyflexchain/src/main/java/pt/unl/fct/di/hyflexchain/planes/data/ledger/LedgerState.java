@@ -1,14 +1,15 @@
 package pt.unl.fct.di.hyflexchain.planes.data.ledger;
 
+import java.util.List;
+
+import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
+
 /**
  * Represents the State of the full Ledger
  */
-public class LedgerState {
+public interface LedgerState extends Iterable<HyFlexChainBlock>
+{
+	public void loadFullLedger(byte[] ledger);
 
-	/**
-	 * Create a state from the ledger
-	 */
-	public LedgerState() {
-	}
-	
+	public byte[] getFullLedger();
 }

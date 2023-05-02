@@ -1,46 +1,33 @@
 package pt.unl.fct.di.hyflexchain.planes.data.ledger.separated.inmemory;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import pt.unl.fct.di.hyflexchain.planes.application.lvi.BlockFilter;
-import pt.unl.fct.di.hyflexchain.planes.application.lvi.views.HistoryPreviousCommittees;
-import pt.unl.fct.di.hyflexchain.planes.application.lvi.views.UTXOset;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
-import pt.unl.fct.di.hyflexchain.planes.consensus.committees.Committee;
 import pt.unl.fct.di.hyflexchain.planes.data.block.BlockState;
 import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
+import pt.unl.fct.di.hyflexchain.planes.data.ledger.JsonLedgerState;
 import pt.unl.fct.di.hyflexchain.planes.data.ledger.LedgerState;
-import pt.unl.fct.di.hyflexchain.planes.data.ledger.separated.ConsensusSpecificLedger;
-import pt.unl.fct.di.hyflexchain.planes.data.ledger.separated.blockchain.Blockchain;
-import pt.unl.fct.di.hyflexchain.planes.data.ledger.separated.blockchain.TxFinder;
-import pt.unl.fct.di.hyflexchain.planes.data.ledger.separated.blockchain.TxFinderList;
+import pt.unl.fct.di.hyflexchain.planes.data.ledger.separated.AbstractSpecificConsensusLedger;
+import pt.unl.fct.di.hyflexchain.planes.data.ledger.separated.TxFinder;
+import pt.unl.fct.di.hyflexchain.planes.data.ledger.separated.TxFinderList;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
-import pt.unl.fct.di.hyflexchain.planes.data.transaction.TransactionId;
-import pt.unl.fct.di.hyflexchain.planes.data.transaction.TransactionState;
 import pt.unl.fct.di.hyflexchain.util.config.LedgerConfig;
 
 /**
  * An implementation of the Separated Ledger using
  * an in memory approach
  */
-public class InMemoryLedger extends Blockchain
+public class InMemoryLedger extends AbstractSpecificConsensusLedger
 {
-	public final static int BLOCKCHAIN_INIT_SIZE = 1000;
-
 	/**
 	 * The blockchain: a map that preserves insertion order
 	 * and for each key (Block Id) corresponds a Block.
 	 */
-	protected final Map<String, HyFlexChainBlock> blockchain;
-
+	protected final InMemoryBlockchain blockchain;
 
 
 	/**
@@ -50,8 +37,7 @@ public class InMemoryLedger extends Blockchain
 	 */
 	public InMemoryLedger(ConsensusMechanism consensus) {
 		super(consensus, new InMemoryAccounts(consensus));
-
-		this.blockchain = new LinkedHashMap<>(BLOCKCHAIN_INIT_SIZE);
+		this.blockchain = new InMemoryBlockchain();
 	}
 
 	@Override
@@ -103,25 +89,54 @@ public class InMemoryLedger extends Blockchain
 
 	@Override
 	public Optional<HyFlexChainBlock> getBlock(String id) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'getBlock'");
+		return Optional.ofNullable(this.blockchain.get(id));
 	}
 
 	@Override
 	public Optional<BlockState> getBlockState(String id) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'getBlockState'");
+		return getBlock(id).map((block) -> BlockState.FINALIZED);
 	}
 
 	@Override
-	public List<HyFlexChainBlock> getBlocks(BlockFilter filter) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'getBlocks'");
+	public List<HyFlexChainBlock> getBlocks(BlockFilter filter)
+	{
+		//TODO: Check block filter
+
+		List<HyFlexChainBlock> res = List.of();
+
+		switch (filter.getType()) {
+			case LAST_N:
+				res = getLastBlocks((int) filter.getValue());
+				break;
+			case TIME_INTERVAL:
+				throw new UnsupportedOperationException("Unsuppported Block filter: Time interval");
+			case VALUE:
+			throw new UnsupportedOperationException("Unsuppported Block filter: Value");
+		}
+
+		return res;
+	}
+
+	protected List<HyFlexChainBlock> getLastBlocks(int n)
+	{
+		int blockchainSize = this.blockchain.size();
+		int toIndex = blockchainSize;
+		int fromIndex = blockchainSize - n;
+		
+		if (fromIndex < 0)
+		{
+			fromIndex = 0;
+		}
+
+		return this.blockchain.valuesList().subList(fromIndex, toIndex);
 	}
 
 	@Override
-	public LedgerState getLedger() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'getLedger'");
+	public LedgerState getLedger()
+	{
+		var list = this.blockchain.valuesList();
+		int size = list.size();
+
+		return new JsonLedgerState(list.subList(0, size));
 	}
 }

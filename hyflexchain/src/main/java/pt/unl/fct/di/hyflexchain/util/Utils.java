@@ -14,11 +14,11 @@ import java.util.Base64;
 import java.util.Calendar;
 import java.util.logging.Logger;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 public class Utils
 {
-    public static final ObjectMapper json = new ObjectMapper();
+    public static final JsonMapper json = new JsonMapper();
 
     public static byte[] toBytes(int value)
     {

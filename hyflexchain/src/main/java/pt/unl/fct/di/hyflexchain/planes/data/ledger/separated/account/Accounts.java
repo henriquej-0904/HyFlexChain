@@ -24,8 +24,9 @@ public interface Accounts
 	/**
 	 * Process a new block added to the chain.
 	 * @param block The block to process.
+	 * @return true if the block was processed successfully.
 	 */
-	void processNewBlock(HyFlexChainBlock block);
+	boolean processNewBlock(HyFlexChainBlock block);
 
 	/**
 	 * Locate a transaction given its id

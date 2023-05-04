@@ -7,19 +7,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import pt.unl.fct.di.hyflexchain.planes.application.lvi.BlockFilter;
-import pt.unl.fct.di.hyflexchain.planes.application.lvi.views.HistoryPreviousCommittees;
-import pt.unl.fct.di.hyflexchain.planes.application.lvi.views.UTXOset;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.consensus.committees.Committee;
 import pt.unl.fct.di.hyflexchain.planes.data.DataPlane;
-import pt.unl.fct.di.hyflexchain.planes.data.TransactionFilter;
 import pt.unl.fct.di.hyflexchain.planes.data.block.BlockState;
 import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
 import pt.unl.fct.di.hyflexchain.planes.data.ledger.LedgerState;
 import pt.unl.fct.di.hyflexchain.planes.data.ledger.separated.inmemory.InMemoryLedger;
-import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
-import pt.unl.fct.di.hyflexchain.planes.data.transaction.TransactionId;
-import pt.unl.fct.di.hyflexchain.planes.data.transaction.TransactionState;
 import pt.unl.fct.di.hyflexchain.util.config.MultiLedgerConfig;
 
 /**
@@ -84,47 +78,6 @@ public class SeparatedMultiConsensusLedger implements DataPlane
 	}
 
 	@Override
-	public Optional<HyFlexChainTransaction> getTransaction(TransactionId id, ConsensusMechanism consensus) {
-		return getLedgerInstance(consensus).getTransaction(id);
-	}
-
-	@Override
-	public Optional<TransactionState> getTransactionState(TransactionId id, ConsensusMechanism consensus) {
-		return getLedgerInstance(consensus).getTransactionState(id);
-	}
-
-	@Override
-	public List<HyFlexChainTransaction> getTransactionsByOriginAccount(String originPubKey,
-			ConsensusMechanism consensus)
-	{
-		return getLedgerInstance(consensus).getTransactionsByOriginAccount(originPubKey);
-	}
-
-	@Override
-	public List<HyFlexChainTransaction> getTransactionsByDestAccount(String destPubKey, ConsensusMechanism consensus) {
-		return getLedgerInstance(consensus).getTransactionsByDestAccount(destPubKey);
-	}
-
-	@Override
-	public List<HyFlexChainTransaction> getTransactionsByOriginAccount(String originPubKey, TransactionFilter filter,
-			ConsensusMechanism consensus)
-	{
-		return getLedgerInstance(consensus).getTransactionsByOriginAccount(originPubKey, filter);
-	}
-
-	@Override
-	public List<HyFlexChainTransaction> getTransactionsByDestAccount(String destPubKey, TransactionFilter filter,
-			ConsensusMechanism consensus)
-	{
-		return getLedgerInstance(consensus).getTransactionsByDestAccount(destPubKey, filter);
-	}
-
-	@Override
-	public List<HyFlexChainTransaction> getTransactions(TransactionFilter filter, ConsensusMechanism consensus) {
-		return getLedgerInstance(consensus).getTransactions(filter);
-	}
-
-	@Override
 	public Optional<HyFlexChainBlock> getBlock(String id, ConsensusMechanism consensus) {
 		return getLedgerInstance(consensus).getBlock(id);
 	}
@@ -158,17 +111,12 @@ public class SeparatedMultiConsensusLedger implements DataPlane
 	}
 
 	@Override
-	public UTXOset getLedgerViewUTXOset(ConsensusMechanism consensus) {
-		return getLedgerInstance(consensus).getLedgerViewUTXOset();
-	}
-
-	@Override
 	public Committee getActiveCommittee(ConsensusMechanism consensus) {
 		return getLedgerInstance(consensus).getActiveCommittee();
 	}
 
 	@Override
-	public HistoryPreviousCommittees getLedgerViewPreviousCommittees(int lastN, ConsensusMechanism consensus) {
+	public List<Committee> getLedgerViewPreviousCommittees(int lastN, ConsensusMechanism consensus) {
 		return getLedgerInstance(consensus).getLedgerViewPreviousCommittees(lastN);
 	}
 	

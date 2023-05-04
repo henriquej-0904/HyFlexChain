@@ -5,16 +5,11 @@ import java.util.List;
 import java.util.Optional;
 
 import pt.unl.fct.di.hyflexchain.planes.application.lvi.BlockFilter;
-import pt.unl.fct.di.hyflexchain.planes.application.lvi.views.HistoryPreviousCommittees;
-import pt.unl.fct.di.hyflexchain.planes.application.lvi.views.UTXOset;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.consensus.committees.Committee;
 import pt.unl.fct.di.hyflexchain.planes.data.block.BlockState;
 import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
 import pt.unl.fct.di.hyflexchain.planes.data.ledger.LedgerState;
-import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
-import pt.unl.fct.di.hyflexchain.planes.data.transaction.TransactionId;
-import pt.unl.fct.di.hyflexchain.planes.data.transaction.TransactionState;
 import pt.unl.fct.di.hyflexchain.util.config.MultiLedgerConfig;
 
 /**
@@ -62,7 +57,7 @@ public interface DataPlane {
 	 * @param consensus The consensus mechanism
 	 * @return The transaction.
 	 */
-	Optional<HyFlexChainTransaction> getTransaction(TransactionId id, ConsensusMechanism consensus);
+	// Optional<HyFlexChainTransaction> getTransaction(TransactionId id, ConsensusMechanism consensus);
 
 	/**
 	 * Get the state of a transaction.
@@ -70,7 +65,7 @@ public interface DataPlane {
 	 * @param consensus The consensus mechanism
 	 * @return The state of the transaction.
 	 */
-	Optional<TransactionState> getTransactionState(TransactionId id, ConsensusMechanism consensus);
+	// Optional<TransactionState> getTransactionState(TransactionId id, ConsensusMechanism consensus);
 
 	/**
 	 * Get all transactions where the specified account is the origin.
@@ -78,7 +73,7 @@ public interface DataPlane {
 	 * @param consensus The consensus mechanism
 	 * @return All transactions where the specified account is the origin.
 	 */
-	List<HyFlexChainTransaction> getTransactionsByOriginAccount(String originPubKey, ConsensusMechanism consensus);
+	// List<HyFlexChainTransaction> getTransactionsByOriginAccount(String originPubKey, ConsensusMechanism consensus);
 
 	/**
 	 * Get all transactions where the specified account is the destination.
@@ -86,7 +81,7 @@ public interface DataPlane {
 	 * @param consensus The consensus mechanism
 	 * @return All transactions where the specified account is the destination.
 	 */
-	List<HyFlexChainTransaction> getTransactionsByDestAccount(String destPubKey, ConsensusMechanism consensus);
+	// List<HyFlexChainTransaction> getTransactionsByDestAccount(String destPubKey, ConsensusMechanism consensus);
 
 	/**
 	 * Get all transactions according to the specified filter
@@ -96,7 +91,7 @@ public interface DataPlane {
 	 * @param consensus The consensus mechanism
 	 * @return All filtered transactions where the specified account is the origin.
 	 */
-	List<HyFlexChainTransaction> getTransactionsByOriginAccount(String originPubKey, TransactionFilter filter, ConsensusMechanism consensus);
+	// List<HyFlexChainTransaction> getTransactionsByOriginAccount(String originPubKey, TransactionFilter filter, ConsensusMechanism consensus);
 
 	/**
 	 * Get all transactions according to the specified filter
@@ -106,7 +101,7 @@ public interface DataPlane {
 	 * @param consensus The consensus mechanism
 	 * @return All filtered transactions where the specified account is the destination.
 	 */
-	List<HyFlexChainTransaction> getTransactionsByDestAccount(String destPubKey, TransactionFilter filter, ConsensusMechanism consensus);
+	// List<HyFlexChainTransaction> getTransactionsByDestAccount(String destPubKey, TransactionFilter filter, ConsensusMechanism consensus);
 
 	/**
 	 * Get all transactions according to the specified filter.
@@ -114,7 +109,7 @@ public interface DataPlane {
 	 * @param consensus The consensus mechanism
 	 * @return All filtered transactions.
 	 */
-	List<HyFlexChainTransaction> getTransactions(TransactionFilter filter, ConsensusMechanism consensus);
+	// List<HyFlexChainTransaction> getTransactions(TransactionFilter filter, ConsensusMechanism consensus);
 
 	//#endregion
 
@@ -165,7 +160,7 @@ public interface DataPlane {
 	 * @param consensus The consensus mechanism
 	 * @return UTXO set
 	 */
-	UTXOset getLedgerViewUTXOset(ConsensusMechanism consensus);
+	// UTXOset getLedgerViewUTXOset(ConsensusMechanism consensus);
 
 	/**
 	 * Get the currently active committee.
@@ -181,5 +176,5 @@ public interface DataPlane {
 	 * @param consensus The consensus mechanism
 	 * @return Previous Committees.
 	 */
-	HistoryPreviousCommittees getLedgerViewPreviousCommittees(int lastN, ConsensusMechanism consensus);
+	List<Committee> getLedgerViewPreviousCommittees(int lastN, ConsensusMechanism consensus);
 }

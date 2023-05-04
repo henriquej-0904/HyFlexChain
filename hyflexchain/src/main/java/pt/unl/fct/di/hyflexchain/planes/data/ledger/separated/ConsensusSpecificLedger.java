@@ -4,17 +4,11 @@ import java.util.List;
 import java.util.Optional;
 
 import pt.unl.fct.di.hyflexchain.planes.application.lvi.BlockFilter;
-import pt.unl.fct.di.hyflexchain.planes.application.lvi.views.HistoryPreviousCommittees;
-import pt.unl.fct.di.hyflexchain.planes.application.lvi.views.UTXOset;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.consensus.committees.Committee;
-import pt.unl.fct.di.hyflexchain.planes.data.TransactionFilter;
 import pt.unl.fct.di.hyflexchain.planes.data.block.BlockState;
 import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
 import pt.unl.fct.di.hyflexchain.planes.data.ledger.LedgerState;
-import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
-import pt.unl.fct.di.hyflexchain.planes.data.transaction.TransactionId;
-import pt.unl.fct.di.hyflexchain.planes.data.transaction.TransactionState;
 import pt.unl.fct.di.hyflexchain.util.config.LedgerConfig;
 
 /**
@@ -46,28 +40,28 @@ public interface ConsensusSpecificLedger
 	 * @param id The id of the transaction
 	 * @return The transaction.
 	 */
-	Optional<HyFlexChainTransaction> getTransaction(TransactionId id);
+	// Optional<HyFlexChainTransaction> getTransaction(TransactionId id);
 
 	/**
 	 * Get the state of a transaction.
 	 * @param id The id of the transaction
 	 * @return The state of the transaction.
 	 */
-	Optional<TransactionState> getTransactionState(TransactionId id);
+	// Optional<TransactionState> getTransactionState(TransactionId id);
 
 	/**
 	 * Get all transactions where the specified account is the origin.
 	 * @param address The public key of the account
 	 * @return All transactions where the specified account is the origin.
 	 */
-	List<HyFlexChainTransaction> getTransactionsByOriginAccount(String address);
+	// List<HyFlexChainTransaction> getTransactionsByOriginAccount(String address);
 
 	/**
 	 * Get all transactions where the specified account is the destination.
 	 * @param address The address of the account
 	 * @return All transactions where the specified account is the destination.
 	 */
-	List<HyFlexChainTransaction> getTransactionsByDestAccount(String address);
+	// List<HyFlexChainTransaction> getTransactionsByDestAccount(String address);
 
 	/**
 	 * Get all transactions according to the specified filter
@@ -76,7 +70,7 @@ public interface ConsensusSpecificLedger
 	 * @param filter The filter
 	 * @return All filtered transactions where the specified account is the origin.
 	 */
-	List<HyFlexChainTransaction> getTransactionsByOriginAccount(String address, TransactionFilter filter);
+	// List<HyFlexChainTransaction> getTransactionsByOriginAccount(String address, TransactionFilter filter);
 
 	/**
 	 * Get all transactions according to the specified filter
@@ -85,14 +79,14 @@ public interface ConsensusSpecificLedger
 	 * @param filter The filter
 	 * @return All filtered transactions where the specified account is the destination.
 	 */
-	List<HyFlexChainTransaction> getTransactionsByDestAccount(String address, TransactionFilter filter);
+	// List<HyFlexChainTransaction> getTransactionsByDestAccount(String address, TransactionFilter filter);
 
 	/**
 	 * Get all transactions according to the specified filter.
 	 * @param filter The filter
 	 * @return All filtered transactions.
 	 */
-	List<HyFlexChainTransaction> getTransactions(TransactionFilter filter);
+	// List<HyFlexChainTransaction> getTransactions(TransactionFilter filter);
 
 	//#endregion
 
@@ -132,7 +126,7 @@ public interface ConsensusSpecificLedger
 	 * Get a ledger view of the UTXO set.
 	 * @return UTXO set
 	 */
-	UTXOset getLedgerViewUTXOset();
+	// UTXOset getLedgerViewUTXOset();
 
 	/**
 	 * Get the currently active committee.
@@ -146,5 +140,5 @@ public interface ConsensusSpecificLedger
 	 * @param lastN The previous N committees
 	 * @return Previous Committees.
 	 */
-	HistoryPreviousCommittees getLedgerViewPreviousCommittees(int lastN);
+	List<Committee> getLedgerViewPreviousCommittees(int lastN);
 }

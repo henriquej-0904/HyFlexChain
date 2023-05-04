@@ -1,28 +1,34 @@
 package pt.unl.fct.di.hyflexchain.planes.data.ledger.separated.inmemory;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-
 import pt.unl.fct.di.hyflexchain.planes.application.lvi.BlockFilter;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
+import pt.unl.fct.di.hyflexchain.planes.consensus.committees.Committee;
 import pt.unl.fct.di.hyflexchain.planes.data.block.BlockState;
 import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
 import pt.unl.fct.di.hyflexchain.planes.data.ledger.JsonLedgerState;
 import pt.unl.fct.di.hyflexchain.planes.data.ledger.LedgerState;
-import pt.unl.fct.di.hyflexchain.planes.data.ledger.separated.AbstractSpecificConsensusLedger;
-import pt.unl.fct.di.hyflexchain.planes.data.ledger.separated.blockchain.TxFinderRec;
-import pt.unl.fct.di.hyflexchain.planes.data.ledger.separated.blockchain.TxFinderList;
-import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
+import pt.unl.fct.di.hyflexchain.planes.data.ledger.separated.ConsensusSpecificLedger;
+import pt.unl.fct.di.hyflexchain.util.collections.UtilLists;
 import pt.unl.fct.di.hyflexchain.util.config.LedgerConfig;
 
 /**
  * An implementation of the Separated Ledger using
  * an in memory approach
  */
-public class InMemoryLedger extends AbstractSpecificConsensusLedger
+public class InMemoryLedger implements ConsensusSpecificLedger
 {
+	/**
+	 * The consensus mechanism used by this ledger.
+	 */
+	protected final ConsensusMechanism consensus;
+
+	protected final List<Committee> committees;
+
+	protected Committee activeCommittee;
+
 	/**
 	 * The blockchain: a map that preserves insertion order
 	 * and for each key (Block Id) corresponds a Block.
@@ -36,55 +42,32 @@ public class InMemoryLedger extends AbstractSpecificConsensusLedger
 	 * @param consensus The consensus mechanism used by this ledger.
 	 */
 	public InMemoryLedger(ConsensusMechanism consensus) {
-		super(consensus, new InMemoryAccounts(consensus));
+		this.consensus = consensus;
+		this.committees = new LinkedList<>();
 		this.blockchain = new InMemoryBlockchain();
 	}
 
 	@Override
 	public InMemoryLedger init(LedgerConfig config)
 	{
-		super.init(config);
 		// TODO: init Memory Ledger
-
 		return this;
 	}
 
 	@Override
-	public void appendBlock(HyFlexChainBlock block) {
+	public final void writeOrderedBlock(HyFlexChainBlock block)
+	{
 		this.blockchain.put(block.header().getMetaHeader().getHash(), block);
 	}
 
 	@Override
-	public Optional<HyFlexChainTransaction> getTransaction(TxFinderRec txFinder)
-	{
-		var block = this.blockchain.get(txFinder.blockHash());
-		if (block == null)
-			return Optional.empty();
-
-		return block.body().findTransaction(txFinder.txHash());
+	public final ConsensusMechanism getConsensusMechanism() {
+		return this.consensus;
 	}
 
 	@Override
-	public List<HyFlexChainTransaction> getTransactions(List<TxFinderList> txFinders)
-	{
-		List<List<HyFlexChainTransaction>> txList = txFinders.stream()
-			.map((txFinderList) ->
-				new ImmutablePair<>(txFinderList,
-					this.blockchain.get(txFinderList.blockHash())
-					)
-			)
-			.filter((p) -> p.right != null)
-			.map((p) -> p.right.body().findTransactions(p.left.txHashes()))
-			.toList();
-
-		int total = txList.stream().mapToInt(List::size).sum();
-		
-		List<HyFlexChainTransaction> res = new ArrayList<>(total);
-		for (List<HyFlexChainTransaction> list : txList) {
-			res.addAll(list);
-		}
-
-		return res;
+	public final Committee getActiveCommittee() {
+		return this.activeCommittee;
 	}
 
 	@Override
@@ -119,16 +102,12 @@ public class InMemoryLedger extends AbstractSpecificConsensusLedger
 
 	protected List<HyFlexChainBlock> getLastBlocks(int n)
 	{
-		int blockchainSize = this.blockchain.size();
-		int toIndex = blockchainSize;
-		int fromIndex = blockchainSize - n;
-		
-		if (fromIndex < 0)
-		{
-			fromIndex = 0;
-		}
+		return UtilLists.subListLastElems(this.blockchain.valuesList(), n);
+	}
 
-		return this.blockchain.valuesList().subList(fromIndex, toIndex);
+	@Override
+	public List<Committee> getLedgerViewPreviousCommittees(int lastN) {
+		return UtilLists.subListLastElems(this.committees, lastN);
 	}
 
 	@Override

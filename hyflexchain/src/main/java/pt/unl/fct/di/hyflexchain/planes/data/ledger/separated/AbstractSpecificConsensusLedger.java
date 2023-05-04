@@ -11,6 +11,8 @@ import pt.unl.fct.di.hyflexchain.planes.data.TransactionFilter;
 import pt.unl.fct.di.hyflexchain.planes.data.block.BlockState;
 import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
 import pt.unl.fct.di.hyflexchain.planes.data.ledger.separated.account.Accounts;
+import pt.unl.fct.di.hyflexchain.planes.data.ledger.separated.blockchain.TxFinderRec;
+import pt.unl.fct.di.hyflexchain.planes.data.ledger.separated.blockchain.TxFinderList;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.TransactionId;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.TransactionState;
@@ -41,7 +43,7 @@ public abstract class AbstractSpecificConsensusLedger implements ConsensusSpecif
 	 * @param txFinder An object to locate a transaction
 	 * @return The transaction.
 	 */
-	public abstract Optional<HyFlexChainTransaction> getTransaction(TxFinder txFinder);
+	public abstract Optional<HyFlexChainTransaction> getTransaction(TxFinderRec txFinder);
 
 	/**
 	 * Get all requested transactions.

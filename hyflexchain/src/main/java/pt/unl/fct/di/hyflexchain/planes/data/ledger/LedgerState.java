@@ -1,7 +1,5 @@
 package pt.unl.fct.di.hyflexchain.planes.data.ledger;
 
-import java.util.List;
-
 import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
 
 /**

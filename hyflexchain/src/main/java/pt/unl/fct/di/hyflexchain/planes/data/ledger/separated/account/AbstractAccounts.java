@@ -60,10 +60,12 @@ public abstract class AbstractAccounts implements Accounts
 	 * 3) Verify all created UTXO and add mark them as valid for
 	 * each corresponding destination account.
 	 * 
+	 * @param block The block where this transaction is inserted
 	 * @param tx The transaction to process
 	 * @return true if processed successfully.
 	 */
-	protected abstract boolean processNewTransaction(HyFlexChainTransaction tx);
+	protected abstract boolean processNewTransaction(HyFlexChainBlock block,
+		HyFlexChainTransaction tx);
 
 	@Override
 	public ConsensusMechanism getConsensusMechanism() {
@@ -79,7 +81,7 @@ public abstract class AbstractAccounts implements Accounts
 		var it = block.body().getTransactions().values().iterator();
 
 		while (result && it.hasNext()) {
-			result = processNewTransaction(it.next());
+			result = processNewTransaction(block, it.next());
 		}
 
 		if (result)

@@ -2,7 +2,6 @@ package pt.unl.fct.di.hyflexchain.planes.data.ledger.separated;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import pt.unl.fct.di.hyflexchain.planes.application.lvi.BlockFilter;
 import pt.unl.fct.di.hyflexchain.planes.application.lvi.views.HistoryPreviousCommittees;

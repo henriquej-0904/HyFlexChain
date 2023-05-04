@@ -12,8 +12,8 @@ import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
 import pt.unl.fct.di.hyflexchain.planes.data.ledger.JsonLedgerState;
 import pt.unl.fct.di.hyflexchain.planes.data.ledger.LedgerState;
 import pt.unl.fct.di.hyflexchain.planes.data.ledger.separated.AbstractSpecificConsensusLedger;
-import pt.unl.fct.di.hyflexchain.planes.data.ledger.separated.TxFinder;
-import pt.unl.fct.di.hyflexchain.planes.data.ledger.separated.TxFinderList;
+import pt.unl.fct.di.hyflexchain.planes.data.ledger.separated.blockchain.TxFinderRec;
+import pt.unl.fct.di.hyflexchain.planes.data.ledger.separated.blockchain.TxFinderList;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
 import pt.unl.fct.di.hyflexchain.util.config.LedgerConfig;
 
@@ -55,7 +55,7 @@ public class InMemoryLedger extends AbstractSpecificConsensusLedger
 	}
 
 	@Override
-	public Optional<HyFlexChainTransaction> getTransaction(TxFinder txFinder)
+	public Optional<HyFlexChainTransaction> getTransaction(TxFinderRec txFinder)
 	{
 		var block = this.blockchain.get(txFinder.blockHash());
 		if (block == null)

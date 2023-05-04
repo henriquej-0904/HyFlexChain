@@ -1,4 +1,4 @@
-package pt.unl.fct.di.hyflexchain.planes.data.ledger.separated;
+package pt.unl.fct.di.hyflexchain.planes.data.ledger.separated.blockchain;
 
 /**
  * A way to locate a transaction on the ledger.
@@ -6,6 +6,6 @@ package pt.unl.fct.di.hyflexchain.planes.data.ledger.separated;
  * @param blockHash The hash of the block containing this transaction
  * @param txHash The hash of the transaction
  */
-public record TxFinder(String blockHash, String txHash) {
+public record TxFinderRec(String blockHash, String txHash) implements TxFinder {
 	
 }

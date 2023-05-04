@@ -1,9 +1,6 @@
 package pt.unl.fct.di.hyflexchain.planes.data.block;
 
 import java.util.Collection;
-import java.util.Map;
-
-import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
 
 /**
  * A Merkle Tree for transactions in a block.

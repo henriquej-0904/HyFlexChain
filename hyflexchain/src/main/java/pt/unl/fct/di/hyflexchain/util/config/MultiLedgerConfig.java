@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
+import pt.unl.fct.di.hyflexchain.util.SystemVersion;
 
 /**
  * The parameters for the ledger.
@@ -125,11 +126,25 @@ public class MultiLedgerConfig
 		return res != null ? res : this.generalConfig.getProperty(key);
 	}
 
+	public SystemVersion getSystemVersion()
+	{
+		try {
+			return SystemVersion.valueOf(getConfigValue(GENERAL_CONFIG.SYSTEM_VERSION));
+		} catch (Exception e) {
+			throw new Error("Configuration: SYSTEM_VERSION is required!");
+		}
+	}
+
 	/**
 	 * An enum of some General configurations and their type.
 	 */
 	public static enum GENERAL_CONFIG
 	{
+		/**
+		 * The system version
+		 */
+		SYSTEM_VERSION,
+
 		/**
 		 * The type of data storage of the ledger
 		 */

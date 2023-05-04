@@ -6,7 +6,12 @@ import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
  * An interface to submit transactions.
  */
 public interface TransactionInterface {
-	
+
+	public static TransactionInterface getInstance()
+	{
+		return TransactionInterfaceInstance.getInstance();
+	}
+
 	/**
 	 * Send transaction primitive:
 	 * submits a transaction for verification and,

@@ -6,7 +6,12 @@ import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
  * Responsible for managing transactions.
  */
 public interface TransactionManagement {
-	
+
+	public static TransactionManagement getInstance()
+	{
+		return TransactionManagementInstance.getInstance();
+	}
+
 	/**
 	 * Receives a transaction to be verified and ordered by the system.
 	 * Eventually, it will be inserted on a block and ordered
@@ -14,6 +19,6 @@ public interface TransactionManagement {
 	 * appended to the Ledger.
 	 * @param tx The transaction
 	 */
-	void dispatchTransaction(HyFlexChainTransaction tx);
+	String dispatchTransaction(HyFlexChainTransaction tx);
 
 }

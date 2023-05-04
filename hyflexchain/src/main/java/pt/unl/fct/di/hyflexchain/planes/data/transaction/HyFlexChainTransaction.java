@@ -189,6 +189,27 @@ public class HyFlexChainTransaction {
 		this.data = data;
 	}
 
-	
+	/**
+	 * The version of this transaction
+	 */
+	public static enum Version {
+		V1_0("v1.0");
+
+		private String version;
+
+		/**
+		 * @param version
+		 */
+		private Version(String version) {
+			this.version = version;
+		}
+
+		/**
+		 * @return the version
+		 */
+		public String getVersion() {
+			return version;
+		}
+	}
 	
 }

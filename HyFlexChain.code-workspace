@@ -1,0 +1,21 @@
+{
+	"folders": [
+		{
+			"path": "blockmess-simple-crypto-node"
+		},
+		{
+			"path": "caliper"
+		},
+		{
+			"path": "report"
+		},
+		{
+                        "path": "hyflexchain"
+                }
+
+		
+	],
+	"settings": {
+		"java.configuration.updateBuildConfiguration": "interactive"
+	}
+}

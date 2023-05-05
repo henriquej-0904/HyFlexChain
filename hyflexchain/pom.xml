@@ -22,7 +22,7 @@
   <repositories>
     <repository>
         <id>blockmess_lib</id>
-        <url>file:///${project.basedir}/blockmess/blockmess_lib</url>
+        <url>file:///${project.basedir}/../dependencies/blockmess_lib</url>
     </repository>
   </repositories>
 
@@ -95,11 +95,11 @@
     </dependency>
 
     <!-- Dependencies for blockmess-->
-    <!-- <dependency>
+    <dependency>
       <groupId>blockmess</groupId>
       <artifactId>Blockmess_Simple_PoET</artifactId>
       <version>1.0-SNAPSHOT</version>
-    </dependency> -->
+    </dependency>
 
     <dependency> 
       <groupId>org.slf4j</groupId>  

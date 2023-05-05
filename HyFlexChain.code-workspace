@@ -8,7 +8,12 @@
 		},
 		{
 			"path": "report"
-		}
+		},
+		{
+                        "path": "hyflexchain"
+                }
+
+		
 	],
 	"settings": {
 		"java.configuration.updateBuildConfiguration": "interactive"

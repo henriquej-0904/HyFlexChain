@@ -20,18 +20,18 @@ public class Utils
 {
     public static final JsonMapper json = new JsonMapper();
 
-    public static byte[] toBytes(int value)
+    public static ByteBuffer toBytes(int value)
     {
         ByteBuffer b = ByteBuffer.allocate(Integer.BYTES);
         b.putInt(value);
-        return b.array();
+        return b;
     }
 
-    public static byte[] toBytes(long value)
+    public static ByteBuffer toBytes(long value)
     {
         ByteBuffer b = ByteBuffer.allocate(Long.BYTES);
         b.putLong(value);
-        return b.array();
+        return b;
     }
 
     public static void logError(Exception e, Logger log)

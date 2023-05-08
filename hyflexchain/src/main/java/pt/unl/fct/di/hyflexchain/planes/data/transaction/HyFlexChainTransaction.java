@@ -1,5 +1,19 @@
 package pt.unl.fct.di.hyflexchain.planes.data.transaction;
 
+import java.nio.ByteBuffer;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.Signature;
+import java.security.SignatureException;
+import java.security.spec.InvalidKeySpecException;
+import java.util.function.Consumer;
+
+import pt.unl.fct.di.hyflexchain.util.Bytes;
+import pt.unl.fct.di.hyflexchain.util.Crypto;
+import pt.unl.fct.di.hyflexchain.util.Utils;
+
 /**
  * Represents a HyFlexChain Transaction
  */
@@ -11,7 +25,7 @@ public class HyFlexChainTransaction {
 	protected String version;
 
 	/**
-	 * The hash of the transaction (excluding signature)
+	 * The hash of the transaction
 	 */
 	protected String hash;
 
@@ -61,6 +75,96 @@ public class HyFlexChainTransaction {
 	 * Create a transaction
 	 */
 	public HyFlexChainTransaction() {
+	}
+
+	public String sign(PrivateKey key, String signatureAlg) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException
+    {
+        Signature signature = Crypto.createSignatureInstance(signatureAlg);
+        signature.initSign(key);
+        
+        signature.update(this.version.getBytes());
+		signature.update(this.address.getBytes());
+		signature.update(Utils.toBytes(this.nonce));
+
+		final Consumer<ByteBuffer> apply = (buff) -> {
+			try {
+				signature.update(buff);
+			} catch (SignatureException e) {
+				// never happens
+				e.printStackTrace();
+			}
+		};
+
+		Bytes.applyToBytes(this.inputTxs, apply);
+		Bytes.applyToBytes(this.outputTxs, apply);
+
+		signature.update(this.data);
+
+        var sigRes = Utils.toHex(signature.sign());
+
+		this.signatureType = signatureAlg;
+		this.signature = sigRes;
+
+		return sigRes;
+    }
+
+	public boolean verifySignature() throws InvalidKeySpecException, NoSuchAlgorithmException, InvalidKeyException, SignatureException
+    {
+        var key = Address.readPublicKey(this.address);
+		var sigAlg = this.signatureType;
+		return verifySignature(key, sigAlg);
+    }
+
+	protected boolean verifySignature(PublicKey key, String sigAlg) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException
+    {
+        Signature signature = Crypto.createSignatureInstance(sigAlg);
+        signature.initVerify(key);
+        
+        signature.update(this.version.getBytes());
+		signature.update(this.address.getBytes());
+		signature.update(Utils.toBytes(this.nonce));
+
+		final Consumer<ByteBuffer> apply = (buff) -> {
+			try {
+				signature.update(buff);
+			} catch (SignatureException e) {
+				// never happens
+				e.printStackTrace();
+			}
+		};
+
+		Bytes.applyToBytes(this.inputTxs, apply);
+		Bytes.applyToBytes(this.outputTxs, apply);
+
+		signature.update(this.data);
+
+        var sigBytes = Utils.fromHex(this.signature);
+		return signature.verify(sigBytes);
+    }
+
+	public String hash()
+	{
+		var msgDigest = Crypto.getSha256Digest();
+        
+        msgDigest.update(this.version.getBytes());
+		msgDigest.update(this.address.getBytes());
+		msgDigest.update(this.signatureType.getBytes());
+		msgDigest.update(this.signature.getBytes());
+		msgDigest.update(Utils.toBytes(this.nonce));
+
+		final Consumer<ByteBuffer> apply = msgDigest::update;
+
+		Bytes.applyToBytes(this.inputTxs, apply);
+		Bytes.applyToBytes(this.outputTxs, apply);
+
+		msgDigest.update(this.data);
+
+		return Utils.toHex(msgDigest.digest());
+	}
+
+	public boolean verifyHash()
+	{
+		return this.hash.equalsIgnoreCase(hash());
 	}
 
 	/**

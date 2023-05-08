@@ -1,7 +1,9 @@
 package pt.unl.fct.di.hyflexchain.planes.txmanagement;
 
 import pt.unl.fct.di.hyflexchain.planes.application.ti.InvalidTransactionException;
+import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
+import pt.unl.fct.di.hyflexchain.planes.txmanagement.txpool.TxPool;
 
 /**
  * Responsible for managing transactions.
@@ -12,6 +14,15 @@ public interface TransactionManagement {
 	{
 		return TransactionManagementInstance.getInstance();
 	}
+
+	/**
+	 * Get the transaction pool for the specified consensus
+	 * mechanism.
+	 * @param consensus The consensus
+	 * @return the transaction pool for the specified consensus
+	 * mechanism.
+	 */
+	TxPool getTxPool(ConsensusMechanism consensus);
 
 	/**
 	 * Receives a transaction to be verified

@@ -1,5 +1,8 @@
 package pt.unl.fct.di.hyflexchain.planes.application.ti;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction.Version;
 import pt.unl.fct.di.hyflexchain.planes.txmanagement.TransactionManagement;
@@ -10,6 +13,8 @@ import pt.unl.fct.di.hyflexchain.planes.txmanagement.TransactionManagement;
  */
 public class TransactionInterfaceV1_0 implements TransactionInterface {
 
+	private static final Logger LOGGER = LogManager.getLogger();
+
 	@Override
 	public String sendTransaction(HyFlexChainTransaction tx) throws InvalidTransactionException
 	{
@@ -17,16 +22,26 @@ public class TransactionInterfaceV1_0 implements TransactionInterface {
 		try {
 			version = HyFlexChainTransaction.Version.valueOf(tx.getVersion());
 		} catch (Exception e) {
-			throw InvalidTransactionException.invalidVersion(tx.getVersion());
+			var exc = InvalidTransactionException.invalidVersion(tx.getVersion());
+			LOGGER.info(exc.getMessage());
+			throw exc;
 		}
 
 		if (version != Version.V1_0)
-			throw InvalidTransactionException.invalidVersion(tx.getVersion());
+		{
+			var exc = InvalidTransactionException.invalidVersion(tx.getVersion());
+			LOGGER.info(exc.getMessage());
+			throw exc;
+		}
 
 		if (tx.getAddress() == null || tx.getHash() == null ||
 			tx.getSignatureType() == null || tx.getSignature() == null)
-			throw new InvalidTransactionException("At least one field is null");
-		
+		{
+			var exc = new InvalidTransactionException("At least one field is null");
+			LOGGER.info(exc.getMessage());
+			throw exc;
+		}
+			
 		return TransactionManagement.getInstance().dispatchTransaction(tx);	
 	}
 	

@@ -1,9 +1,10 @@
 package pt.unl.fct.di.hyflexchain.planes.txmanagement.txpool;
 
 import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.Map.Entry;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
@@ -73,16 +74,24 @@ public class TxPool
 
 	/**
 	 * Get a list of n transactions.
-	 * The list is sorted by the insertion order of transactions.
+	 * The map is sorted by the insertion order of transactions.
 	 * @param n The number of transactions
 	 * @return A list of transactions.
 	 */
-	public List<HyFlexChainTransaction> getTxs(int n)
+	public LinkedHashMap<String, HyFlexChainTransaction> getTxs(int n)
 	{
 		this.lock.lock();
 
-		var list = this.pending.values().stream()
-			.limit(n).toList();
+		var list = this.pending.entrySet().stream()
+			.limit(n)
+			.collect(
+				Collectors.toMap(
+					Entry::getKey,
+					Entry::getValue,
+					(x1, x2) -> x1,
+					() -> new LinkedHashMap<>(n)
+				)
+			);
 
 		this.lock.unlock();
 

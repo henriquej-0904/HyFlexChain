@@ -47,10 +47,9 @@ public class BlockBody
 	 * 
 	 * @param transactions The list of transactions in this block
 	 */
-	public BlockBody(LinkedHashMap<String, HyFlexChainTransaction> transactions) {
-		this.version = Version.V1_0.getVersion();
-		this.merkleTree = new MerkleTree(transactions.keySet());
-		this.transactions = transactions;
+	public static BlockBody from(LinkedHashMap<String, HyFlexChainTransaction> transactions) {
+		return new BlockBody(Version.V1_0.getVersion(),
+			new MerkleTree(transactions.keySet()), transactions);
 	}
 
 	/**

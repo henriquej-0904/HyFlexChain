@@ -176,4 +176,34 @@ public class MerkleTree
 	public void setRoot(Node root) {
 		this.root = root;
 	}
+
+	/**
+	 * Verify if this merkle tree is valid for
+	 * the specified list of transactions.
+	 * @param txHashes The list of transaction hashes.
+	 * @return true if this merkle tree is valid.
+	 */
+	public boolean verifyTree(Collection<String> txHashes)
+	{
+		var calculated = new MerkleTree(txHashes);
+		return verifyTree(this.getRoot(), calculated.getRoot());
+	}
+	
+
+	protected boolean verifyTree(Node n1, Node n2)
+	{
+		if (n1 == null && n2 == null)
+			return true;
+
+		if (n1 == null)
+			return false;
+
+		if (!n1.equals(n2))
+			return false;
+
+		return verifyTree(n1.left, n2.left)
+			&& verifyTree(n1.right, n2.right);		
+	}
+
+	
 }

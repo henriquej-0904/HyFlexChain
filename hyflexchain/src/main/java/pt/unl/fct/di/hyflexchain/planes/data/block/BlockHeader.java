@@ -65,14 +65,10 @@ public class BlockHeader
 	 * @param timestamp The approximate creation time of this block (seconds from Unix Epoch)
 	 * @param nonce A nonce for this block.
 	 */
-	public BlockHeader(BlockMetaHeader metaHeader, String prevHash,
+	public static BlockHeader create(BlockMetaHeader metaHeader, String prevHash,
 			String merkleRoot, long timestamp, long nonce) {
-		this.metaHeader = metaHeader;
-		this.version = Version.V1_0.getVersion();
-		this.prevHash = prevHash;
-		this.merkleRoot = merkleRoot;
-		this.timestamp = timestamp;
-		this.nonce = nonce;
+		return new BlockHeader(metaHeader, Version.V1_0.getVersion(),
+			prevHash, merkleRoot, timestamp, nonce);
 	}
 
 	/**

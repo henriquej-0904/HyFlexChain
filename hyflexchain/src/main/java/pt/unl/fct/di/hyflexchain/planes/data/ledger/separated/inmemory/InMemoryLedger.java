@@ -1,8 +1,11 @@
 package pt.unl.fct.di.hyflexchain.planes.data.ledger.separated.inmemory;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
+
 import pt.unl.fct.di.hyflexchain.planes.application.lvi.BlockFilter;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.consensus.committees.Committee;
@@ -35,6 +38,8 @@ public class InMemoryLedger implements ConsensusSpecificLedger
 	 */
 	protected final InMemoryBlockchain blockchain;
 
+	protected final List<Consumer<HyFlexChainBlock>> uponNewBlock;
+
 
 	/**
 	 * Create a new instance of the ledger for a specific consensus
@@ -45,6 +50,7 @@ public class InMemoryLedger implements ConsensusSpecificLedger
 		this.consensus = consensus;
 		this.committees = new LinkedList<>();
 		this.blockchain = new InMemoryBlockchain();
+		this.uponNewBlock = new ArrayList<>(10);
 	}
 
 	@Override
@@ -58,6 +64,7 @@ public class InMemoryLedger implements ConsensusSpecificLedger
 	public final void writeOrderedBlock(HyFlexChainBlock block)
 	{
 		this.blockchain.put(block.header().getMetaHeader().getHash(), block);
+		this.uponNewBlock.forEach((consumer) -> consumer.accept(block));
 	}
 
 	@Override
@@ -117,5 +124,10 @@ public class InMemoryLedger implements ConsensusSpecificLedger
 		int size = list.size();
 
 		return new JsonLedgerState(list.subList(0, size));
+	}
+
+	@Override
+	public void uponNewBlock(Consumer<HyFlexChainBlock> action) {
+		this.uponNewBlock.add(action);
 	}
 }

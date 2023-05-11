@@ -1,5 +1,6 @@
 package pt.unl.fct.di.hyflexchain.planes.data.block;
 
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -158,6 +159,16 @@ public class BlockBody
 		}
 
 		return txs;
+	}
+
+
+	public MessageDigest calcHash(MessageDigest msgDigest)
+	{
+		msgDigest.update(version.getBytes());
+		msgDigest.update(merkleTree.getRoot().hash().getBytes());
+		transactions.keySet().forEach((hash) -> msgDigest.update(hash.getBytes()));
+		
+		return msgDigest;
 	}
 	
 }

@@ -1,6 +1,9 @@
 package pt.unl.fct.di.hyflexchain.planes.data.block;
 
+import java.security.MessageDigest;
+
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
+import pt.unl.fct.di.hyflexchain.util.Utils;
 
 /**
  * The MetaHeader of a block.
@@ -221,6 +224,25 @@ public class BlockMetaHeader
 	 */
 	public void setCommitteeBlockHash(String committeeBlockHash) {
 		this.committeeBlockHash = committeeBlockHash;
+	}
+
+	public MessageDigest calcHash(MessageDigest msgDigest)
+	{
+		msgDigest.update(version.getBytes());
+		msgDigest.update(consensus.toString().getBytes());
+		msgDigest.update(Utils.toBytes(difficultyTarget));
+
+		if ( !(validators == null || validators.length == 0) )
+		{
+			for (String validator : validators) {
+				msgDigest.update(validator.getBytes());
+			}
+		}
+
+		msgDigest.update(committeeId.getBytes());
+		msgDigest.update(committeeBlockHash.getBytes());
+
+		return msgDigest;
 	}
 
 	

@@ -3,6 +3,7 @@ package pt.unl.fct.di.hyflexchain.planes.data.ledger.separated;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -23,6 +24,24 @@ import pt.unl.fct.di.hyflexchain.util.config.MultiLedgerConfig;
  */
 public class SeparatedMultiConsensusLedger implements DataPlane
 {
+	protected static SeparatedMultiConsensusLedger instance;
+
+	public static SeparatedMultiConsensusLedger getInstance()
+	{
+		if (instance != null)
+			return instance;
+
+		synchronized(SeparatedMultiConsensusLedger.class)
+		{
+			if (instance != null)
+				return instance;
+
+			instance = new SeparatedMultiConsensusLedger(MultiLedgerConfig.getInstance());
+
+			return instance;
+		}
+	}
+
 	protected final MultiLedgerConfig configs;
 
 	protected final EnumMap<ConsensusMechanism, ConsensusSpecificLedger> ledgerByConsensus;
@@ -118,6 +137,11 @@ public class SeparatedMultiConsensusLedger implements DataPlane
 	@Override
 	public List<Committee> getLedgerViewPreviousCommittees(int lastN, ConsensusMechanism consensus) {
 		return getLedgerInstance(consensus).getLedgerViewPreviousCommittees(lastN);
+	}
+
+	@Override
+	public void uponNewBlock(Consumer<HyFlexChainBlock> action, ConsensusMechanism consensus) {
+		getLedgerInstance(consensus).uponNewBlock(action);
 	}
 	
 }

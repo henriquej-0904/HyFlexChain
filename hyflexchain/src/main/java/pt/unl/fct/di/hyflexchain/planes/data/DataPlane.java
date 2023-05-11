@@ -3,6 +3,7 @@ package pt.unl.fct.di.hyflexchain.planes.data;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import pt.unl.fct.di.hyflexchain.planes.application.lvi.BlockFilter;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
@@ -10,6 +11,7 @@ import pt.unl.fct.di.hyflexchain.planes.consensus.committees.Committee;
 import pt.unl.fct.di.hyflexchain.planes.data.block.BlockState;
 import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
 import pt.unl.fct.di.hyflexchain.planes.data.ledger.LedgerState;
+import pt.unl.fct.di.hyflexchain.planes.data.ledger.separated.SeparatedMultiConsensusLedger;
 import pt.unl.fct.di.hyflexchain.util.config.MultiLedgerConfig;
 
 /**
@@ -18,6 +20,11 @@ import pt.unl.fct.di.hyflexchain.util.config.MultiLedgerConfig;
  * Additionally, it provides other information (UTXO set, previous committees, etc).
  */
 public interface DataPlane {
+
+	public static DataPlane getInstance()
+	{
+		return SeparatedMultiConsensusLedger.getInstance();
+	}
 
 	/**
 	 * Get the applied Ledger parameters
@@ -177,4 +184,12 @@ public interface DataPlane {
 	 * @return Previous Committees.
 	 */
 	List<Committee> getLedgerViewPreviousCommittees(int lastN, ConsensusMechanism consensus);
+
+	/**
+	 * Call the specified action upon a new block is appended
+	 * to the chain.
+	 * @param action The action to call
+	 * @param consensus The consensus mechanism
+	 */
+	public void uponNewBlock(Consumer<HyFlexChainBlock> action, ConsensusMechanism consensus);
 }

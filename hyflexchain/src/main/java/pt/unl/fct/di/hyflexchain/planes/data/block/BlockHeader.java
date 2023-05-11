@@ -1,5 +1,9 @@
 package pt.unl.fct.di.hyflexchain.planes.data.block;
 
+import java.security.MessageDigest;
+
+import pt.unl.fct.di.hyflexchain.util.Utils;
+
 /**
  * The Header of a Block.
  */
@@ -26,11 +30,6 @@ public class BlockHeader
 	protected String merkleRoot;
 
 	/**
-	 * The approximate creation time of this block (seconds from Unix Epoch)
-	 */
-	protected long timestamp;
-
-	/**
 	 * A nonce for this block.
 	 */
 	protected long nonce;
@@ -42,17 +41,15 @@ public class BlockHeader
 	 * @param version The version of this header
 	 * @param prevHash A reference to the hash of the previous (parent) block in the chain
 	 * @param merkleRoot A hash of the root of the merkle tree of this block’s transactions
-	 * @param timestamp The approximate creation time of this block (seconds from Unix Epoch)
 	 * @param nonce A nonce for this block.
 	 */
 	public BlockHeader(BlockMetaHeader metaHeader, String version,
-			String prevHash, String merkleRoot, long timestamp,
+			String prevHash, String merkleRoot,
 			long nonce) {
 		this.metaHeader = metaHeader;
 		this.version = version;
 		this.prevHash = prevHash;
 		this.merkleRoot = merkleRoot;
-		this.timestamp = timestamp;
 		this.nonce = nonce;
 	}
 
@@ -62,13 +59,12 @@ public class BlockHeader
 	 * @param metaHeader The meta header of this block
 	 * @param prevHash A reference to the hash of the previous (parent) block in the chain
 	 * @param merkleRoot A hash of the root of the merkle tree of this block’s transactions
-	 * @param timestamp The approximate creation time of this block (seconds from Unix Epoch)
 	 * @param nonce A nonce for this block.
 	 */
 	public static BlockHeader create(BlockMetaHeader metaHeader, String prevHash,
-			String merkleRoot, long timestamp, long nonce) {
+			String merkleRoot, long nonce) {
 		return new BlockHeader(metaHeader, Version.V1_0.getVersion(),
-			prevHash, merkleRoot, timestamp, nonce);
+			prevHash, merkleRoot, nonce);
 	}
 
 	/**
@@ -165,22 +161,6 @@ public class BlockHeader
 	}
 
 	/**
-	 * The approximate creation time of this block (seconds from Unix Epoch)
-	 * @return the timestamp
-	 */
-	public long getTimestamp() {
-		return timestamp;
-	}
-
-	/**
-	 * The approximate creation time of this block (seconds from Unix Epoch)
-	 * @param timestamp the timestamp to set
-	 */
-	public void setTimestamp(long timestamp) {
-		this.timestamp = timestamp;
-	}
-
-	/**
 	 * A nonce for this block.
 	 * @return the nonce
 	 */
@@ -196,5 +176,15 @@ public class BlockHeader
 		this.nonce = nonce;
 	}
 
+	public MessageDigest calcHash(MessageDigest msgDigest)
+	{
+		metaHeader.calcHash(msgDigest);
+		msgDigest.update(version.getBytes());
+		msgDigest.update(prevHash.getBytes());
+		msgDigest.update(merkleRoot.getBytes());
+		msgDigest.update(Utils.toBytes(nonce));
+
+		return msgDigest;
+	}
 	
 }

@@ -46,6 +46,27 @@ public class LedgerConfig {
 	{
 		return getConfigValue(key.toString());
 	}
+
+	/**
+	 * The number of transactions inside a block.
+	 * @return The number of transactions inside a block.
+	 */
+	public int getNumTxsInBlock()
+	{
+		try {
+			return Integer.valueOf(getConfigValue(CONFIG.N_TXS_IN_BLOCK.toString()));
+		} catch (Exception e) {
+			throw new Error("Configuration: N_TXS_IN_BLOCK is required!");
+		}
+	}
+
+	public static enum CONFIG
+	{
+		/**
+		 * The number of transactions inside a block.
+		 */
+		N_TXS_IN_BLOCK
+	}
 	
 
 }

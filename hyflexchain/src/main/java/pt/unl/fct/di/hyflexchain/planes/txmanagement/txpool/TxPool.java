@@ -1,6 +1,7 @@
 package pt.unl.fct.di.hyflexchain.planes.txmanagement.txpool;
 
 import java.util.LinkedHashMap;
+import java.util.Optional;
 import java.util.Map.Entry;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -27,6 +28,8 @@ public class TxPool
 	 */
 	private final LinkedHashMap<String, HyFlexChainTransaction> pending;
 
+	private volatile int size;
+
 	private final Lock lock;
 
 	/**
@@ -36,6 +39,8 @@ public class TxPool
 	public TxPool(ConsensusMechanism consensus) {
 		this.consensus = consensus;
 		this.pending = new LinkedHashMap<>(PENDING_INIT_SIZE);
+		this.size = 0;
+
 		this.lock = new ReentrantLock();
 	}
 
@@ -53,7 +58,7 @@ public class TxPool
 	 */
 	public int size()
 	{
-		return this.pending.size();
+		return this.size;
 	}
 
 	/**
@@ -66,6 +71,8 @@ public class TxPool
 		this.lock.lock();
 
 		boolean inserted = this.pending.putIfAbsent(tx.getHash(), tx) == null;
+		if (inserted)
+			this.size++;
 
 		this.lock.unlock();
 
@@ -96,5 +103,15 @@ public class TxPool
 		this.lock.unlock();
 
 		return list;
+	}
+
+	public Optional<HyFlexChainTransaction> getPendingTx(String txHash)
+	{
+		return Optional.ofNullable(this.pending.get(txHash));
+	}
+
+	public boolean txExists(String txHash)
+	{
+		return this.pending.containsKey(txHash);
 	}
 }

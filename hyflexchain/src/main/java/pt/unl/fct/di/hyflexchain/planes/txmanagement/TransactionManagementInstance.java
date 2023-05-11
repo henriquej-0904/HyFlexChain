@@ -10,7 +10,7 @@ public class TransactionManagementInstance {
 		if (instance != null)
 			return instance;
 
-		synchronized(instance)
+		synchronized(TransactionManagementInstance.class)
 		{
 			if (instance != null)
 				return instance;

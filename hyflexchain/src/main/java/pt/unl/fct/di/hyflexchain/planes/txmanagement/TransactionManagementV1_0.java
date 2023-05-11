@@ -5,10 +5,10 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.EnumMap;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import pt.unl.fct.di.hyflexchain.planes.application.lvi.LedgerViewInterface;
 import pt.unl.fct.di.hyflexchain.planes.application.ti.InvalidTransactionException;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
@@ -84,7 +84,7 @@ public class TransactionManagementV1_0 implements TransactionManagement
 	{
 		if ( ! pool.addTxIfAbsent(tx) )
 		{
-			var msg = "Invalid Transacion: Already submitted.";
+			var msg = "Invalid Transaction: Already submitted.";
 			LOGGER.info(msg);
 			throw new InvalidTransactionException(msg);
 		}

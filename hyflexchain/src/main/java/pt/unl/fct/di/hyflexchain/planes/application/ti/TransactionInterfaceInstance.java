@@ -9,7 +9,7 @@ public class TransactionInterfaceInstance {
 		if (instance != null)
 			return instance;
 
-		synchronized(instance)
+		synchronized(TransactionInterfaceInstance.class)
 		{
 			if (instance != null)
 				return instance;

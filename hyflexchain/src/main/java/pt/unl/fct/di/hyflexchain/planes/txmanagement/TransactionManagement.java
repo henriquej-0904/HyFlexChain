@@ -34,4 +34,16 @@ public interface TransactionManagement {
 	 */
 	String dispatchTransaction(HyFlexChainTransaction tx) throws InvalidTransactionException;
 
+	/**
+	 * Receives a transaction to be verified
+	 * and ordered by the system.
+	 * Eventually, it will be inserted on a block and ordered
+	 * through a consensus mechanism. After that, the block is
+	 * appended to the Ledger. <p>
+	 * This method differs from {@link #dispatchTransaction(HyFlexChainTransaction)}
+	 * in the sense that it waits for the transaction to be
+	 * finalized.
+	 * @param tx The transaction
+	 */
+	String dispatchTransactionAndWait(HyFlexChainTransaction tx) throws InvalidTransactionException;
 }

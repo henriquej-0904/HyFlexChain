@@ -1,11 +1,10 @@
 package pt.unl.fct.di.hyflexchain.planes.application.lvi;
 
 import java.util.EnumMap;
-import java.util.Set;
-
-import pt.unl.fct.di.hyflexchain.planes.application.lvi.views.HistoryPreviousCommittees;
-import pt.unl.fct.di.hyflexchain.planes.application.lvi.views.UTXOset;
+import java.util.List;
+import java.util.Optional;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
+import pt.unl.fct.di.hyflexchain.planes.consensus.committees.Committee;
 import pt.unl.fct.di.hyflexchain.planes.data.block.BlockState;
 import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
 import pt.unl.fct.di.hyflexchain.planes.data.ledger.LedgerState;
@@ -19,6 +18,10 @@ import pt.unl.fct.di.hyflexchain.planes.data.transaction.TransactionState;
  */
 public interface LedgerViewInterface {
 	
+	public static LedgerViewInterface getInstance()
+	{
+		return SimpleLVI.getInstance();
+	}
 
 	//#region Transactions
 
@@ -28,7 +31,7 @@ public interface LedgerViewInterface {
 	 * @param consensus The consensus mechanism
 	 * @return The transaction.
 	 */
-	HyFlexChainTransaction getTransaction(String id, ConsensusMechanism consensus);
+	Optional<HyFlexChainTransaction> getTransaction(String id, ConsensusMechanism consensus);
 
 	/**
 	 * Get the state of a transaction.
@@ -44,7 +47,7 @@ public interface LedgerViewInterface {
 	 * @param consensus The consensus mechanism
 	 * @return All transactions where the specified account is the origin.
 	 */
-	Set<HyFlexChainTransaction> getTransactionsByOriginAccount(String originPubKey, ConsensusMechanism consensus);
+	// Set<HyFlexChainTransaction> getTransactionsByOriginAccount(String originPubKey, ConsensusMechanism consensus);
 
 	/**
 	 * Get all transactions where the specified account is the destination.
@@ -52,7 +55,7 @@ public interface LedgerViewInterface {
 	 * @param consensus The consensus mechanism
 	 * @return All transactions where the specified account is the destination.
 	 */
-	Set<HyFlexChainTransaction> getTransactionsByDestAccount(String destPubKey, ConsensusMechanism consensus);
+	// Set<HyFlexChainTransaction> getTransactionsByDestAccount(String destPubKey, ConsensusMechanism consensus);
 
 	/**
 	 * Get all transactions according to the specified filter
@@ -62,7 +65,7 @@ public interface LedgerViewInterface {
 	 * @param consensus The consensus mechanism
 	 * @return All filtered transactions where the specified account is the origin.
 	 */
-	Set<HyFlexChainTransaction> getTransactionsByOriginAccount(String originPubKey, TransactionFilter filter, ConsensusMechanism consensus);
+	// Set<HyFlexChainTransaction> getTransactionsByOriginAccount(String originPubKey, TransactionFilter filter, ConsensusMechanism consensus);
 
 	/**
 	 * Get all transactions according to the specified filter
@@ -72,7 +75,7 @@ public interface LedgerViewInterface {
 	 * @param consensus The consensus mechanism
 	 * @return All filtered transactions where the specified account is the destination.
 	 */
-	Set<HyFlexChainTransaction> getTransactionsByDestAccount(String destPubKey, TransactionFilter filter, ConsensusMechanism consensus);
+	// Set<HyFlexChainTransaction> getTransactionsByDestAccount(String destPubKey, TransactionFilter filter, ConsensusMechanism consensus);
 
 	/**
 	 * Get all transactions according to the specified filter.
@@ -80,7 +83,7 @@ public interface LedgerViewInterface {
 	 * @param consensus The consensus mechanism
 	 * @return All filtered transactions.
 	 */
-	Set<HyFlexChainTransaction> getTransactions(TransactionFilter filter, ConsensusMechanism consensus);
+	// Set<HyFlexChainTransaction> getTransactions(TransactionFilter filter, ConsensusMechanism consensus);
 
 	//#endregion
 
@@ -93,7 +96,7 @@ public interface LedgerViewInterface {
 	 * @param consensus The consensus mechanism
 	 * @return The block.
 	 */
-	HyFlexChainBlock getBlock(String id, ConsensusMechanism consensus);
+	Optional<HyFlexChainBlock> getBlock(String id, ConsensusMechanism consensus);
 
 	/**
 	 * Get the state of a block.
@@ -101,7 +104,7 @@ public interface LedgerViewInterface {
 	 * @param consensus The consensus mechanism
 	 * @return The state of the block.
 	 */
-	BlockState getBlockState(String id, ConsensusMechanism consensus);
+	Optional<BlockState> getBlockState(String id, ConsensusMechanism consensus);
 
 	/**
 	 * Get all blocks according to the specified filter.
@@ -109,7 +112,21 @@ public interface LedgerViewInterface {
 	 * @param consensus The consensus mechanism
 	 * @return All filtered blocks.
 	 */
-	Set<HyFlexChainBlock> getBlocks(BlockFilter filter, ConsensusMechanism consensus);
+	List<HyFlexChainBlock> getBlocks(BlockFilter filter, ConsensusMechanism consensus);
+
+	/**
+	 * Get the hash of the last block.
+	 * @param consensus The consensus mechanism
+	 * @return The hash of the last block.
+	 */
+	String getLastBlockHash(ConsensusMechanism consensus);
+
+	/**
+	 * Get the number of blocks in the blockchain.
+	 * @param consensus The consensus mechanism
+	 * @return the number of blocks in the blockchain.
+	 */
+	long getBlockchainSize(ConsensusMechanism consensus);
 
 	//#endregion
 
@@ -131,7 +148,14 @@ public interface LedgerViewInterface {
 	 * @param consensus The consensus mechanism
 	 * @return UTXO set
 	 */
-	UTXOset getLedgerViewUTXOset(ConsensusMechanism consensus);
+	// UTXOset getLedgerViewUTXOset(ConsensusMechanism consensus);
+
+	/**
+	 * Get the currently active committee.
+	 * @param consensus The consensus mechanism of the committee
+	 * @return The currently active committee.
+	 */
+	Committee getActiveCommittee(ConsensusMechanism consensus);
 
 	/**
 	 * Get a ledger view of previous committees.
@@ -140,6 +164,6 @@ public interface LedgerViewInterface {
 	 * @param consensus The consensus mechanism
 	 * @return Previous Committees.
 	 */
-	HistoryPreviousCommittees getLedgerViewPreviousCommittees(int lastN, ConsensusMechanism consensus);
+	List<Committee> getLedgerViewPreviousCommittees(int lastN, ConsensusMechanism consensus);
 
 }

@@ -15,8 +15,7 @@ public class TransactionInterfaceV1_0 implements TransactionInterface {
 
 	private static final Logger LOGGER = LogManager.getLogger();
 
-	@Override
-	public String sendTransaction(HyFlexChainTransaction tx) throws InvalidTransactionException
+	protected void verifyTx(HyFlexChainTransaction tx) throws InvalidTransactionException
 	{
 		HyFlexChainTransaction.Version version;
 		try {
@@ -41,8 +40,20 @@ public class TransactionInterfaceV1_0 implements TransactionInterface {
 			LOGGER.info(exc.getMessage());
 			throw exc;
 		}
-			
+	}
+
+	@Override
+	public String sendTransaction(HyFlexChainTransaction tx) throws InvalidTransactionException
+	{
+		verifyTx(tx);
 		return TransactionManagement.getInstance().dispatchTransaction(tx);	
+	}
+
+	@Override
+	public String sendTransactionAndWait(HyFlexChainTransaction tx) throws InvalidTransactionException
+	{
+		verifyTx(tx);
+		return TransactionManagement.getInstance().dispatchTransactionAndWait(tx);
 	}
 	
 }

@@ -130,4 +130,9 @@ public class InMemoryLedger implements ConsensusSpecificLedger
 	public void uponNewBlock(Consumer<HyFlexChainBlock> action) {
 		this.uponNewBlock.add(action);
 	}
+
+	@Override
+	public int blockchainSize() {
+		return this.blockchain.size();
+	}
 }

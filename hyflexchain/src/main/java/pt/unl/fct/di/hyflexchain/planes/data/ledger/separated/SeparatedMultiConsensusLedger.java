@@ -143,5 +143,10 @@ public class SeparatedMultiConsensusLedger implements DataPlane
 	public void uponNewBlock(Consumer<HyFlexChainBlock> action, ConsensusMechanism consensus) {
 		getLedgerInstance(consensus).uponNewBlock(action);
 	}
+
+	@Override
+	public int blockchainSize(ConsensusMechanism consensus) {
+		return getLedgerInstance(consensus).blockchainSize();
+	}
 	
 }

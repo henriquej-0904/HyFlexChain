@@ -147,6 +147,25 @@ public interface DataPlane {
 	 */
 	List<HyFlexChainBlock> getBlocks(BlockFilter filter, ConsensusMechanism consensus);
 
+	/**
+	 * Get the last block.
+	 * @param consensus The consensus mechanism
+	 * @return The last block.
+	 */
+	default HyFlexChainBlock getLastBlock(ConsensusMechanism consensus)
+	{
+		return getBlocks(
+			BlockFilter.fromFilter(BlockFilter.Type.LAST_N, 1), consensus
+		).get(0);
+	}
+
+	/**
+	 * Get the number of blocks in the blockchain.
+	 * @param consensus The consensus mechanism
+	 * @return the number of blocks in the blockchain.
+	 */
+	int blockchainSize(ConsensusMechanism consensus);
+
 	//#endregion
 
 	/**

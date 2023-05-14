@@ -115,6 +115,12 @@ public interface ConsensusSpecificLedger
 	 */
 	List<HyFlexChainBlock> getBlocks(BlockFilter filter);
 
+	/**
+	 * Get the number of blocks in the blockchain.
+	 * @return the number of blocks in the blockchain.
+	 */
+	int blockchainSize();
+
 	//#endregion
 
 	/**

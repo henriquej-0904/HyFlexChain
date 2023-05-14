@@ -34,13 +34,13 @@ public class Utils
         return b;
     }
 
-    public static void logError(Exception e, Logger log)
+    public static void logError(Exception e, org.apache.logging.log4j.Logger log)
     {
         StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
             e.printStackTrace(pw);
             String sStackTrace = sw.toString();
-            log.severe(sStackTrace);
+            log.error(sStackTrace);
     }
 
     public static Object readObject(byte[] arr) throws ClassNotFoundException {

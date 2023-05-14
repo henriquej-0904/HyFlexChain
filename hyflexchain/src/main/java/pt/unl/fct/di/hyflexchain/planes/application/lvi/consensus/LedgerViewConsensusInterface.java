@@ -1,10 +1,11 @@
-package pt.unl.fct.di.hyflexchain.planes.application.lvi;
+package pt.unl.fct.di.hyflexchain.planes.application.lvi.consensus;
 
-import java.util.Set;
+import java.util.List;
+import java.util.Optional;
 
-import pt.unl.fct.di.hyflexchain.planes.application.lvi.views.HistoryPreviousCommittees;
-import pt.unl.fct.di.hyflexchain.planes.application.lvi.views.UTXOset;
+import pt.unl.fct.di.hyflexchain.planes.application.lvi.BlockFilter;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
+import pt.unl.fct.di.hyflexchain.planes.consensus.committees.Committee;
 import pt.unl.fct.di.hyflexchain.planes.data.block.BlockState;
 import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
 import pt.unl.fct.di.hyflexchain.planes.data.ledger.LedgerState;
@@ -33,7 +34,7 @@ public interface LedgerViewConsensusInterface
 	 * @param id The id of the transaction
 	 * @return The transaction.
 	 */
-	HyFlexChainTransaction getTransaction(String id);
+	Optional<HyFlexChainTransaction> getTransaction(String id);
 
 	/**
 	 * Get the state of a transaction.
@@ -47,14 +48,14 @@ public interface LedgerViewConsensusInterface
 	 * @param originPubKey The public key of the account
 	 * @return All transactions where the specified account is the origin.
 	 */
-	Set<HyFlexChainTransaction> getTransactionsByOriginAccount(String originPubKey);
+	// Set<HyFlexChainTransaction> getTransactionsByOriginAccount(String originPubKey);
 
 	/**
 	 * Get all transactions where the specified account is the destination.
 	 * @param destPubKey The public key of the account
 	 * @return All transactions where the specified account is the destination.
 	 */
-	Set<HyFlexChainTransaction> getTransactionsByDestAccount(String destPubKey);
+	// Set<HyFlexChainTransaction> getTransactionsByDestAccount(String destPubKey);
 
 	/**
 	 * Get all transactions according to the specified filter
@@ -63,7 +64,7 @@ public interface LedgerViewConsensusInterface
 	 * @param filter The filter
 	 * @return All filtered transactions where the specified account is the origin.
 	 */
-	Set<HyFlexChainTransaction> getTransactionsByOriginAccount(String originPubKey, TransactionFilter filter);
+	// Set<HyFlexChainTransaction> getTransactionsByOriginAccount(String originPubKey, TransactionFilter filter);
 
 	/**
 	 * Get all transactions according to the specified filter
@@ -72,14 +73,14 @@ public interface LedgerViewConsensusInterface
 	 * @param filter The filter
 	 * @return All filtered transactions where the specified account is the destination.
 	 */
-	Set<HyFlexChainTransaction> getTransactionsByDestAccount(String destPubKey, TransactionFilter filter);
+	// Set<HyFlexChainTransaction> getTransactionsByDestAccount(String destPubKey, TransactionFilter filter);
 
 	/**
 	 * Get all transactions according to the specified filter.
 	 * @param filter The filter
 	 * @return All filtered transactions.
 	 */
-	Set<HyFlexChainTransaction> getTransactions(TransactionFilter filter);
+	// Set<HyFlexChainTransaction> getTransactions(TransactionFilter filter);
 
 	//#endregion
 
@@ -91,41 +92,47 @@ public interface LedgerViewConsensusInterface
 	 * @param id The id of the block
 	 * @return The block.
 	 */
-	HyFlexChainBlock getBlock(String id);
+	Optional<HyFlexChainBlock> getBlock(String id);
 
 	/**
 	 * Get the state of a block.
 	 * @param id The id of the block
 	 * @return The state of the block.
 	 */
-	BlockState getBlockState(String id);
+	Optional<BlockState> getBlockState(String id);
 
 	/**
 	 * Get all blocks according to the specified filter.
 	 * @param filter The filter
 	 * @return All filtered blocks.
 	 */
-	Set<HyFlexChainBlock> getBlocks(BlockFilter filter);
+	List<HyFlexChainBlock> getBlocks(BlockFilter filter);
 
 	//#endregion
 
 	/**
-	 * Get the full Ledger State for this type of consensus.
+	 * Get the full Ledger State.
 	 * @return The full Ledger State.
 	 */
 	LedgerState getLedger();
 
 	/**
-	 * Get a ledger view of the UTXO set for this type of consensus.
+	 * Get a ledger view of the UTXO set.
 	 * @return UTXO set
 	 */
-	UTXOset getLedgerViewUTXOset();
+	// UTXOset getLedgerViewUTXOset();
 
 	/**
-	 * Get a ledger view of previous committees for this type of consensus.
+	 * Get the currently active committee.
+	 * @return The currently active committee.
+	 */
+	Committee getActiveCommittee();
+
+	/**
+	 * Get a ledger view of previous committees.
 	 * 
 	 * @param lastN The previous N committees
 	 * @return Previous Committees.
 	 */
-	HistoryPreviousCommittees getLedgerViewPreviousCommittees(int last);
+	List<Committee> getLedgerViewPreviousCommittees(int lastN);
 }

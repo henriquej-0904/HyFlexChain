@@ -1,6 +1,9 @@
 package pt.unl.fct.di.hyflexchain.planes.txmanagement.txpool;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Optional;
 import java.util.Map.Entry;
 import java.util.concurrent.locks.Lock;
@@ -113,5 +116,37 @@ public class TxPool
 	public boolean txExists(String txHash)
 	{
 		return this.pending.containsKey(txHash);
+	}
+
+	/**
+	 * Remove all the specified pending transactions
+	 * and notify all threads that are waiting.
+	 * @param txHashes The transactions to remove and notify.
+	 */
+	public void removePendingTxsAndNotify(Collection<String> txHashes)
+	{
+		List<HyFlexChainTransaction> txs
+			= new ArrayList<>(txHashes.size());
+
+		// remove txs
+
+		this.lock.lock();
+
+		for (String txHash : txHashes) {
+			var tx = this.pending.remove(txHash);
+			if (tx != null)
+				txs.add(tx);
+		}
+
+		this.lock.unlock();
+
+		// notify waiting threads
+
+		for (HyFlexChainTransaction tx : txs) {
+			synchronized(tx)
+			{
+				tx.notifyAll();
+			}
+		}
 	}
 }

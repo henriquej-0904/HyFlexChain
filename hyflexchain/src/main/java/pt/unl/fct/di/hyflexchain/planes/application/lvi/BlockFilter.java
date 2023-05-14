@@ -10,12 +10,26 @@ public class BlockFilter {
 
 	private Object value;
 
+	public static BlockFilter fromFilter(Type t, Object value)
+	{
+		if (! t.filterType.isInstance(value) )
+			throw new IllegalArgumentException("Invalid filter type or value.");
+
+		return new BlockFilter(t, value);
+	}
+
 	//TODO: check block filter
 
 	/**
 	 * 
 	 */
 	public BlockFilter() {
+	}
+
+	public BlockFilter(Type t, Object value)
+	{
+		this.type = t;
+		this.value = value;
 	}
 
 
@@ -91,15 +105,6 @@ public class BlockFilter {
 	 * @param value the value to set
 	 */
 	public void setValue(Object value) {
-		this.value = value;
-	}
-
-	public void setFilter(Type t, Object value)
-	{
-		if (! t.filterType.isInstance(value) )
-			throw new IllegalArgumentException("Invalid filter type or value.");
-
-		this.type = t;
 		this.value = value;
 	}
 

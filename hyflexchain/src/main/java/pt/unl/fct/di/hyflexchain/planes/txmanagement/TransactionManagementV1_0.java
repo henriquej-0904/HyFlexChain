@@ -8,7 +8,6 @@ import java.util.EnumMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import pt.unl.fct.di.hyflexchain.planes.application.lvi.LedgerViewInterface;
 import pt.unl.fct.di.hyflexchain.planes.application.ti.InvalidTransactionException;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
@@ -95,7 +94,20 @@ public class TransactionManagementV1_0 implements TransactionManagement
 	{
 		verifyTx(tx);
 		addPendingTx(getTxPool(ConsensusMechanism.PoW), tx);
-		return tx.getHash();
+		return tx.getHash();  
+	}
+
+	@Override
+	public String dispatchTransactionAndWait(HyFlexChainTransaction tx) throws InvalidTransactionException
+	{
+		var hash = dispatchTransaction(tx);
+		try {
+			tx.wait();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+		return hash;
 	}
 	
 }

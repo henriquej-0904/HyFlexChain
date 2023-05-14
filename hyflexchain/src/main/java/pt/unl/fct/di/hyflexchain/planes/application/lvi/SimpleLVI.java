@@ -41,7 +41,7 @@ public class SimpleLVI implements LedgerViewInterface {
 	/**
 	 * 
 	 */
-	public SimpleLVI() {
+	private SimpleLVI() {
 		this.lvis = new EnumMap<>(ConsensusMechanism.class);
 		this.lvis.put(ConsensusMechanism.PoW, new PowLVI());
 		

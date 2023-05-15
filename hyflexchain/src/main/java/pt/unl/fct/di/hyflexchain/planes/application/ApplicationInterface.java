@@ -1,15 +1,12 @@
 package pt.unl.fct.di.hyflexchain.planes.application;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.EnumMap;
-import java.util.Properties;
+import org.apache.commons.cli.ParseException;
 
 import pt.unl.fct.di.hyflexchain.planes.application.lvi.LedgerViewInterface;
 import pt.unl.fct.di.hyflexchain.planes.application.ti.TransactionInterface;
-import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusPlaneConfig;
 import pt.unl.fct.di.hyflexchain.util.config.MultiLedgerConfig;
 
@@ -31,44 +28,21 @@ public class ApplicationInterface
 	 * Initialize the HyFLexChain System.
 	 * @param configFolder A directory where to find the
 	 * configuration files for HyFlexChain.
+	 * @param overridenConfigs an array of options to override the configurations
+	 * @see MultiLedgerConfig    
 	 * @throws IOException
 	 * @throws FileNotFoundException
+	 * @throws ParseException
 	 */
-	public ApplicationInterface(File configFolder) throws FileNotFoundException, IOException
+	public ApplicationInterface(File configFolder, String[] overridenConfigs) throws FileNotFoundException, IOException, ParseException
 	{
-		MultiLedgerConfig config = initConfig(configFolder);
+		MultiLedgerConfig config = MultiLedgerConfig.init(configFolder);
+		config.addOverridenConfigs(overridenConfigs);
 
 		this.lvi = LedgerViewInterface.getInstance();
 		this.ti = TransactionInterface.getInstance();
 
 		// init consensus plane
 		new ConsensusPlaneConfig(config);
-	}
-
-	protected MultiLedgerConfig initConfig(File configFolder) throws FileNotFoundException, IOException
-	{
-		var generalConfig = getProperties(new File(configFolder, "hyflexchain-general-config.properties"));
-		EnumMap<ConsensusMechanism, Properties> consensusProps = new EnumMap<>(ConsensusMechanism.class);
-
-		for (ConsensusMechanism consensusMechanism :
-				MultiLedgerConfig.getActiveConsensusMechanisms(generalConfig))
-		{
-			var consensus = consensusMechanism.toString().toLowerCase();
-			var props = getProperties(new File(consensus, "hyflexchain-" + consensus + "-config.properties"));
-			consensusProps.put(consensusMechanism, props);
-		}
-
-		return MultiLedgerConfig.init(generalConfig, consensusProps);
-	}
-
-	protected Properties getProperties(File file) throws FileNotFoundException, IOException
-	{
-		Properties props = new Properties();
-
-		try (var in = new FileInputStream(file)) {
-			props.load(in);
-		}
-		
-		return props;
 	}
 }

@@ -12,8 +12,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Base64;
 import java.util.Calendar;
-import java.util.logging.Logger;
-
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
 public class Utils

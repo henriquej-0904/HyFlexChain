@@ -1,6 +1,7 @@
 package pt.unl.fct.di.hyflexchain.util.config;
 
 import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -22,10 +23,11 @@ public class MultiLedgerConfig
 	 * @param configsPerConsensusType A config
 	 * for each consensus type.
 	 */
-	public static void init(Properties generalConfig,
+	public static MultiLedgerConfig init(Properties generalConfig,
 		EnumMap<ConsensusMechanism, Properties> configsPerConsensusType)
 	{
 		config = new MultiLedgerConfig(generalConfig, configsPerConsensusType);
+		return config;
 	}
 
 	/**
@@ -45,6 +47,27 @@ public class MultiLedgerConfig
 	public static MultiLedgerConfig getInstance()
 	{
 		return config;
+	}
+
+	public static EnumSet<ConsensusMechanism> getActiveConsensusMechanisms(Properties props)
+	{
+		String consensusStringList = props.getProperty(GENERAL_CONFIG.ACTIVE_CONSENSUS.toString());
+			
+		if (consensusStringList == null)
+			throw new Error("Configuration: ACTIVE_CONSENSUS is required!");
+
+		String[] consensusList = consensusStringList.split(";");
+		EnumSet<ConsensusMechanism> consensusSet = EnumSet.noneOf(ConsensusMechanism.class);
+		
+		try {
+			for (String consensus : consensusList) {
+				consensusSet.add(ConsensusMechanism.valueOf(consensus));
+			}
+		} catch (Exception e) {
+			throw new Error("Configuration: ACTIVE_CONSENSUS is required!");
+		}
+
+		return consensusSet;
 	}
 
 	protected final Properties generalConfig;
@@ -129,10 +152,15 @@ public class MultiLedgerConfig
 	public SystemVersion getSystemVersion()
 	{
 		try {
-			return SystemVersion.valueOf(getConfigValue(GENERAL_CONFIG.SYSTEM_VERSION));
+			return SystemVersion.parseSystemVersion(getConfigValue(GENERAL_CONFIG.SYSTEM_VERSION));
 		} catch (Exception e) {
 			throw new Error("Configuration: SYSTEM_VERSION is required!");
 		}
+	}
+
+	public EnumSet<ConsensusMechanism> getActiveConsensusMechanisms()
+	{
+		return EnumSet.copyOf(this.ledgerConfigs.keySet());
 	}
 
 	/**
@@ -144,6 +172,8 @@ public class MultiLedgerConfig
 		 * The system version
 		 */
 		SYSTEM_VERSION,
+
+		ACTIVE_CONSENSUS,
 
 		/**
 		 * The type of data storage of the ledger

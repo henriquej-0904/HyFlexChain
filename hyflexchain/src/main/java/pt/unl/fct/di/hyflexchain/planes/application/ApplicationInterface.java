@@ -10,6 +10,7 @@ import java.util.Properties;
 import pt.unl.fct.di.hyflexchain.planes.application.lvi.LedgerViewInterface;
 import pt.unl.fct.di.hyflexchain.planes.application.ti.TransactionInterface;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
+import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusPlaneConfig;
 import pt.unl.fct.di.hyflexchain.util.config.MultiLedgerConfig;
 
 /**
@@ -33,26 +34,31 @@ public class ApplicationInterface
 	 * @throws IOException
 	 * @throws FileNotFoundException
 	 */
-	public ApplicationInterface(File configFolder, ConsensusMechanism[] activeConsensus) throws FileNotFoundException, IOException
+	public ApplicationInterface(File configFolder) throws FileNotFoundException, IOException
 	{
-		initConfig(configFolder, activeConsensus);
+		MultiLedgerConfig config = initConfig(configFolder);
 
 		this.lvi = LedgerViewInterface.getInstance();
 		this.ti = TransactionInterface.getInstance();
+
+		// init consensus plane
+		new ConsensusPlaneConfig(config);
 	}
 
-	protected void initConfig(File configFolder, ConsensusMechanism[] activeConsensus) throws FileNotFoundException, IOException
+	protected MultiLedgerConfig initConfig(File configFolder) throws FileNotFoundException, IOException
 	{
 		var generalConfig = getProperties(new File(configFolder, "hyflexchain-general-config.properties"));
 		EnumMap<ConsensusMechanism, Properties> consensusProps = new EnumMap<>(ConsensusMechanism.class);
 
-		for (ConsensusMechanism consensusMechanism : activeConsensus) {
+		for (ConsensusMechanism consensusMechanism :
+				MultiLedgerConfig.getActiveConsensusMechanisms(generalConfig))
+		{
 			var consensus = consensusMechanism.toString().toLowerCase();
 			var props = getProperties(new File(consensus, "hyflexchain-" + consensus + "-config.properties"));
 			consensusProps.put(consensusMechanism, props);
 		}
 
-		MultiLedgerConfig.init(generalConfig, consensusProps);
+		return MultiLedgerConfig.init(generalConfig, consensusProps);
 	}
 
 	protected Properties getProperties(File file) throws FileNotFoundException, IOException

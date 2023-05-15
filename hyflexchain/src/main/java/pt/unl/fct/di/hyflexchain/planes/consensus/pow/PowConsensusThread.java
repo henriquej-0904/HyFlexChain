@@ -1,6 +1,5 @@
 package pt.unl.fct.di.hyflexchain.planes.consensus.pow;
 
-import pt.unl.fct.di.hyflexchain.planes.application.lvi.LedgerViewInterface;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.txmanagement.TransactionManagement;
 import pt.unl.fct.di.hyflexchain.planes.txmanagement.txpool.TxPool;
@@ -25,7 +24,6 @@ public class PowConsensusThread implements Runnable {
 
 		TransactionManagement txManag = TransactionManagement.getInstance();
 		TxPool txPool = txManag.getTxPool(ConsensusMechanism.PoW);
-		LedgerViewInterface lvi = LedgerViewInterface.getInstance();
 
 		while (true) {
 			// wait for min number of txs in tx pool
@@ -37,7 +35,7 @@ public class PowConsensusThread implements Runnable {
 			if (txs.size() < this.nTxsInBlock)
 				continue;
 
-			var block = consensus.createBlock(lvi, txs);
+			var block = consensus.createBlock(txs);
 			this.consensus.orderBlock(block);
 		}
 	}

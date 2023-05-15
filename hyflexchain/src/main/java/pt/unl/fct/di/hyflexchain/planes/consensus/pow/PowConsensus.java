@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import applicationInterface.ApplicationInterface;
 import pt.unl.fct.di.hyflexchain.planes.application.lvi.LedgerViewInterface;
+import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusInterface;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.data.DataPlane;
 import pt.unl.fct.di.hyflexchain.planes.data.block.BlockBody;
@@ -22,7 +23,7 @@ import pt.unl.fct.di.hyflexchain.planes.txmanagement.TransactionManagement;
 import pt.unl.fct.di.hyflexchain.util.Utils;
 import pt.unl.fct.di.hyflexchain.util.config.MultiLedgerConfig;
 
-public class PowConsensus
+public class PowConsensus extends ConsensusInterface
 {
 	protected static final Logger LOG = LogManager.getLogger();
 
@@ -34,7 +35,7 @@ public class PowConsensus
 	private static final String COMMITTEE_ID = "";
 	private static final String COMMITTEE_BLOCK_HASH = "";
 
-	private static final ConsensusMechanism POW = ConsensusMechanism.PoW;
+	protected static final ConsensusMechanism POW = ConsensusMechanism.PoW;
 
     /**
      * @return the blockmess
@@ -50,11 +51,26 @@ public class PowConsensus
 
 	protected BlockmessConnector blockmess;
 
-    public PowConsensus()
+    public PowConsensus(LedgerViewInterface lvi)
 	{
-		
+		super(ConsensusMechanism.PoW, lvi);
 	}
 
+	@Override
+	public void init() {
+
+		var config = MultiLedgerConfig.getInstance();
+
+		this.blockmess = new BlockmessConnector();
+		
+		new Thread(
+			new PowConsensusThread(this,
+				config.getLedgerConfig(this.consensus).getNumTxsInBlock()),
+			"PoW-Consensus-Thread")
+		.start();
+	}
+
+	@Override
 	public void orderBlock(HyFlexChainBlock block)
 	{
 		try {
@@ -70,8 +86,8 @@ public class PowConsensus
 		}
 	}
 
-	public HyFlexChainBlock createBlock(LedgerViewInterface lvi,
-		LinkedHashMap<String, HyFlexChainTransaction> txs) {
+	@Override
+	public HyFlexChainBlock createBlock(LinkedHashMap<String, HyFlexChainTransaction> txs) {
 		BlockBody body = BlockBody.from(txs);
 		BlockMetaHeader metaHeader = new BlockMetaHeader(ConsensusMechanism.PoW, DIFF_TARGET, VALIDATORS,
 				COMMITTEE_ID, COMMITTEE_BLOCK_HASH);
@@ -86,6 +102,7 @@ public class PowConsensus
 		return block;
 	}
 
+	@Override
 	public boolean verifyBlock(HyFlexChainBlock block)
 	{
 		if (!block.verifyBlock(LOG))
@@ -121,7 +138,7 @@ public class PowConsensus
 		return true;
 	}
 
-	public boolean verifyMetaHeader(BlockMetaHeader metaHeader)
+	protected boolean verifyMetaHeader(BlockMetaHeader metaHeader)
 	{
 		return metaHeader.getConsensus() == POW &&
 			metaHeader.getDifficultyTarget() == DIFF_TARGET &&
@@ -130,7 +147,7 @@ public class PowConsensus
 			metaHeader.getCommitteeBlockHash().equalsIgnoreCase(COMMITTEE_BLOCK_HASH);
 	}
 
-	public boolean verifyHeader(BlockHeader header, BlockBody body)
+	protected boolean verifyHeader(BlockHeader header, BlockBody body)
 	{
 		var lvi = LedgerViewInterface.getInstance();
 		

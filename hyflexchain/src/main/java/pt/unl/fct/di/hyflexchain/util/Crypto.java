@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -28,13 +29,14 @@ import javax.net.ssl.TrustManagerFactory;
 
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.openssl.PEMParser;
+import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
 
 public class Crypto {
 
     public static final File CONFIG_FOLDER = new File("tls-config");
 
     public static final String DEFAULT_SIGNATURE_TRANSFORMATION = "SHA256withECDSA";
-	public static final String DEFAULT_SIGNATURE_PROVIDER = "BC";
+	public static final String DEFAULT_PROVIDER = "BC";
 
     public static final String DEFAULT_ASYMMETRIC_ALGORITHM = "EC";
     public static final AlgorithmParameterSpec DEFAULT_ASYMMETRIC_GEN_KEY_SPEC = new ECGenParameterSpec("secp521r1");
@@ -125,7 +127,7 @@ public class Crypto {
     public static Signature createSignatureInstance()
     {
         try {
-            return Signature.getInstance(DEFAULT_SIGNATURE_TRANSFORMATION, DEFAULT_SIGNATURE_PROVIDER);
+            return Signature.getInstance(DEFAULT_SIGNATURE_TRANSFORMATION, DEFAULT_PROVIDER);
         } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
             throw new Error(e);
         }
@@ -134,17 +136,17 @@ public class Crypto {
     public static Signature createSignatureInstance(String sigAlg) throws NoSuchAlgorithmException
     {
         try {
-            return Signature.getInstance(sigAlg, DEFAULT_SIGNATURE_PROVIDER);
+            return Signature.getInstance(sigAlg, DEFAULT_PROVIDER);
         } catch (NoSuchProviderException e) {
             throw new Error(e);
         }
     }
 
-    public static PublicKey getPublicKey(byte[] publicKey, String algorithm)
+    public static PublicKey getPublicKey(String publicKey, String algorithm)
         throws NoSuchAlgorithmException, InvalidKeySpecException
     {
         try {
-            PEMParser pemParser = new PEMParser(new StringReader(new String(publicKey)));
+            PEMParser pemParser = new PEMParser(new StringReader(publicKey));
             SubjectPublicKeyInfo spki = (SubjectPublicKeyInfo) pemParser.readObject();
             pemParser.close();
 
@@ -153,19 +155,19 @@ public class Crypto {
             X509EncodedKeySpec encodedKey = new X509EncodedKeySpec(spkiEncoded,
                 algorithm);
             
-            KeyFactory keyFactory = KeyFactory.getInstance(algorithm);
+            KeyFactory keyFactory = KeyFactory.getInstance(algorithm, DEFAULT_PROVIDER);
 
             return keyFactory.generatePublic(encodedKey);
 
-        } catch (IOException e) {
+        } catch (IOException | NoSuchProviderException e) {
             throw new Error(e);
         }
     }
 
-    public static PublicKey getPublicKey(byte[] publicKey) throws InvalidKeySpecException
+    public static PublicKey getPublicKey(String publicKey) throws InvalidKeySpecException
     {
         try {
-            PEMParser pemParser = new PEMParser(new StringReader(new String(publicKey)));
+            PEMParser pemParser = new PEMParser(new StringReader(publicKey));
             SubjectPublicKeyInfo spki = (SubjectPublicKeyInfo) pemParser.readObject();
             pemParser.close();
 
@@ -179,6 +181,22 @@ public class Crypto {
             return keyFactory.generatePublic(encodedCoinKey);
 
         } catch (IOException | NoSuchAlgorithmException e) {
+            throw new Error(e);
+        }
+    }
+
+    public static String encodePublicKey(PublicKey key)
+    {
+        StringWriter stringWriter = new StringWriter();
+        JcaPEMWriter pemWriter = new JcaPEMWriter(stringWriter);
+        
+        try {
+            pemWriter.writeObject(key);
+            pemWriter.close();
+
+            return stringWriter.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
             throw new Error(e);
         }
     }

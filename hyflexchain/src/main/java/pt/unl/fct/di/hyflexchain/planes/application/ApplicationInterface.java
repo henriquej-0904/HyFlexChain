@@ -18,7 +18,7 @@ import pt.unl.fct.di.hyflexchain.util.config.MultiLedgerConfig;
  * 
  * There must be only one instance of this class per java process.
  */
-public class ApplicationInterface
+public abstract class ApplicationInterface
 {
 	protected final LedgerViewInterface lvi;
 

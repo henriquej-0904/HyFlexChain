@@ -5,7 +5,6 @@ import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 
 import pt.unl.fct.di.hyflexchain.util.Crypto;
-import pt.unl.fct.di.hyflexchain.util.Utils;
 
 /**
  * Represents an address in a transaction.
@@ -33,9 +32,16 @@ public class Address {
 		if (address.length() <= algIndex + 1)
 			throw new InvalidKeySpecException("The address is malformed: " + address);
 
-		String hexEncodedKey = address.substring(algIndex + 1);
+		String encodedKey = address.substring(algIndex + 1);
 
-		return Crypto.getPublicKey(Utils.fromHex(hexEncodedKey), alg);
+		return Crypto.getPublicKey(encodedKey, alg);
+	}
+
+	public static String getAddress(PublicKey key)
+	{
+		String alg = key.getAlgorithm();
+		String encodedKey = Crypto.encodePublicKey(key);
+		return alg + ";" + encodedKey;
 	}
 
 }

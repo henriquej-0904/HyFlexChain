@@ -62,20 +62,13 @@ public class SeparatedMultiConsensusLedger implements DataPlane
 	 */
 	protected EnumMap<ConsensusMechanism, ConsensusSpecificLedger> initLedgers()
 	{
-		var ledgerType = MultiLedgerConfig.GENERAL_CONFIG
-			.LEDGER_DB_TYPE.getLedgerDbTypeValue();
-
 		EnumMap<ConsensusMechanism, ConsensusSpecificLedger> res = new EnumMap<>(ConsensusMechanism.class);
 
-		switch (ledgerType) {
-			case IN_MEMORY:
-				for (ConsensusMechanism c : ConsensusMechanism.values()) {
-					res.put(c,
-						new InMemoryLedger(c)
-							.init(this.configs.getLedgerConfig(c))
-					);
-				}
-				break;
+		for (ConsensusMechanism c : ConsensusMechanism.values()) {
+			res.put(c,
+				new InMemoryLedger(c)
+					.init(this.configs.getLedgerConfig(c))
+			);
 		}
 
 		return res;

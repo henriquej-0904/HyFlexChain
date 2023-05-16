@@ -128,13 +128,13 @@ public class MultiLedgerConfig
 
 		String[] consensusList = consensusStringList.split(";");
 		EnumSet<ConsensusMechanism> consensusSet = EnumSet.noneOf(ConsensusMechanism.class);
-		
+
 		try {
 			for (String consensus : consensusList) {
 				consensusSet.add(ConsensusMechanism.valueOf(consensus));
 			}
 		} catch (Exception e) {
-			throw new Error("Configuration: ACTIVE_CONSENSUS is required!");
+			throw new Error("Configuration: ACTIVE_CONSENSUS is required! Invalid config...", e);
 		}
 
 		return consensusSet;
@@ -185,15 +185,15 @@ public class MultiLedgerConfig
 		if (configs.length == 0)
 			return;
 
-		CommandLineParser parser = new DefaultParser();
+		CommandLineParser parser = new DefaultParser(false);
 		final Options ops = new Options();
 
-		final Option generalOp = Option.builder("General")
+		final Option generalOp = Option.builder("G")
 			.hasArgs().valueSeparator('=').build();
 		ops.addOption(generalOp);
 
 		for (var consensus : ConsensusMechanism.values()) {
-			var op = Option.builder(consensus.toString().toLowerCase())
+			var op = Option.builder(consensus.toString().toUpperCase())
 				.hasArgs().valueSeparator('=').build();
 			ops.addOption(op);
 		}
@@ -205,12 +205,15 @@ public class MultiLedgerConfig
 
 		for (var consensus : ConsensusMechanism.values()) {
 			var defaultProps = this.configsPerConsensusType.get(consensus);
-			var overridenProps = cmd.getOptionProperties(consensus.toString().toLowerCase());
+			var overridenProps = cmd.getOptionProperties(consensus.toString().toUpperCase());
 			Properties props = new Properties(defaultProps);
 			props.putAll(overridenProps);
 
 			this.configsPerConsensusType.put(consensus, props);
 		}
+
+		System.out.println(this.generalConfig.toString());
+		System.out.println(this.configsPerConsensusType.toString());
 	}
 
 	/**
@@ -288,36 +291,6 @@ public class MultiLedgerConfig
 		SYSTEM_VERSION,
 
 		ACTIVE_CONSENSUS,
-
-		/**
-		 * The type of data storage of the ledger
-		 */
-		LEDGER_DB_TYPE;
-
-		/**
-		 * Convert to a value from string to the corresponding type.
-		 * @return The converted value
-		 */
-		public LEDGER_DB_TYPE_VALUES getLedgerDbTypeValue()
-		{
-			try {
-				return LEDGER_DB_TYPE_VALUES.valueOf(MultiLedgerConfig.getInstance().getConfigValue(LEDGER_DB_TYPE));
-			} catch (Exception e) {
-				throw new Error(String.format("The config parameter %s is not defined or it has " +
-				"an incorrect value.", LEDGER_DB_TYPE), e);
-			}
-		}
-	}
-
-	/**
-	 * The possible values for the LEDGER_DB_TYPE config.
-	 */
-	public static enum LEDGER_DB_TYPE_VALUES
-	{
-		/**
-		 * The ledger operates in memory.
-		 */
-		IN_MEMORY
 	}
 
 

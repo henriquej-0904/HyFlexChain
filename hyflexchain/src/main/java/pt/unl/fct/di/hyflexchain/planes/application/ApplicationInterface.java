@@ -24,6 +24,8 @@ public abstract class ApplicationInterface
 
 	protected final TransactionInterface ti;
 
+	private final ConsensusPlaneConfig consensusPlaneConfig;
+
 	/**
 	 * Initialize the HyFLexChain System.
 	 * @param configFolder A directory where to find the
@@ -43,6 +45,7 @@ public abstract class ApplicationInterface
 		this.ti = TransactionInterface.getInstance();
 
 		// init consensus plane
-		new ConsensusPlaneConfig(config);
+		this.consensusPlaneConfig = new ConsensusPlaneConfig(config);
+		this.consensusPlaneConfig.init();
 	}
 }

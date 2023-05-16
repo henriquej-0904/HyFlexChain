@@ -21,10 +21,15 @@ public class ConsensusPlaneConfig {
 	 * @param config The config object
 	 */
 	public ConsensusPlaneConfig(MultiLedgerConfig config) {
-		this.consensusInterfaces = init(config);
+		this.consensusInterfaces = create(config);
 	}
 
-	protected EnumMap<ConsensusMechanism, ConsensusInterface> init(MultiLedgerConfig config)
+	public void init()
+	{
+		this.consensusInterfaces.values().forEach(ConsensusInterface::init);
+	}
+
+	protected EnumMap<ConsensusMechanism, ConsensusInterface> create(MultiLedgerConfig config)
 	{
 		return config.getActiveConsensusMechanisms()
 			.stream().map(this::createConsensusInstance)

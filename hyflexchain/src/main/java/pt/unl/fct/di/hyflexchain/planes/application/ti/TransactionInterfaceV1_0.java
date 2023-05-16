@@ -1,7 +1,8 @@
 package pt.unl.fct.di.hyflexchain.planes.application.ti;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction.Version;
@@ -13,7 +14,8 @@ import pt.unl.fct.di.hyflexchain.planes.txmanagement.TransactionManagement;
  */
 public class TransactionInterfaceV1_0 implements TransactionInterface {
 
-	private static final Logger LOGGER = LogManager.getLogger();
+	private static final Logger LOGGER = LoggerFactory.getLogger(TransactionInterfaceV1_0.class);
+
 
 	protected void verifyTx(HyFlexChainTransaction tx) throws InvalidTransactionException
 	{

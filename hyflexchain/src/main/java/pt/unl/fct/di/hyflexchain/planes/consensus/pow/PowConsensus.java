@@ -3,8 +3,9 @@ package pt.unl.fct.di.hyflexchain.planes.consensus.pow;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.UUID;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -25,7 +26,7 @@ import pt.unl.fct.di.hyflexchain.util.config.MultiLedgerConfig;
 
 public class PowConsensus extends ConsensusInterface
 {
-	protected static final Logger LOG = LogManager.getLogger();
+	protected static final Logger LOG = LoggerFactory.getLogger(PowConsensus.class);
 
     private static final byte[] TRUE = new byte[] {1};
 	private static final byte[] FALSE = new byte[] {0};
@@ -173,13 +174,18 @@ public class PowConsensus extends ConsensusInterface
         {
 			var config = MultiLedgerConfig.getInstance().getLedgerConfig(ConsensusMechanism.PoW);
 			
-			var port = config.getConfigValue("POW_BLOCKMESS_PORT");
+			var port = config.getConfigValue("BLOCKMESS_PORT");
 			if (port == null)
-				throw new Error("POW_BLOCKMESS_PORT not defined.");
+				throw new Error("BLOCKMESS_PORT not defined.");
+
+			var address = config.getConfigValue("BLOCKMESS_ADDRESS");
+			if (address == null)
+				throw new Error("BLOCKMESS_ADDRESS not defined.");
 
             return new String[]
             {
                 "port=" + port,
+				"address=" + address,
                 "redirectFile=blockmess-logs/pow.log",
                 "genesisUUID=" + UUID.randomUUID()
             };

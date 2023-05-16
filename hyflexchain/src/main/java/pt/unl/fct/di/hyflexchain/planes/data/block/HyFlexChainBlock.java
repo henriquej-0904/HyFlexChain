@@ -2,7 +2,7 @@ package pt.unl.fct.di.hyflexchain.planes.data.block;
 
 import java.security.MessageDigest;
 
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
 
 import pt.unl.fct.di.hyflexchain.util.Crypto;
 import pt.unl.fct.di.hyflexchain.util.Utils;

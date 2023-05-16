@@ -12,6 +12,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Base64;
 import java.util.Calendar;
+
+import org.slf4j.Logger;
+
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
 public class Utils
@@ -32,7 +35,7 @@ public class Utils
         return b;
     }
 
-    public static void logError(Exception e, org.apache.logging.log4j.Logger log)
+    public static void logError(Exception e, Logger log)
     {
         StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);

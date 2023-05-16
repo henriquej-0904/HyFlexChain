@@ -5,8 +5,9 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.EnumMap;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import pt.unl.fct.di.hyflexchain.planes.application.ti.InvalidTransactionException;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
@@ -21,7 +22,7 @@ import pt.unl.fct.di.hyflexchain.planes.txmanagement.txpool.TxPool;
  */
 public class TransactionManagementV1_0 implements TransactionManagement
 {
-	private static final Logger LOGGER = LogManager.getLogger();
+	private static final Logger LOGGER = LoggerFactory.getLogger(TransactionManagementV1_0.class);
 
 	protected final EnumMap<ConsensusMechanism, TxPool> txPools;
 
@@ -101,12 +102,16 @@ public class TransactionManagementV1_0 implements TransactionManagement
 	public String dispatchTransactionAndWait(HyFlexChainTransaction tx) throws InvalidTransactionException
 	{
 		var hash = dispatchTransaction(tx);
-		try {
-			tx.wait();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
+
+		synchronized(tx)
+		{
+			try {
+				tx.wait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
-		
+	
 		return hash;
 	}
 	

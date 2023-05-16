@@ -115,6 +115,8 @@ public class SimpleApp extends ApplicationInterface
 	public static void main(String[] args) throws FileNotFoundException, IOException, ParseException {
 		SimpleApp app = new SimpleApp(new File(args[0]), args);
 
+		System.out.println("Waiting for input");
+
 		try (Scanner sc = new Scanner(System.in);)
 		{
 			while (true) {
@@ -123,7 +125,7 @@ public class SimpleApp extends ApplicationInterface
 						app.submitTxAndWait();
 						break;
 					case 1:
-						app.submitTxs(20);
+						app.submitTxs(300000);
 						break;
 					case 2:
 						app.printLedger();

@@ -56,7 +56,10 @@ public class JsonLedgerState implements LedgerState
 		return this.list.iterator();
 	}
 
-	
 
+	@Override
+	public String toString() {
+		return new String(getFullLedger());
+	}
 	
 }

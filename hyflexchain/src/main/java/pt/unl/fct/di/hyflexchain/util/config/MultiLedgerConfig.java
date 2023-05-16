@@ -182,6 +182,9 @@ public class MultiLedgerConfig
 	 */
 	public void addOverridenConfigs(String[] configs) throws ParseException
 	{
+		if (configs.length == 0)
+			return;
+
 		CommandLineParser parser = new DefaultParser();
 		final Options ops = new Options();
 

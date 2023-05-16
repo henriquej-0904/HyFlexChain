@@ -27,7 +27,7 @@ public abstract class ApplicationInterface
 	/**
 	 * Initialize the HyFLexChain System.
 	 * @param configFolder A directory where to find the
-	 * configuration files for HyFlexChain.
+	 * configuration files for HyFlexChain
 	 * @param overridenConfigs an array of options to override the configurations
 	 * @see MultiLedgerConfig    
 	 * @throws IOException

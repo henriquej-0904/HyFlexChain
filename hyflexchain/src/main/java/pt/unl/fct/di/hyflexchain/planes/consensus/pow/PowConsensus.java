@@ -74,12 +74,14 @@ public class PowConsensus extends ConsensusInterface
 	@Override
 	public void orderBlock(HyFlexChainBlock block)
 	{
+		LOG.info("Order block: " + block.header().getMetaHeader().getHash());
+
 		try {
 			byte[] requestBytes = Utils.json.writeValueAsBytes(block);
 			
 			blockmess.invokeAsyncOperation(requestBytes,
 			(reply) -> {
-					// do nothing
+					LOG.info("blockmess reply: {}", reply);
 			});
 		} catch (JsonProcessingException e) {
 			// TODO Auto-generated catch block
@@ -98,7 +100,7 @@ public class PowConsensus extends ConsensusInterface
 				lvi.getBlockchainSize(POW) + 1);
 
 		HyFlexChainBlock block = new HyFlexChainBlock(header, body);
-		block.calcHash();
+		block.calcAndSetHash();
 
 		return block;
 	}
@@ -201,6 +203,9 @@ public class PowConsensus extends ConsensusInterface
 
         @Override
         public byte[] processOperation(byte[] operation) {
+
+			LOG.info("Blockmess processOperation");
+
             try {
     
 				HyFlexChainBlock block = Utils.json.readValue(operation, HyFlexChainBlock.class);

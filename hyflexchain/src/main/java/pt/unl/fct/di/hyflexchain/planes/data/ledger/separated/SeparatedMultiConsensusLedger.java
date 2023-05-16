@@ -36,7 +36,8 @@ public class SeparatedMultiConsensusLedger implements DataPlane
 			if (instance != null)
 				return instance;
 
-			instance = new SeparatedMultiConsensusLedger(MultiLedgerConfig.getInstance());
+			instance = new SeparatedMultiConsensusLedger(
+				MultiLedgerConfig.getInstance(), HyFlexChainBlock.GENESIS_BLOCK);
 
 			return instance;
 		}
@@ -50,24 +51,26 @@ public class SeparatedMultiConsensusLedger implements DataPlane
 	 * Create a new instance of the ledger
 	 * @param ledgerConfig The configuration of the ledger.
 	 */
-	protected SeparatedMultiConsensusLedger(MultiLedgerConfig ledgerConfig)
+	protected SeparatedMultiConsensusLedger(MultiLedgerConfig ledgerConfig,
+		EnumMap<ConsensusMechanism, HyFlexChainBlock> genesisBlocks)
 	{
 		this.configs = ledgerConfig;
-		this.ledgerByConsensus = initLedgers();
+		this.ledgerByConsensus = initLedgers(genesisBlocks);
 	}
 
 	/**
 	 * Init all specific ledgers.
 	 * @return A map with all specific ledgers.
 	 */
-	protected EnumMap<ConsensusMechanism, ConsensusSpecificLedger> initLedgers()
+	protected EnumMap<ConsensusMechanism, ConsensusSpecificLedger>
+		initLedgers(EnumMap<ConsensusMechanism, HyFlexChainBlock> genesisBlocks)
 	{
 		EnumMap<ConsensusMechanism, ConsensusSpecificLedger> res = new EnumMap<>(ConsensusMechanism.class);
 
 		for (ConsensusMechanism c : ConsensusMechanism.values()) {
 			res.put(c,
 				new InMemoryLedger(c)
-					.init(this.configs.getLedgerConfig(c))
+					.init(this.configs.getLedgerConfig(c), genesisBlocks.get(c))
 			);
 		}
 

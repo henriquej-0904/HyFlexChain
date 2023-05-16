@@ -25,18 +25,31 @@ public class PowConsensusThread implements Runnable {
 		TransactionManagement txManag = TransactionManagement.getInstance();
 		TxPool txPool = txManag.getTxPool(ConsensusMechanism.PoW);
 
-		while (true) {
-			// wait for min number of txs in tx pool
-			while (txPool.size() < this.nTxsInBlock) {
-				Thread.onSpinWait();
+		try {
+			while (true) {
+
+				// wait for min number of txs in tx pool
+	
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+	
+				/* while (txPool.size() < this.nTxsInBlock) {
+					Thread.onSpinWait();
+				} */
+	
+				var txs = txPool.getTxs(nTxsInBlock);
+				if (txs.size() < this.nTxsInBlock)
+					continue;
+	
+				var block = consensus.createBlock(txs);
+				this.consensus.orderBlock(block);
 			}
-
-			var txs = txPool.getTxs(nTxsInBlock);
-			if (txs.size() < this.nTxsInBlock)
-				continue;
-
-			var block = consensus.createBlock(txs);
-			this.consensus.orderBlock(block);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 }

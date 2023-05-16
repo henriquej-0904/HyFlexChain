@@ -8,9 +8,11 @@ import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.SignatureException;
+import java.util.Arrays;
 import java.util.Scanner;
 
 import org.apache.commons.cli.ParseException;
+import org.slf4j.LoggerFactory;
 
 import pt.unl.fct.di.hyflexchain.planes.application.ti.InvalidTransactionException;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
@@ -64,7 +66,10 @@ public class SimpleApp extends ApplicationInterface
 		tx.setOutputTxs(new UTXO[]{
 			new UTXO("address", 45)
 		});
-		tx.setData(new byte[] {0});
+
+		byte[] bytes = new byte[20];
+		rand.nextBytes(bytes);
+		tx.setData(bytes);
 
 		try {
 			tx.sign(this.keyPair.getPrivate(), tx.getSignatureType());
@@ -97,6 +102,7 @@ public class SimpleApp extends ApplicationInterface
 		for (int i = 0; i < n; i++) {
 			HyFlexChainTransaction tx = createTx();
 			try {
+				System.out.println(Arrays.toString(tx.getData()));
 				this.ti.sendTransaction(tx);
 			} catch (InvalidTransactionException e) {
 				e.printStackTrace();
@@ -115,7 +121,7 @@ public class SimpleApp extends ApplicationInterface
 	public static void main(String[] args) throws FileNotFoundException, IOException, ParseException {
 		SimpleApp app = new SimpleApp(new File(args[0]), args);
 
-		System.out.println("Waiting for input");
+		LoggerFactory.getLogger(SimpleApp.class).info("Ready...");
 
 		try (Scanner sc = new Scanner(System.in);)
 		{
@@ -125,7 +131,7 @@ public class SimpleApp extends ApplicationInterface
 						app.submitTxAndWait();
 						break;
 					case 1:
-						app.submitTxs(300000);
+						app.submitTxs(1000);
 						break;
 					case 2:
 						app.printLedger();

@@ -54,9 +54,10 @@ public class InMemoryLedger implements ConsensusSpecificLedger
 	}
 
 	@Override
-	public InMemoryLedger init(LedgerConfig config)
+	public InMemoryLedger init(LedgerConfig config, HyFlexChainBlock genesisBlock)
 	{
-		// TODO: init Memory Ledger
+		this.blockchain.put(genesisBlock.header().getMetaHeader().getHash(), genesisBlock);
+
 		return this;
 	}
 

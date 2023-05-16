@@ -20,9 +20,10 @@ public interface ConsensusSpecificLedger
 	/**
 	 * Initialize the ledger with the provided configurations.
 	 * @param config The configuration of the ledger.
+	 * @param genesisBlock The genesis block
 	 * @return The initialized object
 	 */
-	ConsensusSpecificLedger init(LedgerConfig config);
+	ConsensusSpecificLedger init(LedgerConfig config, HyFlexChainBlock genesisBlock);
 
 	/**
 	 * Get the consensus mechanism of this ledger implementation.

@@ -1,11 +1,13 @@
 package pt.unl.fct.di.hyflexchain.api.rest.impl.server.resources;
 
+import jakarta.inject.Singleton;
 import jakarta.ws.rs.BadRequestException;
 import pt.unl.fct.di.hyflexchain.api.rest.TransactionInterfaceRest;
 import pt.unl.fct.di.hyflexchain.planes.application.ApplicationInterface;
 import pt.unl.fct.di.hyflexchain.planes.application.ti.InvalidTransactionException;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
 
+@Singleton
 public class HyFlexChainResource implements TransactionInterfaceRest {
 	
 	private static ApplicationInterface hyflexchainInterface;

@@ -18,7 +18,7 @@ import pt.unl.fct.di.hyflexchain.util.config.MultiLedgerConfig;
  * 
  * There must be only one instance of this class per java process.
  */
-public abstract class ApplicationInterface
+public class ApplicationInterface
 {
 	protected final LedgerViewInterface lvi;
 
@@ -48,4 +48,20 @@ public abstract class ApplicationInterface
 		this.consensusPlaneConfig = new ConsensusPlaneConfig(config);
 		this.consensusPlaneConfig.init();
 	}
+
+	/**
+	 * @return the lvi
+	 */
+	public LedgerViewInterface getLvi() {
+		return lvi;
+	}
+
+	/**
+	 * @return the ti
+	 */
+	public TransactionInterface getTi() {
+		return ti;
+	}
+
+	
 }

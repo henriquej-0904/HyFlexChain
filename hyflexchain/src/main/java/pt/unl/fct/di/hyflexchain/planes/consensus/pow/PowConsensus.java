@@ -84,7 +84,6 @@ public class PowConsensus extends ConsensusInterface
 					LOG.info("blockmess reply: {}", reply);
 			});
 		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -184,13 +183,22 @@ public class PowConsensus extends ConsensusInterface
 			if (address == null)
 				throw new Error("BLOCKMESS_ADDRESS not defined.");
 
-            return new String[]
+			var contact = config.getConfigValue("BLOCKMESS_CONTACT");
+			if (contact == null)
+					throw new Error("BLOCKMESS_CONTACT not defined.");
+
+            var blockmessConfig = new String[]
             {
+				"contact=" + contact,
                 "port=" + port,
 				"address=" + address,
                 "redirectFile=blockmess-logs/pow.log",
                 "genesisUUID=" + UUID.randomUUID()
             };
+
+			LOG.info("Blockmess POW config: " + Arrays.toString(blockmessConfig));
+
+			return blockmessConfig;
         }
 
         protected static String[] concat(String[] array1, String[] array2)

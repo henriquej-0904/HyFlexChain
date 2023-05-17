@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import applicationInterface.ApplicationInterface;
+import ledger.blocks.BlockmessBlock;
 import pt.unl.fct.di.hyflexchain.planes.application.lvi.LedgerViewInterface;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusInterface;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
@@ -81,7 +82,7 @@ public class PowConsensus extends ConsensusInterface
 			
 			blockmess.invokeAsyncOperation(requestBytes,
 			(reply) -> {
-					LOG.info("blockmess reply: {}", reply);
+					// LOG.info("blockmess reply: {}", reply);
 			});
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
@@ -153,9 +154,25 @@ public class PowConsensus extends ConsensusInterface
 	{
 		var lvi = LedgerViewInterface.getInstance();
 		
-		return header.getPrevHash().equalsIgnoreCase(lvi.getLastBlockHash(POW))
-		&& header.getNonce() == lvi.getBlockchainSize(POW) + 1
-		&& header.getMerkleRoot().equalsIgnoreCase(body.getMerkleTree().getRoot().hash());
+		if (! header.getPrevHash().equalsIgnoreCase(lvi.getLastBlockHash(POW)))
+		{
+			LOG.info("Invalid block header: prev hash");
+			return false;
+		}
+
+		/* if ( header.getNonce() != lvi.getBlockchainSize(POW) + 1)
+		{
+			LOG.info("Invalid block header: invalid nonce");
+			return false;
+		} */
+
+		if ( ! header.getMerkleRoot().equalsIgnoreCase(body.getMerkleTree().getRoot().hash()))
+		{
+			LOG.info("Invalid block header: invalid  merkle root");
+			return false;
+		}
+		
+		return true;
 	}
 	
 	
@@ -213,7 +230,7 @@ public class PowConsensus extends ConsensusInterface
         @Override
         public byte[] processOperation(byte[] operation) {
 
-			LOG.info("Blockmess processOperation");
+			// LOG.info("Blockmess processOperation");
 
             try {
     
@@ -221,7 +238,7 @@ public class PowConsensus extends ConsensusInterface
 				
 				if (!verifyBlock(block))
 				{
-					LOG.info("Invalid block: " + new String(operation));
+					LOG.info("Invalid block: " + block.header().getMetaHeader().getHash());
 					return FALSE;
 				}
 
@@ -230,7 +247,7 @@ public class PowConsensus extends ConsensusInterface
 				
 				DataPlane.getInstance().writeOrderedBlock(block, POW);
     
-				LOG.info("Appended valid block with hash: " +
+				LOG.info("Appended valid block with size=" + operation.length + " & hash: " +
 					block.header().getMetaHeader().getHash());
 
 				return TRUE;

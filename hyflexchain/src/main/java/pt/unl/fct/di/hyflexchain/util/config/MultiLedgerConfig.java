@@ -211,9 +211,6 @@ public class MultiLedgerConfig
 
 			this.configsPerConsensusType.put(consensus, props);
 		}
-
-		System.out.println(this.generalConfig.toString());
-		System.out.println(this.configsPerConsensusType.toString());
 	}
 
 	/**

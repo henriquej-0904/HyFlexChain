@@ -21,6 +21,6 @@ public interface TransactionInterfaceRest extends TransactionInterface {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	String sendTransaction(HyFlexChainTransaction tx);
+	String sendTransactionAndWait(HyFlexChainTransaction tx);
 	
 }

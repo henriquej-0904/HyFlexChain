@@ -162,6 +162,7 @@ public class PowConsensus extends ConsensusInterface
 
 	public class BlockmessConnector extends ApplicationInterface
     {
+		protected static final Logger LOG = LoggerFactory.getLogger(BlockmessConnector.class);
 
         public BlockmessConnector() {
             super(defaultBlockmessProperties());
@@ -192,7 +193,7 @@ public class PowConsensus extends ConsensusInterface
 				"contact=" + contact,
                 "port=" + port,
 				"address=" + address,
-                "redirectFile=blockmess-logs/pow.log",
+                // "redirectFile=blockmess-logs/pow.log",
                 "genesisUUID=" + UUID.randomUUID()
             };
 

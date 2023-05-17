@@ -102,7 +102,6 @@ public class SimpleApp extends ApplicationInterface
 		for (int i = 0; i < n; i++) {
 			HyFlexChainTransaction tx = createTx();
 			try {
-				System.out.println(Arrays.toString(tx.getData()));
 				this.ti.sendTransaction(tx);
 			} catch (InvalidTransactionException e) {
 				e.printStackTrace();
@@ -131,7 +130,7 @@ public class SimpleApp extends ApplicationInterface
 						app.submitTxAndWait();
 						break;
 					case 1:
-						app.submitTxs(1000);
+						app.submitTxs(20000);
 						break;
 					case 2:
 						app.printLedger();

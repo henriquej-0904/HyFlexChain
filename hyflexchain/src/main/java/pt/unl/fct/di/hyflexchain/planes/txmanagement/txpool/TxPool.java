@@ -4,11 +4,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.Map.Entry;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.stream.Collectors;
 
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
@@ -27,6 +26,12 @@ public class TxPool
 	private final ConsensusMechanism consensus;
 
 	/**
+	 * A map of transactions that were already
+	 * proposed and are waiting to be finalized
+	 */
+	private final Map<String, HyFlexChainTransaction> waitingForFinalization;
+
+	/**
 	 * A map of pending transactions with insertion order.
 	 */
 	private final LinkedHashMap<String, HyFlexChainTransaction> pending;
@@ -42,6 +47,7 @@ public class TxPool
 	public TxPool(ConsensusMechanism consensus) {
 		this.consensus = consensus;
 		this.pending = new LinkedHashMap<>(PENDING_INIT_SIZE);
+		this.waitingForFinalization = new LinkedHashMap<>(PENDING_INIT_SIZE);
 		this.size = 0;
 
 		this.lock = new ReentrantLock();
@@ -92,7 +98,7 @@ public class TxPool
 	{
 		this.lock.lock();
 
-		var list = this.pending.entrySet().stream()
+		/* var list = this.pending.entrySet().stream()
 			.limit(n)
 			.collect(
 				Collectors.toMap(
@@ -101,7 +107,20 @@ public class TxPool
 					(x1, x2) -> x1,
 					() -> new LinkedHashMap<>(n)
 				)
-			);
+			); */
+
+		LinkedHashMap<String, HyFlexChainTransaction> list =
+			new LinkedHashMap<>(n);
+
+		var it = this.pending.entrySet().iterator();
+		for (int i = 0; i < n && it.hasNext(); i++) {
+			var tx = it.next();
+			it.remove();
+
+			list.put(tx.getKey(), tx.getValue());
+		}
+
+		this.waitingForFinalization.putAll(list);
 
 		this.lock.unlock();
 
@@ -115,7 +134,8 @@ public class TxPool
 
 	public boolean txExists(String txHash)
 	{
-		return this.pending.containsKey(txHash);
+		return this.pending.containsKey(txHash) ||
+			this.waitingForFinalization.containsKey(txHash);
 	}
 
 	/**
@@ -134,6 +154,10 @@ public class TxPool
 
 		for (String txHash : txHashes) {
 			var tx = this.pending.remove(txHash);
+			if (tx != null)
+				txs.add(tx);
+
+			tx = this.waitingForFinalization.remove(txHash);
 			if (tx != null)
 				txs.add(tx);
 		}

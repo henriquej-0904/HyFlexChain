@@ -1,0 +1,15 @@
+{
+    "caliper": {
+        "blockchain": "./index.js"
+    },
+    "blockmess": {
+        "url": [
+            "http://localhost:10800/api/rest",
+            "http://localhost:10801/api/rest",
+            "http://localhost:10802/api/rest",
+            "http://localhost:10803/api/rest"
+        ],
+        "connection_timeout" : "60000",
+        "blockmess_config_folder" : ""
+    }
+}

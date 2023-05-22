@@ -8,7 +8,6 @@ import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.SignatureException;
-import java.util.Arrays;
 import java.util.Scanner;
 
 import org.apache.commons.cli.ParseException;

@@ -28,7 +28,7 @@ public class SimpleApp extends ApplicationInterface
 
 	private final KeyPair keyPair;
 
-	private final String address;
+	private final Address address;
 
 	private long nonce;
 
@@ -44,7 +44,7 @@ public class SimpleApp extends ApplicationInterface
 		}
 
 		this.keyPair = Crypto.createKeyPairForEcc256bits(this.rand);
-		this.address = Address.getAddress(this.keyPair.getPublic());
+		this.address = Address.fromPubKey(this.keyPair.getPublic());
 
 		this.nonce = 0L;
 	}
@@ -58,12 +58,12 @@ public class SimpleApp extends ApplicationInterface
 		tx.setNonce(nonce++);
 		tx.setInputTxs(new TxInput[]{
 			new TxInput(
-				new TransactionId("sender", "hash"),
+				new TransactionId(new Address("sender"), "hash"),
 				0
 			)
 		});
 		tx.setOutputTxs(new UTXO[]{
-			new UTXO("address", 45)
+			new UTXO(new Address("address"), 45)
 		});
 
 		byte[] bytes = new byte[20];

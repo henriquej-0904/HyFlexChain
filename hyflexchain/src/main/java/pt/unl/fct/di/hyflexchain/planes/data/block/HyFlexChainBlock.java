@@ -9,6 +9,7 @@ import java.util.stream.Stream;
 import org.slf4j.Logger;
 
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
+import pt.unl.fct.di.hyflexchain.planes.data.transaction.Address;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.TxInput;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.UTXO;
@@ -36,7 +37,7 @@ public record HyFlexChainBlock(
 
 		HyFlexChainTransaction tx = new HyFlexChainTransaction();
 		tx.setVersion(HyFlexChainTransaction.Version.V1_0.toString());
-		tx.setAddress("genesis address");
+		tx.setAddress(new Address("genesis address"));
 		tx.setSignatureType("genesis signature alg");
 		tx.setNonce(0);
 		tx.setInputTxs(new TxInput[0]);

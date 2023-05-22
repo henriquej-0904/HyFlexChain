@@ -32,7 +32,7 @@ public class HyFlexChainTransaction {
 	/**
 	 * The address of the sender, that will be signing the transaction.
 	 */
-	protected String address;
+	protected Address address;
 
 	/**
 	 * The signature algorithm.
@@ -83,7 +83,7 @@ public class HyFlexChainTransaction {
         signature.initSign(key);
         
         signature.update(this.version.getBytes());
-		signature.update(this.address.getBytes());
+		signature.update(this.address.address().getBytes());
 		signature.update(Utils.toBytes(this.nonce));
 
 		final Consumer<ByteBuffer> apply = (buff) -> {
@@ -110,7 +110,7 @@ public class HyFlexChainTransaction {
 
 	public boolean verifySignature() throws InvalidKeySpecException, NoSuchAlgorithmException, InvalidKeyException, SignatureException
     {
-        var key = Address.readPublicKey(this.address);
+        var key = this.address.readPublicKey();
 		var sigAlg = this.signatureType;
 		return verifySignature(key, sigAlg);
     }
@@ -121,7 +121,7 @@ public class HyFlexChainTransaction {
         signature.initVerify(key);
         
         signature.update(this.version.getBytes());
-		signature.update(this.address.getBytes());
+		signature.update(this.address.address().getBytes());
 		signature.update(Utils.toBytes(this.nonce));
 
 		final Consumer<ByteBuffer> apply = (buff) -> {
@@ -147,7 +147,7 @@ public class HyFlexChainTransaction {
 		var msgDigest = Crypto.getSha256Digest();
         
         msgDigest.update(this.version.getBytes());
-		msgDigest.update(this.address.getBytes());
+		msgDigest.update(this.address.address().getBytes());
 		msgDigest.update(this.signatureType.getBytes());
 		msgDigest.update(this.signature.getBytes());
 		msgDigest.update(Utils.toBytes(this.nonce));
@@ -198,14 +198,14 @@ public class HyFlexChainTransaction {
 	/**
 	 * @return the address
 	 */
-	public String getAddress() {
+	public Address getAddress() {
 		return address;
 	}
 
 	/**
 	 * @param address the address to set
 	 */
-	public void setAddress(String address) {
+	public void setAddress(Address address) {
 		this.address = address;
 	}
 

@@ -17,9 +17,9 @@ import pt.unl.fct.di.hyflexchain.util.Crypto;
  * being {@code hex()} a function to convert byte[]
  * to an hexadecimal string.
  */
-public class Address {
+public record Address(String address) {
 	
-	public static PublicKey readPublicKey(String address)
+	public PublicKey readPublicKey()
 		throws NoSuchAlgorithmException, InvalidKeySpecException
 	{
 		int algIndex = address.indexOf(';');
@@ -37,11 +37,11 @@ public class Address {
 		return Crypto.getPublicKey(encodedKey, alg);
 	}
 
-	public static String getAddress(PublicKey key)
+	public static Address fromPubKey(PublicKey key)
 	{
 		String alg = key.getAlgorithm();
 		String encodedKey = Crypto.encodePublicKey(key);
-		return alg + ";" + encodedKey;
+		return new Address( alg + ";" + encodedKey );
 	}
 
 }

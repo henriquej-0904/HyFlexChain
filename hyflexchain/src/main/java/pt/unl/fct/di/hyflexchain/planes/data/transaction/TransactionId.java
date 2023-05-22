@@ -14,12 +14,12 @@ import pt.unl.fct.di.hyflexchain.util.Bytes;
  * 
  * @param txHash The hash of the transaction
  */
-public record TransactionId(String senderAddress, String txHash)
+public record TransactionId(Address senderAddress, String txHash)
 implements Bytes<TransactionId> {
 
 	@Override
 	public void applyToBytes(Consumer<ByteBuffer> apply) {
-		apply.accept(ByteBuffer.wrap(senderAddress.getBytes()));
+		apply.accept(ByteBuffer.wrap(senderAddress.address().getBytes()));
 		apply.accept(ByteBuffer.wrap(txHash.getBytes()));
 	}
 }

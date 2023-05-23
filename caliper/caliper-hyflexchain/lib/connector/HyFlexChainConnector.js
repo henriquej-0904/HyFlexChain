@@ -5,33 +5,33 @@ const {ConnectorBase, CaliperUtils, ConfigUtil, TxStatus} = require('@hyperledge
 const CryptoUtils = require("../util/crypto/Crypto");
 const KeyPair = require("../util/crypto/KeyPair");
 
-const Transaction = require("./BlockmessTransaction");
+const Transaction = require("./HyFlexChainTransaction");
 const Context = require("./Context");
 const WorkerArgs = require("./WorkerArgs");
 
 const axios = require('axios').default;
 
-const Logger = CaliperUtils.getLogger('BlockmessConnector');
+const Logger = CaliperUtils.getLogger('HyFlexChainConnector');
 
 /**
- * A connector for the Blockmess System.
+ * A connector for the HyFlexChain System.
  */
-class BlockmessConnector extends ConnectorBase
+class HyFlexChainConnector extends ConnectorBase
 {
 	/**
      * Constructor
      * @param {number} workerIndex The zero-based worker index.
      */
     constructor(workerIndex) {
-        super(workerIndex, "blockmess");
+        super(workerIndex, "hyflexchain");
 
         let configPath = CaliperUtils.resolvePath(ConfigUtil.get(ConfigUtil.keys.NetworkConfig));
-        let blockmessConfig = require(configPath).blockmess;
+        let hyflexchainConfig = require(configPath).blockmess;
 
         // throws on configuration error
-        this.checkConfig(workerIndex, blockmessConfig);
+        this.checkConfig(workerIndex, hyflexchainConfig);
 
-        this.blockmessConfig = blockmessConfig;
+        this.hyflexchainConfig = hyflexchainConfig;
 
         this.workerIndex = workerIndex;
 
@@ -43,21 +43,21 @@ class BlockmessConnector extends ConnectorBase
 
     /**
      * Check the blockmess networkconfig file for errors, throw if invalid
-     * @param {object} blockmessConfig The blockmess networkconfig to check.
+     * @param {object} hyflexchainConfig The blockmess networkconfig to check.
      */
-    checkConfig(workerIndex, blockmessConfig) {
+    checkConfig(workerIndex, hyflexchainConfig) {
 
-        let url = workerIndex < 0 ? blockmessConfig.url[0] : blockmessConfig.url[workerIndex];
+        let url = workerIndex < 0 ? hyflexchainConfig.url[0] : hyflexchainConfig.url[workerIndex];
 
         if (!url) {
             throw new Error(
-                'No URL given to access the Blockmess Crypto Node SUT. Please check your network configuration. '
+                'No URL given to access the HyFlexChain Node SUT. Please check your network configuration. '
             );
         }
 
         if (url.toLowerCase().indexOf('http') === -1) {
             throw new Error(
-                'Blockmess Crypto Node benchmarks must use http(s) RPC connections, since it is the only supported' +
+                'HyFlexChain Node benchmarks must use http(s) RPC connections, since it is the only supported' +
                 'communication protocol so far.'
             );
         }
@@ -104,7 +104,7 @@ class BlockmessConnector extends ConnectorBase
 
         for (let i = 0 ; i < number ; i++) {
             workersArgs[i] = new WorkerArgs(
-                this.blockmessConfig.url[i],
+                this.hyflexchainConfig.url[i],
                 encodedKeyPairs[i],
                 encodedPublicKeys
             );
@@ -130,7 +130,7 @@ class BlockmessConnector extends ConnectorBase
         this.httpClient = axios.create(
             {
                 baseURL: context.getUrl(),
-                timeout: this.blockmessConfig.connection_timeout,
+                timeout: this.hyflexchainConfig.connection_timeout,
                 //headers: {'X-Custom-Header': 'foobar'}
             }
         );
@@ -156,13 +156,18 @@ class BlockmessConnector extends ConnectorBase
 	{
 		//TODO: sign transaction & send request to blockmess
 		request.sign(this.context.getKeyPair().getPrivateKey(), this.cryptoUtils);
+        request.performHash(this.cryptoUtils);
 
         const data = {
-            origin : request.getOrigin(),
-            dest : request.getDest(),
-            signature : request.getSignature(),
-            value : request.getValue(),
-            nonce : request.getNonce()
+            version : request.version,
+            hash : request.hash,
+            address : request.address,
+            signatureType : request.signatureType,
+            signature : request.signature,
+            nonce : request.nonce,
+            inputTxs : request.inputTxs,
+            outputTxs : request.outputTxs,
+            data : request.data.toString("base64")
         }
 
         // Logger.error(JSON.stringify(data));
@@ -182,7 +187,7 @@ class BlockmessConnector extends ConnectorBase
             status.SetStatusSuccess();
         };
 
-        return this.httpClient.post("/crypto-node/transaction", data,
+        return this.httpClient.post("/tx", data,
         {
             headers : {
                 "Content-Type" : "application/json"
@@ -205,4 +210,4 @@ class BlockmessConnector extends ConnectorBase
 	}
 }
 
-module.exports = BlockmessConnector;
+module.exports = HyFlexChainConnector;

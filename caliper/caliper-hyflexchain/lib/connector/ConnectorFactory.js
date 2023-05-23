@@ -1,9 +1,9 @@
 'use strict';
 
-const BlockmessConnector = require('./BlockmessConnector');
+const HyFlexChainConnector = require('./HyFlexChainConnector');
 
 async function connectorFactory(workerIndex) {
-    const connector = new BlockmessConnector(workerIndex);
+    const connector = new HyFlexChainConnector(workerIndex);
 
     // initialize the connector for the worker processes
     if (workerIndex >= 0) {

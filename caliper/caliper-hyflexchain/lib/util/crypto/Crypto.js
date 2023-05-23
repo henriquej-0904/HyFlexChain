@@ -1,6 +1,6 @@
 'use strict';
 
-const { generateKeyPairSync, createPublicKey, createPrivateKey, createSign } = require('node:crypto');
+const { generateKeyPairSync, createPublicKey, createPrivateKey, createSign, createHash, Hash } = require('node:crypto');
 const KeyPair = require("./KeyPair");
 
 /**
@@ -122,6 +122,15 @@ class Crypto
 	{
 		// AKA ECDSA-with-SHA256
 		return createSign("SHA256");
+	}
+
+	/**
+	 * 
+	 * @returns {Hash} hash instance
+	 */
+	getHashInstance()
+	{
+		return createHash("sha256");
 	}
 
 }

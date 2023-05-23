@@ -16,7 +16,7 @@
 
 const WorkloadModuleBase = require('@hyperledger/caliper-core').WorkloadModuleBase;
 
-const BlockmessTransaction = require("../connector/BlockmessTransaction");
+const HyFlexChainTransaction = require("../connector/HyFlexChainTransaction");
 
 const Context = require("../connector/Context");
 
@@ -25,7 +25,7 @@ const Util = require('../util/Util');
 /**
  * Workload module for the benchmark round.
  */
-class CreateTransactionWorkload extends WorkloadModuleBase {
+class CreateTransactionWithoutScWorkload extends WorkloadModuleBase {
     /**
      * Initializes the workload module instance.
      */
@@ -45,7 +45,9 @@ class CreateTransactionWorkload extends WorkloadModuleBase {
         const destPubKey = this.getRandPubKey();
         const val = Util.getRandomInt32();
 
-        const tx = new BlockmessTransaction(originPubKey, destPubKey, val);
+        const inputTxs = [HyFlexChainTransaction.createInputTx(this.getRandPubKey(), "some hash", 0)];
+        const outputTxs = [HyFlexChainTransaction.createOutputTx(destPubKey, val)];
+        const tx = new HyFlexChainTransaction(originPubKey, inputTxs, outputTxs);
 
         return this.sutAdapter.sendRequests(tx);
     }
@@ -68,7 +70,7 @@ class CreateTransactionWorkload extends WorkloadModuleBase {
  * @return {WorkloadModuleInterface}
  */
 function createWorkloadModule() {
-    return new CreateTransactionWorkload();
+    return new CreateTransactionWithoutScWorkload();
 }
 
 module.exports.createWorkloadModule = createWorkloadModule;

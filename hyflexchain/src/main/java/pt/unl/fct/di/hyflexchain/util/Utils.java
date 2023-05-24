@@ -25,14 +25,14 @@ public class Utils
     {
         ByteBuffer b = ByteBuffer.allocate(Integer.BYTES);
         b.putInt(value);
-        return b;
+        return b.rewind();
     }
 
     public static ByteBuffer toBytes(long value)
     {
         ByteBuffer b = ByteBuffer.allocate(Long.BYTES);
         b.putLong(value);
-        return b;
+        return b.rewind();
     }
 
     public static void logError(Exception e, Logger log)

@@ -1,10 +1,15 @@
 package pt.unl.fct.di.hyflexchain.planes.consensus.pow;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.txmanagement.TransactionManagement;
 import pt.unl.fct.di.hyflexchain.planes.txmanagement.txpool.TxPool;
 
 public class PowConsensusThread implements Runnable {
+
+	protected static final Logger LOG = LoggerFactory.getLogger(PowConsensusThread.class);
 
 	private final int nTxsInBlock;
 
@@ -27,25 +32,8 @@ public class PowConsensusThread implements Runnable {
 
 		try {
 			while (true) {
-
-				// wait for min number of txs in tx pool
-	
-				try {
-					Thread.sleep(100);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-	
-				/* while (txPool.size() < this.nTxsInBlock) {
-					Thread.onSpinWait();
-				} */
-	
-				var txs = txPool.getTxs(nTxsInBlock);
-				if (txs.size() < this.nTxsInBlock)
-					continue;
-	
-				var block = consensus.createBlock(txs);
+				var txs = txPool.waitForMinPendingTxs(this.nTxsInBlock);
+				var block = this.consensus.createBlock(txs);
 				this.consensus.orderBlock(block);
 			}
 		} catch (Exception e) {

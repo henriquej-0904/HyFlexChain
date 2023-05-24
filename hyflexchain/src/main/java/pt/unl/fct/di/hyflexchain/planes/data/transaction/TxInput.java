@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
 import pt.unl.fct.di.hyflexchain.util.Bytes;
+import pt.unl.fct.di.hyflexchain.util.Utils;
 
 /**
  * Represents a Transaction Input, aka a reference to a UTXO.
@@ -19,6 +20,6 @@ public record TxInput (
 	@Override
 	public void applyToBytes(Consumer<ByteBuffer> apply) {
 		txId.applyToBytes(apply);
-		apply.accept(ByteBuffer.allocate(Integer.BYTES).putInt(outputIndex));
+		apply.accept(Utils.toBytes(outputIndex));
 	}
 }

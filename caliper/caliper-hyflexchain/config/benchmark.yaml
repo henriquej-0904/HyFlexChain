@@ -2,14 +2,14 @@ test:
   workers:
     number: 2
   rounds:
-    - label: Prepare System
-      txNumber: 250
-      rateControl:
-          type: fixed-load
-          opts:
-            transactionLoad: 5
-      workload:
-        module: lib/benchmarks/CreateTransaction.js
+    # - label: Prepare System
+    #   txNumber: 250
+    #   rateControl:
+    #       type: fixed-load
+    #       opts:
+    #         transactionLoad: 5
+    #   workload:
+    #     module: lib/benchmarks/CreateTransactionWithoutSC.js
 
     - label: Submit 5000 Transactions 50 tps
       description: Test description for transfering money between accounts.
@@ -19,7 +19,7 @@ test:
         opts:
           tps: 50
       workload:
-        module: lib/benchmarks/CreateTransaction.js
+        module: lib/benchmarks/CreateTransactionWithoutSC.js
 
     - label: Submit 10000 Transactions 100 tps
       description: Test description for transfering money between accounts.
@@ -29,7 +29,7 @@ test:
         opts:
           tps: 100
       workload:
-        module: lib/benchmarks/CreateTransaction.js
+        module: lib/benchmarks/CreateTransactionWithoutSC.js
 
     - label: Submit 20000 Transactions 200 tps
       description: Test description for transfering money between accounts.
@@ -39,17 +39,17 @@ test:
         opts:
           tps: 200
       workload:
-        module: lib/benchmarks/CreateTransaction.js
+        module: lib/benchmarks/CreateTransactionWithoutSC.js
 
-    - label: Submit 40000 Transactions 400 tps
-      description: Test description for transfering money between accounts.
-      txNumber: 40000
-      rateControl:
-        type: fixed-rate
-        opts:
-          tps: 400
-      workload:
-        module: lib/benchmarks/CreateTransaction.js
+    # - label: Submit 40000 Transactions 400 tps
+    #   description: Test description for transfering money between accounts.
+    #   txNumber: 40000
+    #   rateControl:
+    #     type: fixed-rate
+    #     opts:
+    #       tps: 400
+    #   workload:
+    #     module: lib/benchmarks/CreateTransactionWithoutSC.js
   
 monitors:
   resource:

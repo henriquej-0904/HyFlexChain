@@ -154,8 +154,7 @@ class HyFlexChainConnector extends ConnectorBase
      */
 	async _sendSingleRequest(request)
 	{
-		//TODO: sign transaction & send request to blockmess
-		request.sign(this.context.getKeyPair().getPrivateKey(), this.cryptoUtils);
+        request.sign(this.context.getKeyPair().getPrivateKey(), this.cryptoUtils);
         request.performHash(this.cryptoUtils);
 
         const data = {
@@ -187,7 +186,7 @@ class HyFlexChainConnector extends ConnectorBase
             status.SetStatusSuccess();
         };
 
-        return this.httpClient.post("/tx", data,
+        return this.httpClient.post("/hyflexchain/ti/transaction", data,
         {
             headers : {
                 "Content-Type" : "application/json"

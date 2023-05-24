@@ -39,15 +39,16 @@ class CreateTransactionWithoutScWorkload extends WorkloadModuleBase {
      * @return {Promise<TxStatus[]>}
      */
     async submitTransaction() {
-        this.txIndex++;
-
-        const originPubKey = this.sutContext.encodedPublicKey;
-        const destPubKey = this.getRandPubKey();
+        const originPubKey = "EC;" + this.sutContext.encodedPublicKey;
+        const destPubKey = "EC;" + this.getRandPubKey();
         const val = Util.getRandomInt32();
 
         const inputTxs = [HyFlexChainTransaction.createInputTx(this.getRandPubKey(), "some hash", 0)];
         const outputTxs = [HyFlexChainTransaction.createOutputTx(destPubKey, val)];
         const tx = new HyFlexChainTransaction(originPubKey, inputTxs, outputTxs);
+        tx.nonce = this.txIndex;
+
+        this.txIndex++;
 
         return this.sutAdapter.sendRequests(tx);
     }
@@ -61,7 +62,7 @@ class CreateTransactionWithoutScWorkload extends WorkloadModuleBase {
         
         const pubKeys = this.sutContext.encodedPublicKeys;
         const i = Util.getRandomIntExcept(0, pubKeys.length, this.workerIndex);
-        return pubKeys[i];
+        return "EC;" + pubKeys[i];
     }
 }
 

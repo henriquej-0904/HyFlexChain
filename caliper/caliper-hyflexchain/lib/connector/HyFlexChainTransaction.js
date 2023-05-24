@@ -7,8 +7,6 @@ const Util = require('../util/Util');
 
 const Buffer = require('buffer').Buffer;
 
-
-
 /**
  * Represents a HyFlexChain Node Transaction
  */
@@ -16,15 +14,15 @@ class HyFlexChainTransaction
 {
 	/**
 	 * Create a new transaction
-	 * @param origin 
-	 * @param inputTxs 
-	 * @param outputTxs 
+	 * @param {string} origin 
+	 * @param {object[]} inputTxs 
+	 * @param {object[]} outputTxs 
 	 */
 	constructor(origin, inputTxs, outputTxs)
 	{
 		this.version = "V1_0";
 		this.hash = undefined;
-		this.address = origin;
+		this.address = {address : origin};
 		this.signatureType = "SHA256withECDSA";
 		this.signature = undefined;
 		this.nonce = Util.getRandomInt(0, Number.MAX_SAFE_INTEGER);
@@ -50,7 +48,7 @@ class HyFlexChainTransaction
 		buff.writeBigInt64BE(BigInt(this.nonce));
 		sig.update(buff);
 
-		this.inputTxs.forEach(element => {
+		this.inputTxs.forEach((element, index, array) => {
 			sig.update(Buffer.from(element.txId.senderAddress.address, "utf-8"));
 			sig.update(Buffer.from(element.txId.txHash, "utf-8"));
 			
@@ -59,7 +57,7 @@ class HyFlexChainTransaction
 			sig.update(buff);
 		});
 
-		this.outputTxs.forEach(element => {
+		this.outputTxs.forEach((element, index, array) => {
 			sig.update(Buffer.from(element.address.address, "utf-8"));
 
 			let buff = Buffer.alloc(8);
@@ -92,7 +90,7 @@ class HyFlexChainTransaction
 		buff.writeBigInt64BE(BigInt(this.nonce));
 		hash.update(buff);
 
-		this.inputTxs.forEach(element => {
+		this.inputTxs.forEach((element, index, array) => {
 			hash.update(Buffer.from(element.txId.senderAddress.address, "utf-8"));
 			hash.update(Buffer.from(element.txId.txHash, "utf-8"));
 			
@@ -101,7 +99,7 @@ class HyFlexChainTransaction
 			hash.update(buff);
 		});
 
-		this.outputTxs.forEach(element => {
+		this.outputTxs.forEach((element, index, array) => {
 			hash.update(Buffer.from(element.address.address, "utf-8"));
 
 			let buff = Buffer.alloc(8);

@@ -103,7 +103,7 @@ public class TransactionManagementV1_0 implements TransactionManagement
 	{
 		var hash = dispatchTransaction(tx);
 
-		LOGGER.info("dispatchTransactionAndWait - before sync");
+		// LOGGER.info("dispatchTransactionAndWait - before sync");
 		
 		synchronized(tx)
 		{

@@ -18,6 +18,8 @@ import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
  */
 public class TxPool
 {
+
+	public static final int WAIT_MILLIS = 10;
 	public static final int PENDING_INIT_SIZE = 1000;
 
 	/**
@@ -97,7 +99,7 @@ public class TxPool
 				// wait for min number of txs in tx pool
 		
 				try {
-					Thread.sleep(100);
+					Thread.sleep(WAIT_MILLIS);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

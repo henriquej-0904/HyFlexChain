@@ -14,11 +14,8 @@ import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
 @Path(TransactionInterfaceRest.PATH)
 public interface TransactionInterfaceRest {
 
-	static final String PATH="/tx";
+	static final String PATH="/hyflexchain/ti";
 
-	@POST
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
 	/**
 	 * Send transaction primitive:
 	 * submits a transaction for verification and,
@@ -29,6 +26,10 @@ public interface TransactionInterfaceRest {
 	 * 
 	 * @return The generated transaction id.
 	 */
+	@Path("/transaction")
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	String sendTransactionAndWait(HyFlexChainTransaction tx);
 	
 }

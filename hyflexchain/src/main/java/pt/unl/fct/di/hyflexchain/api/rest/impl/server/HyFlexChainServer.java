@@ -32,7 +32,6 @@ public class HyFlexChainServer
 			// int replicaId = Integer.parseInt(args[0]);
 			int port = Integer.parseInt(args[1]);
 
-			
 			HyFlexChainResource.setHyflexchainInterface(
 				new ApplicationInterface(new File(args[2]),
 					Arrays.copyOfRange(args, MIN_ARGS, args.length, String[].class)));

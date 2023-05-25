@@ -1,6 +1,5 @@
 package pt.unl.fct.di.blockmess.cryptonode.impl.server;
 
-import java.net.InetAddress;
 import java.net.URI;
 import java.util.Arrays;
 

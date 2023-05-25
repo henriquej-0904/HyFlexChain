@@ -1,6 +1,9 @@
 package pt.unl.fct.di.hyflexchain.planes.data.block;
 
-import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusType;
+import java.security.MessageDigest;
+
+import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
+import pt.unl.fct.di.hyflexchain.util.Utils;
 
 /**
  * The MetaHeader of a block.
@@ -20,7 +23,7 @@ public class BlockMetaHeader
 	/**
 	 * The consensus mechanism of this block
 	 */
-	protected ConsensusType consensus;
+	protected ConsensusMechanism consensus;
 
 	/**
 	 * The proof-of-work algorithm difficulty target for this block
@@ -52,7 +55,7 @@ public class BlockMetaHeader
 	 * @param committeeId The id of the committee assigned to the consensus of this block
 	 * @param committeeBlockHash The hash of the block where the committee was created
 	 */
-	public BlockMetaHeader(String hash, String version, ConsensusType consensus,
+	public BlockMetaHeader(String hash, String version, ConsensusMechanism consensus,
 			int difficultyTarget, String[] validators, String committeeId,
 			String committeeBlockHash) {
 		this.hash = hash;
@@ -72,7 +75,7 @@ public class BlockMetaHeader
 	 * @param committeeId The id of the committee assigned to the consensus of this block
 	 * @param committeeBlockHash The hash of the block where the committee was created
 	 */
-	public BlockMetaHeader(ConsensusType consensus,
+	public BlockMetaHeader(ConsensusMechanism consensus,
 			int difficultyTarget, String[] validators, String committeeId,
 			String committeeBlockHash) {
 		this.version = Version.V1_0.getVersion();
@@ -147,7 +150,7 @@ public class BlockMetaHeader
 	 * The consensus mechanism of this block
 	 * @return the consensus
 	 */
-	public ConsensusType getConsensus() {
+	public ConsensusMechanism getConsensus() {
 		return consensus;
 	}
 
@@ -155,7 +158,7 @@ public class BlockMetaHeader
 	 * The consensus mechanism of this block
 	 * @param consensus the consensus to set
 	 */
-	public void setConsensus(ConsensusType consensus) {
+	public void setConsensus(ConsensusMechanism consensus) {
 		this.consensus = consensus;
 	}
 
@@ -221,6 +224,25 @@ public class BlockMetaHeader
 	 */
 	public void setCommitteeBlockHash(String committeeBlockHash) {
 		this.committeeBlockHash = committeeBlockHash;
+	}
+
+	public MessageDigest calcHash(MessageDigest msgDigest)
+	{
+		msgDigest.update(version.getBytes());
+		msgDigest.update(consensus.toString().getBytes());
+		msgDigest.update(Utils.toBytes(difficultyTarget));
+
+		if ( !(validators == null || validators.length == 0) )
+		{
+			for (String validator : validators) {
+				msgDigest.update(validator.getBytes());
+			}
+		}
+
+		msgDigest.update(committeeId.getBytes());
+		msgDigest.update(committeeBlockHash.getBytes());
+
+		return msgDigest;
 	}
 
 	

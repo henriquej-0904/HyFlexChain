@@ -2,8 +2,37 @@ package pt.unl.fct.di.hyflexchain.planes.application.ti;
 
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
 
+/**
+ * An interface to submit transactions.
+ */
 public interface TransactionInterface {
-	
-	void sendTransaction(HyFlexChainTransaction tx);
+
+	public static TransactionInterface getInstance()
+	{
+		return TransactionInterfaceInstance.getInstance();
+	}
+
+	/**
+	 * Send transaction primitive:
+	 * submits a transaction for verification and,
+	 * if successfull, dispatch it to the system for ordering.
+	 * @param tx The transaction to send.
+	 * 
+	 * @return The generated transaction id.
+	 */
+	String sendTransaction(HyFlexChainTransaction tx) throws InvalidTransactionException;
+
+	/**
+	 * Send transaction primitive:
+	 * submits a transaction for verification and,
+	 * if successfull, dispatch it to the system for ordering. <p>
+	 * This method differs from {@link #sendTransaction(HyFlexChainTransaction)}
+	 * in the sense that it waits for the transaction to be
+	 * finalized.
+	 * @param tx The transaction to send.
+	 * 
+	 * @return The generated transaction id.
+	 */
+	String sendTransactionAndWait(HyFlexChainTransaction tx) throws InvalidTransactionException;
 
 }

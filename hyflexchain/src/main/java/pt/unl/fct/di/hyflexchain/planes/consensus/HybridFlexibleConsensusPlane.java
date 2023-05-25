@@ -24,7 +24,7 @@ public interface HybridFlexibleConsensusPlane
 	 * @param block the block
 	 * @param consensusType the type of consensus
 	 */
-	void orderBlock(HyFlexChainBlock block, ConsensusType consensusType);
+	void orderBlock(HyFlexChainBlock block, ConsensusMechanism consensusType);
 
 	// callback -> blockOrdered(block, consensusType)
 }

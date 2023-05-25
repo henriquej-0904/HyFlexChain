@@ -14,7 +14,7 @@ import pt.unl.fct.di.hyflexchain.planes.txmanagement.TransactionManagement;
  */
 public class TransactionInterfaceV1_0 implements TransactionInterface {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(TransactionInterfaceV1_0.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(TransactionInterfaceV1_0.class.getSimpleName());
 
 
 	protected void verifyTx(HyFlexChainTransaction tx) throws InvalidTransactionException

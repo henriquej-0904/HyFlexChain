@@ -2,7 +2,9 @@ package pt.unl.fct.di.hyflexchain.planes.consensus.pow;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +28,7 @@ import pt.unl.fct.di.hyflexchain.util.config.MultiLedgerConfig;
 
 public class PowConsensus extends ConsensusInterface
 {
-	protected static final Logger LOG = LoggerFactory.getLogger(PowConsensus.class);
+	protected static final Logger LOG = LoggerFactory.getLogger(PowConsensus.class.getSimpleName());
 
     private static final byte[] TRUE = new byte[] {1};
 	private static final byte[] FALSE = new byte[] {0};
@@ -78,9 +80,20 @@ public class PowConsensus extends ConsensusInterface
 
 		try {
 			byte[] requestBytes = Utils.json.writeValueAsBytes(block);
-			
 			blockmess.invokeAsyncOperation(requestBytes,
 			(reply) -> {
+
+					boolean res = Arrays.equals(TRUE, reply.getLeft());
+
+					Map<String, Boolean> mapTxRes =
+						block.body().getTransactions().keySet().stream()
+						.collect(Collectors.toUnmodifiableMap(
+							(tx) -> tx, (tx) -> res)
+						);
+
+					TransactionManagement.getInstance().getTxPool(POW)
+						.removePendingTxsAndNotify(mapTxRes);
+
 					// LOG.info("blockmess reply: {}", reply);
 			});
 		} catch (JsonProcessingException e) {
@@ -178,7 +191,7 @@ public class PowConsensus extends ConsensusInterface
 
 	public class BlockmessConnector extends ApplicationInterface
     {
-		protected static final Logger LOG = LoggerFactory.getLogger(BlockmessConnector.class);
+		protected static final Logger LOG = LoggerFactory.getLogger(BlockmessConnector.class.getSimpleName());
 
         public BlockmessConnector() {
             super(defaultBlockmessProperties());
@@ -241,8 +254,10 @@ public class PowConsensus extends ConsensusInterface
 					return FALSE;
 				}
 
-				TransactionManagement.getInstance().getTxPool(POW)
-					.removePendingTxsAndNotify(block.body().getTransactions().keySet());
+				// process new valid block
+
+				// TransactionManagement.getInstance().getTxPool(POW)
+					// .removePendingTxsAndNotify(block.body().getTransactions().keySet());
 				
 				DataPlane.getInstance().writeOrderedBlock(block, POW);
     

@@ -1,13 +1,14 @@
 package pt.unl.fct.di.hyflexchain.planes.txmanagement.txpool;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+
+import org.slf4j.Logger;
 
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
@@ -18,7 +19,6 @@ import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
  */
 public class TxPool
 {
-
 	public static final int WAIT_MILLIS = 10;
 	public static final int PENDING_INIT_SIZE = 1000;
 
@@ -81,6 +81,39 @@ public class TxPool
 		boolean inserted = this.pending.putIfAbsent(tx.getHash(), tx) == null;
 
 		this.lock.unlock();
+
+		return inserted;
+	}
+
+	/**
+	 * Add a pending tx only if it does not already exists.
+	 * <p> This method returns when the transaction was ordered.
+	 * @param tx The tx to add.
+	 * @return true if it was sucessfully ordered.
+	 */
+	public boolean addTxIfAbsentAndWait(HyFlexChainTransaction tx, Logger log)
+	{
+		this.lock.lock();
+
+		boolean inserted = this.pending.putIfAbsent(tx.getHash(), tx) == null;
+
+		this.lock.unlock();
+
+		if (!inserted)
+		{
+			return false;
+		}
+
+		log.info("Submited tx: " + tx.getHash());
+
+		synchronized(tx)
+		{
+			try {
+				tx.wait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 
 		return inserted;
 	}
@@ -158,23 +191,23 @@ public class TxPool
 	/**
 	 * Remove all the specified pending transactions
 	 * and notify all threads that are waiting.
-	 * @param txHashes The transactions to remove and notify.
+	 * @param mapTxRes A map of Transaction hash, Result.
 	 */
-	public void removePendingTxsAndNotify(Collection<String> txHashes)
+	public void removePendingTxsAndNotify(Map<String, Boolean> mapTxRes)
 	{
 		List<HyFlexChainTransaction> txs
-			= new ArrayList<>(txHashes.size());
+			= new ArrayList<>(mapTxRes.size());
 
 		// remove txs
 
 		this.lock.lock();
 
-		for (String txHash : txHashes) {
-			var tx = this.pending.remove(txHash);
+		for (var txRes : mapTxRes.entrySet()) {
+			var tx = this.pending.remove(txRes.getKey());
 			if (tx != null)
 				txs.add(tx);
 
-			tx = this.waitingForFinalization.remove(txHash);
+			tx = this.waitingForFinalization.remove(txRes.getKey());
 			if (tx != null)
 				txs.add(tx);
 		}

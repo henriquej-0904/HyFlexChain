@@ -22,7 +22,7 @@ import pt.unl.fct.di.hyflexchain.planes.txmanagement.txpool.TxPool;
  */
 public class TransactionManagementV1_0 implements TransactionManagement
 {
-	private static final Logger LOGGER = LoggerFactory.getLogger(TransactionManagementV1_0.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(TransactionManagementV1_0.class.getSimpleName());
 
 	protected final EnumMap<ConsensusMechanism, TxPool> txPools;
 
@@ -75,14 +75,13 @@ public class TransactionManagementV1_0 implements TransactionManagement
 	}
 
 	/**
-	 * Add a pending transaction to the pool of transactions.
-	 * @param pool The pool of transactions
-	 * @param tx The pending transaction to add
+	 * Check the result of the add pending tx operation.
+	 * @param result The result of the add pending tx operation
 	 * @throws InvalidTransactionException If the transaction was already submitted.
 	 */
-	protected void addPendingTx(TxPool pool, HyFlexChainTransaction tx) throws InvalidTransactionException
+	protected void checkAddPendingTx(boolean result) throws InvalidTransactionException
 	{
-		if ( ! pool.addTxIfAbsent(tx) )
+		if ( ! result )
 		{
 			var msg = "Invalid Transaction: Already submitted.";
 			LOGGER.info(msg);
@@ -94,31 +93,21 @@ public class TransactionManagementV1_0 implements TransactionManagement
 	public String dispatchTransaction(HyFlexChainTransaction tx) throws InvalidTransactionException
 	{
 		verifyTx(tx);
-		addPendingTx(getTxPool(ConsensusMechanism.PoW), tx);
+		checkAddPendingTx(getTxPool(ConsensusMechanism.PoW).addTxIfAbsent(tx));
+
+		LOGGER.info("Submited tx: " + tx.getHash());
 		return tx.getHash();  
 	}
 
 	@Override
 	public String dispatchTransactionAndWait(HyFlexChainTransaction tx) throws InvalidTransactionException
 	{
-		var hash = dispatchTransaction(tx);
+		verifyTx(tx);
+		checkAddPendingTx(getTxPool(ConsensusMechanism.PoW).addTxIfAbsentAndWait(tx, LOGGER));
 
-		// LOGGER.info("dispatchTransactionAndWait - before sync");
-		
-		synchronized(tx)
-		{
-			LOGGER.info("dispatchTransactionAndWait - waiting");
+		LOGGER.info("Finalized tx: " + tx.getHash());
 
-			try {
-				tx.wait();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-
-			LOGGER.info("dispatchTransactionAndWait - block finalized");
-		}
-	
-		return hash;
+		return tx.getHash();
 	}
 	
 }

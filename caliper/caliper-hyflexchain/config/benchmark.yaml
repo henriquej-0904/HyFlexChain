@@ -5,9 +5,9 @@ test:
     # - label: Prepare System
     #   txNumber: 250
     #   rateControl:
-    #       type: fixed-load
-    #       opts:
-    #         transactionLoad: 5
+    #     type: fixed-load
+    #     opts:
+    #       transactionLoad: 5
     #   workload:
     #     module: lib/benchmarks/CreateTransactionWithoutSC.js
 

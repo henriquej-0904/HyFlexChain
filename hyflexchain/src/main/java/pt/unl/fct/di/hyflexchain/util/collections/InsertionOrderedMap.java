@@ -230,13 +230,13 @@ public class InsertionOrderedMap<K, V> extends AbstractMap<K, V>
 
 		@Override
 		public boolean add(Entry<K, V> e) {
-			// TODO Auto-generated method stub
+			
 			throw new UnsupportedOperationException("Unimplemented method 'add'");
 		}
 
 		@Override
 		public boolean remove(Object o) {
-			// TODO Auto-generated method stub
+			
 			throw new UnsupportedOperationException("Unimplemented method 'remove'");
 		}
 
@@ -247,31 +247,31 @@ public class InsertionOrderedMap<K, V> extends AbstractMap<K, V>
 
 		@Override
 		public boolean addAll(Collection<? extends Entry<K, V>> c) {
-			// TODO Auto-generated method stub
+			
 			throw new UnsupportedOperationException("Unimplemented method 'addAll'");
 		}
 
 		@Override
 		public boolean addAll(int index, Collection<? extends Entry<K, V>> c) {
-			// TODO Auto-generated method stub
+			
 			throw new UnsupportedOperationException("Unimplemented method 'addAll'");
 		}
 
 		@Override
 		public boolean removeAll(Collection<?> c) {
-			// TODO Auto-generated method stub
+			
 			throw new UnsupportedOperationException("Unimplemented method 'removeAll'");
 		}
 
 		@Override
 		public boolean retainAll(Collection<?> c) {
-			// TODO Auto-generated method stub
+			
 			throw new UnsupportedOperationException("Unimplemented method 'retainAll'");
 		}
 
 		@Override
 		public void clear() {
-			// TODO Auto-generated method stub
+			
 			throw new UnsupportedOperationException("Unimplemented method 'clear'");
 		}
 
@@ -282,19 +282,19 @@ public class InsertionOrderedMap<K, V> extends AbstractMap<K, V>
 
 		@Override
 		public Entry<K, V> set(int index, Entry<K, V> element) {
-			// TODO Auto-generated method stub
+			
 			throw new UnsupportedOperationException("Unimplemented method 'set'");
 		}
 
 		@Override
 		public void add(int index, Entry<K, V> element) {
-			// TODO Auto-generated method stub
+			
 			throw new UnsupportedOperationException("Unimplemented method 'add'");
 		}
 
 		@Override
 		public Entry<K, V> remove(int index) {
-			// TODO Auto-generated method stub
+			
 			throw new UnsupportedOperationException("Unimplemented method 'remove'");
 		}
 
@@ -358,13 +358,13 @@ public class InsertionOrderedMap<K, V> extends AbstractMap<K, V>
 
 		@Override
 		public boolean add(V e) {
-			// TODO Auto-generated method stub
+			
 			throw new UnsupportedOperationException("Unimplemented method 'add'");
 		}
 
 		@Override
 		public boolean remove(Object o) {
-			// TODO Auto-generated method stub
+			
 			throw new UnsupportedOperationException("Unimplemented method 'remove'");
 		}
 
@@ -375,31 +375,31 @@ public class InsertionOrderedMap<K, V> extends AbstractMap<K, V>
 
 		@Override
 		public boolean addAll(Collection<? extends V> c) {
-			// TODO Auto-generated method stub
+			
 			throw new UnsupportedOperationException("Unimplemented method 'addAll'");
 		}
 
 		@Override
 		public boolean addAll(int index, Collection<? extends V> c) {
-			// TODO Auto-generated method stub
+			
 			throw new UnsupportedOperationException("Unimplemented method 'addAll'");
 		}
 
 		@Override
 		public boolean removeAll(Collection<?> c) {
-			// TODO Auto-generated method stub
+			
 			throw new UnsupportedOperationException("Unimplemented method 'removeAll'");
 		}
 
 		@Override
 		public boolean retainAll(Collection<?> c) {
-			// TODO Auto-generated method stub
+			
 			throw new UnsupportedOperationException("Unimplemented method 'retainAll'");
 		}
 
 		@Override
 		public void clear() {
-			// TODO Auto-generated method stub
+			
 			throw new UnsupportedOperationException("Unimplemented method 'clear'");
 		}
 
@@ -415,19 +415,19 @@ public class InsertionOrderedMap<K, V> extends AbstractMap<K, V>
 
 		@Override
 		public V set(int index, V element) {
-			// TODO Auto-generated method stub
+			
 			throw new UnsupportedOperationException("Unimplemented method 'set'");
 		}
 
 		@Override
 		public void add(int index, V element) {
-			// TODO Auto-generated method stub
+			
 			throw new UnsupportedOperationException("Unimplemented method 'add'");
 		}
 
 		@Override
 		public V remove(int index) {
-			// TODO Auto-generated method stub
+			
 			throw new UnsupportedOperationException("Unimplemented method 'remove'");
 		}
 
@@ -499,19 +499,19 @@ public class InsertionOrderedMap<K, V> extends AbstractMap<K, V>
 
 			@Override
 			public void remove() {
-				// TODO Auto-generated method stub
+				
 				throw new UnsupportedOperationException("Unimplemented method 'remove'");
 			}
 
 			@Override
 			public void set(V e) {
-				// TODO Auto-generated method stub
+				
 				throw new UnsupportedOperationException("Unimplemented method 'set'");
 			}
 
 			@Override
 			public void add(V e) {
-				// TODO Auto-generated method stub
+				
 				throw new UnsupportedOperationException("Unimplemented method 'add'");
 			}
 			

@@ -134,7 +134,6 @@ public class TxPool
 				try {
 					Thread.sleep(WAIT_MILLIS);
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}

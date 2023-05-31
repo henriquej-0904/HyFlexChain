@@ -11,6 +11,9 @@
 		},
 		{
                         "path": "hyflexchain"
+                },
+                {
+                	"path": "smart-contracts-evm"
                 }
 
 		

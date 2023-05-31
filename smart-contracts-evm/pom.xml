@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>pt.unl.fct.di.hyflexchain.evm</groupId>
+  <artifactId>sc-evm</artifactId>
+  <version>1.0</version>
+  <packaging>jar</packaging>
+
+  <name>Smart-Contracts-EVM</name>
+  <!-- FIXME change it to the project's website -->
+  <url>http://www.example.com</url>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>19</maven.compiler.source>
+    <maven.compiler.target>19</maven.compiler.target>
+    <authors>Henrique Campos Ferreira</authors>
+  </properties>
+
+  <repositories>
+    <repository>
+      <id>besu</id>
+      <url>https://hyperledger.jfrog.io/artifactory/besu-maven/</url>
+    </repository>
+
+    <repository>
+      <id>mydependencies</id>
+      <url>file:///${project.basedir}/../dependencies/</url>
+    </repository>
+  </repositories>
+
+  <dependencies>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>1.7.32</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+      <version>2.20.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-cli</groupId>
+      <artifactId>commons-cli</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>tech.pegasys</groupId>
+      <artifactId>jc-kzg-4844</artifactId>
+      <version>0.4.0</version>
+      <scope>runtime</scope>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/org.hyperledger.besu/evm -->
+    <dependency>
+      <groupId>org.hyperledger.besu</groupId>
+      <artifactId>evm</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.hyperledger.besu</groupId>
+      <artifactId>besu-datatypes</artifactId>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/org.apache.tuweni/tuweni-bytes -->
+<dependency>
+    <groupId>org.apache.tuweni</groupId>
+    <artifactId>tuweni-bytes</artifactId>
+    <version>2.3.1</version>
+</dependency>
+
+<dependency>
+<groupId>com.google.guava</groupId>
+<artifactId>guava</artifactId>
+<version>31.1-jre</version>
+</dependency>
+
+
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.11</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <dependencyManagement>
+    <dependencies>
+
+    <dependency>
+      <groupId>org.hyperledger.besu</groupId>
+      <artifactId>evm</artifactId>
+      <version>23.4.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.hyperledger.besu</groupId>
+      <artifactId>besu-datatypes</artifactId>
+      <version>23.4.0</version>
+    </dependency>
+
+      <dependency>
+        <groupId>tech.pegasys</groupId>
+        <artifactId>jc-kzg-4844</artifactId>
+        <version>0.4.0</version>
+        <scope>runtime</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
+        <version>3.12.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-simple</artifactId>
+        <version>1.7.32</version>
+      </dependency>
+
+      <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-core</artifactId>
+        <version>2.20.0</version>
+      </dependency>
+
+      <!-- https://mvnrepository.com/artifact/commons-cli/commons-cli -->
+      <dependency>
+        <groupId>commons-cli</groupId>
+        <artifactId>commons-cli</artifactId>
+        <version>1.5.0</version>
+      </dependency>
+
+      <!-- https://mvnrepository.com/artifact/org.apache.tuweni/tuweni-bytes -->
+<dependency>
+    <groupId>org.apache.tuweni</groupId>
+    <artifactId>tuweni-bytes</artifactId>
+    <version>2.3.1</version>
+</dependency>
+
+<dependency>
+<groupId>com.google.guava</groupId>
+<artifactId>guava</artifactId>
+<version>31.1-jre</version>
+</dependency>
+
+
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.11</version>
+        <scope>test</scope>
+      </dependency>
+    </dependencies>
+
+  </dependencyManagement>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>3.5.0</version>
+        <configuration>
+          <show>private</show>
+          <nohelp>true</nohelp>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.22.1</version>
+      </plugin>
+      <!-- clean lifecycle, see
+      https://maven.apache.org/ref/current/maven-core/lifecycles.html#clean_Lifecycle -->
+      <plugin>
+        <artifactId>maven-clean-plugin</artifactId>
+        <version>3.1.0</version>
+      </plugin>
+      <!-- default lifecycle, jar packaging: see
+      https://maven.apache.org/ref/current/maven-core/default-bindings.html#Plugin_bindings_for_jar_packaging -->
+      <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>3.0.2</version>
+      </plugin>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.8.0</version>
+        <configuration>
+          <source>19</source>
+          <target>19</target>
+          <debug>true</debug>
+          <debuglevel>lines,vars,source</debuglevel>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>3.0.2</version>
+        <configuration>
+          <source>19</source>
+          <target>19</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <configuration>
+          <finalName>hyflexchain-evm</finalName>
+          <archive>
+            <manifest>
+              <addClasspath>true</addClasspath>
+              <mainClass>pt.unl.fct.di.hyflexchain.evm.ExecEVM</mainClass>
+            </manifest>
+          </archive>
+          <!--<archive>
+            <manifest>
+              <mainClass></mainClass>
+            </manifest>
+            <manifestEntries>
+              <Multi-Release>true</Multi-Release>
+            </manifestEntries>
+          </archive>-->
+          <descriptorRefs>
+            <descriptorRef>jar-with-dependencies</descriptorRef>
+          </descriptorRefs>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>io.fabric8</groupId>
+        <artifactId>docker-maven-plugin</artifactId>
+        <version>0.34.1</version>
+        <executions>
+          <execution>
+            <id>build-dockerimage</id>
+            <phase>install</phase>
+            <goals>
+              <goal>build</goal>
+            </goals>
+          </execution>
+        </executions>
+
+        <configuration>
+          <images>
+            <image>
+              <name>henriquej0904/hyflexchain-evm</name>
+              <build>
+                <dockerFile>${project.basedir}/Dockerfile</dockerFile>
+              </build>
+            </image>
+          </images>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

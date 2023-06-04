@@ -18,27 +18,31 @@ import org.web3j.abi.datatypes.Utf8String;
 import pt.unl.fct.di.hyflexchain.evm.contract.SmartContract;
 import pt.unl.fct.di.hyflexchain.evm.executor.EvmExecutor;
 
+/**
+ * An example of a smart contract with only 1 pure function.
+ */
 public class HelloWorldContract extends SmartContract {
     
     public static final String FUNC_GETGREETING = "getGreeting";
-    
-    private SmartContract contract;
 
-    public HelloWorldContract(SmartContract contract) {
-        super();
-        this.contract = contract;
+    public HelloWorldContract(Address contractAddress, Code code) {
+        super(contractAddress, code);
     }
 
-    @Override
-    public Address getContractAddress() {
-        return contract.getContractAddress();
+    public static HelloWorldContract deploy(EvmExecutor evm, Address sender, Bytes codeBytes, final WorldUpdater worldUpdater)
+    {
+        var result = evm.deploySmartContract(sender, codeBytes, worldUpdater);
+        return new HelloWorldContract(result.getLeft(), result.getRight());
     }
 
-    @Override
-    public Code getCode() {
-        return contract.getCode();
-    }
-
+    /**
+     * Call the pure function - getGreeting() on the smart contract.
+     * @param evm The evm executor
+     * @param sender The caller
+     * @param worldUpdater The world updater
+     * @return The result of the call
+     */
+    @SuppressWarnings({"rawtypes"})
     public String getGreeting(final EvmExecutor evm, final Address sender,
         final WorldUpdater worldUpdater) {
         final Function function = new Function(FUNC_GETGREETING, 
@@ -61,9 +65,8 @@ public class HelloWorldContract extends SmartContract {
 			// exec.tracer(new StandardJsonTracer(System.out, false, true, true));
 			
 
-			final HelloWorldContract contract = new HelloWorldContract(
-                exec.deploySmartContract(sender, deployCodeBytes, Wei.ZERO, updater)
-            );
+			final HelloWorldContract contract =
+                HelloWorldContract.deploy(exec, sender, deployCodeBytes, updater);
 			System.out.println("Smart contract deployed address: " + contract.getContractAddress().toHexString());
 
             final String result = contract.getGreeting(exec, sender, updater);

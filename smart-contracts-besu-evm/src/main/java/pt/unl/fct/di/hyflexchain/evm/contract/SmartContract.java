@@ -14,17 +14,36 @@ import org.web3j.abi.datatypes.Type;
 
 import pt.unl.fct.di.hyflexchain.evm.executor.EvmExecutor;
 
-public abstract class SmartContract {
+/**
+ * A smart contract that runs on the evm.
+ */
+public class SmartContract {
+
+    private final Address contractAddress;
+    private final Code code;
+
+    /**
+     * @param contractAddress
+     * @param code
+     */
+    public SmartContract(Address contractAddress, Code code) {
+        this.contractAddress = contractAddress;
+        this.code = code;
+    }
 
     /**
      * @return the contractAddress
      */
-    public abstract Address getContractAddress();
+    public Address getContractAddress() {
+        return this.contractAddress;
+    }
 
     /**
      * @return the code
      */
-    public abstract Code getCode();
+    public Code getCode() {
+        return this.code;
+    }
 
     /**
      * Execute constant function call - i.e. a call that does not change state of
@@ -36,17 +55,29 @@ public abstract class SmartContract {
      * @param worldUpdater
      * @return {@link List} of values returned by function call
      */
+    @SuppressWarnings("rawtypes")
     private List<Type> executeCall(final EvmExecutor evm, final Address sender, final Function function,
             final WorldUpdater worldUpdater) {
         final String encodedFunction = FunctionEncoder.encode(function);
         final Bytes inputData = Bytes.fromHexString(encodedFunction);
 
-        final Bytes result = evm.execute(sender, getCode(), inputData, Wei.ZERO, getContractAddress(), worldUpdater);
+        final Bytes result = evm.execute(sender, getCode(), inputData, Wei.ZERO, getContractAddress(), worldUpdater.updater());
 
         return FunctionReturnDecoder.decode(result.toHexString(), function.getOutputParameters());
     }
 
-    @SuppressWarnings("unchecked")
+    
+    /**
+     * Execute constant function call - i.e. a call that does not change state of
+     * the contract.
+     * @param <T> The Solidity return type
+     * @param evm The evm executor
+     * @param sender The caller of the contract
+     * @param function to call
+     * @param worldUpdater the world updater
+     * @return The result
+     */
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public <T extends Type> T executeCallSingleValueReturn(final EvmExecutor evm, final Address sender,
             final Function function, final WorldUpdater worldUpdater) {
         List<Type> values = executeCall(evm, sender, function, worldUpdater);
@@ -57,7 +88,19 @@ public abstract class SmartContract {
         }
     }
 
-    @SuppressWarnings("unchecked")
+    /**
+     * Execute constant function call - i.e. a call that does not change state of
+     * the contract.
+     * @param <T> The Solidity return type
+     * @param <R> The equivalent java return type
+     * @param evm The evm executor
+     * @param sender The caller of the contract
+     * @param function to call
+     * @param returnType The java return type
+     * @param worldUpdater the world updater
+     * @return The result of the specified java type
+     */
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public <T extends Type, R> R executeCallSingleValueReturn(
             final EvmExecutor evm, final Address sender, final Function function, final Class<R> returnType,
             final WorldUpdater worldUpdater) {
@@ -80,6 +123,16 @@ public abstract class SmartContract {
         }
     }
 
+    /**
+     * Execute constant function call - i.e. a call that does not change state of
+     * the contract.
+     * @param evm The evm executor
+     * @param sender The caller of the contract
+     * @param function to call
+     * @param worldUpdater the world updater
+     * @return {@link List} of values returned by function call
+     */
+    @SuppressWarnings({"rawtypes"})
     public List<Type> executeCallMultipleValueReturn(final EvmExecutor evm, final Address sender,
             final Function function, final WorldUpdater worldUpdater) {
         return executeCall(evm, sender, function, worldUpdater);

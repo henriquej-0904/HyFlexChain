@@ -9,12 +9,12 @@ pragma solidity >=0.8.2 <0.9.0;
  */
 contract Storage {
 
-    uint256 number;
+    int32 number;
 
     /**
      * @dev Set contract deployer as owner
      */
-    constructor(uint256 num) {
+    constructor(int32 num) {
         number = num;
     }
 
@@ -22,7 +22,7 @@ contract Storage {
      * @dev Store value in variable
      * @param num value to store
      */
-    function store(uint256 num) public {
+    function store(int32 num) public {
         number = num;
     }
 
@@ -30,7 +30,7 @@ contract Storage {
      * @dev Return value 
      * @return value of 'number'
      */
-    function retrieve() public view returns (uint256){
+    function retrieve() public view returns (int32){
         return number;
     }
 }

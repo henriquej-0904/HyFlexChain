@@ -6,11 +6,11 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>pt.unl.fct.di.hyflexchain.evm</groupId>
-  <artifactId>sc-evm</artifactId>
+  <artifactId>hyflexchain-evm</artifactId>
   <version>1.0</version>
   <packaging>jar</packaging>
 
-  <name>Smart-Contracts-EVM</name>
+  <name>HyFlexChain-Smart-Contracts-EVM</name>
   <!-- FIXME change it to the project's website -->
   <url>http://www.example.com</url>
 
@@ -49,11 +49,6 @@
     </dependency>
 
     <dependency>
-      <groupId>commons-cli</groupId>
-      <artifactId>commons-cli</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>tech.pegasys</groupId>
       <artifactId>jc-kzg-4844</artifactId>
       <version>0.4.0</version>
@@ -72,17 +67,24 @@
     </dependency>
 
     <!-- https://mvnrepository.com/artifact/org.apache.tuweni/tuweni-bytes -->
-<dependency>
-    <groupId>org.apache.tuweni</groupId>
-    <artifactId>tuweni-bytes</artifactId>
-    <version>2.3.1</version>
-</dependency>
+    <dependency>
+      <groupId>org.apache.tuweni</groupId>
+      <artifactId>tuweni-bytes</artifactId>
+      <version>2.3.1</version>
+    </dependency>
 
-<dependency>
-<groupId>com.google.guava</groupId>
-<artifactId>guava</artifactId>
-<version>31.1-jre</version>
-</dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>31.1-jre</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/org.web3j/abi -->
+    <dependency>
+      <groupId>org.web3j</groupId>
+      <artifactId>abi</artifactId>
+      <version>5.0.0</version>
+    </dependency>
 
 
     <dependency>
@@ -96,29 +98,23 @@
   <dependencyManagement>
     <dependencies>
 
-    <dependency>
-      <groupId>org.hyperledger.besu</groupId>
-      <artifactId>evm</artifactId>
-      <version>23.4.0</version>
-    </dependency>
+      <dependency>
+        <groupId>org.hyperledger.besu</groupId>
+        <artifactId>evm</artifactId>
+        <version>23.4.0</version>
+      </dependency>
 
-    <dependency>
-      <groupId>org.hyperledger.besu</groupId>
-      <artifactId>besu-datatypes</artifactId>
-      <version>23.4.0</version>
-    </dependency>
+      <dependency>
+        <groupId>org.hyperledger.besu</groupId>
+        <artifactId>besu-datatypes</artifactId>
+        <version>23.4.0</version>
+      </dependency>
 
       <dependency>
         <groupId>tech.pegasys</groupId>
         <artifactId>jc-kzg-4844</artifactId>
         <version>0.4.0</version>
         <scope>runtime</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-lang3</artifactId>
-        <version>3.12.0</version>
       </dependency>
 
       <dependency>
@@ -134,25 +130,25 @@
         <version>2.20.0</version>
       </dependency>
 
-      <!-- https://mvnrepository.com/artifact/commons-cli/commons-cli -->
+      <!-- https://mvnrepository.com/artifact/org.apache.tuweni/tuweni-bytes -->
       <dependency>
-        <groupId>commons-cli</groupId>
-        <artifactId>commons-cli</artifactId>
-        <version>1.5.0</version>
+        <groupId>org.apache.tuweni</groupId>
+        <artifactId>tuweni-bytes</artifactId>
+        <version>2.3.1</version>
       </dependency>
 
-      <!-- https://mvnrepository.com/artifact/org.apache.tuweni/tuweni-bytes -->
-<dependency>
-    <groupId>org.apache.tuweni</groupId>
-    <artifactId>tuweni-bytes</artifactId>
-    <version>2.3.1</version>
-</dependency>
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>31.1-jre</version>
+      </dependency>
 
-<dependency>
-<groupId>com.google.guava</groupId>
-<artifactId>guava</artifactId>
-<version>31.1-jre</version>
-</dependency>
+      <!-- https://mvnrepository.com/artifact/org.web3j/abi -->
+      <dependency>
+        <groupId>org.web3j</groupId>
+        <artifactId>abi</artifactId>
+        <version>5.0.0</version>
+      </dependency>
 
 
       <dependency>
@@ -217,17 +213,9 @@
           <archive>
             <manifest>
               <addClasspath>true</addClasspath>
-              <mainClass>pt.unl.fct.di.hyflexchain.evm.ExecEVM</mainClass>
+              <!-- <mainClass>pt.unl.fct.di.hyflexchain.evm.ExecEVM</mainClass> -->
             </manifest>
           </archive>
-          <!--<archive>
-            <manifest>
-              <mainClass></mainClass>
-            </manifest>
-            <manifestEntries>
-              <Multi-Release>true</Multi-Release>
-            </manifestEntries>
-          </archive>-->
           <descriptorRefs>
             <descriptorRef>jar-with-dependencies</descriptorRef>
           </descriptorRefs>

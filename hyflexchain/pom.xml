@@ -7,7 +7,7 @@
 
   <groupId>pt.unl.fct.di.hyflexchain</groupId>
   <artifactId>HyFlexChain</artifactId>
-  <version>1.0</version>
+  <version>1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>HyFlexChain</name>
@@ -23,13 +23,13 @@
 
   <repositories>
     <repository>
-      <id>besu</id>
-      <url>https://hyperledger.jfrog.io/artifactory/besu-maven/</url>
+      <id>mydependencies</id>
+      <url>file:///${project.basedir}/../dependencies/</url>
     </repository>
 
     <repository>
-      <id>mydependencies</id>
-      <url>file:///${project.basedir}/../dependencies/</url>
+      <id>besu</id>
+      <url>https://hyperledger.jfrog.io/artifactory/besu-maven/</url>
     </repository>
   </repositories>
 
@@ -127,18 +127,9 @@
     </dependency>
 
     <dependency>
-      <groupId>tech.pegasys</groupId>
-      <artifactId>jc-kzg-4844</artifactId>
-      <version>0.4.0</version>
-      <scope>runtime</scope>
-    </dependency>
-
-    <!-- https://mvnrepository.com/artifact/org.hyperledger.besu/evm -->
-    <dependency>
-      <groupId>org.hyperledger.besu</groupId>
-      <artifactId>evm</artifactId>
-      <version>23.4.0</version>
-      <scope>runtime</scope>
+      <groupId>pt.unl.fct.di.hyflexchain</groupId>
+      <artifactId>hyflexchain-evm</artifactId>
+      <version>1.0-SNAPSHOT</version>
     </dependency>
 
     <dependency>

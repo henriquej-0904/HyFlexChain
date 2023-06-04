@@ -53,7 +53,7 @@ public class SimpleApp extends ApplicationInterface
 	{
 		HyFlexChainTransaction tx = new HyFlexChainTransaction();
 		tx.setVersion(HyFlexChainTransaction.Version.V1_0.toString());
-		tx.setAddress(this.address);
+		tx.setSender(this.address);
 		tx.setSignatureType(Crypto.DEFAULT_SIGNATURE_TRANSFORMATION);
 		tx.setNonce(nonce++);
 		tx.setInputTxs(new TxInput[]{

@@ -35,7 +35,7 @@ public class TransactionInterfaceV1_0 implements TransactionInterface {
 			throw exc;
 		}
 
-		if (tx.getAddress() == null || tx.getHash() == null ||
+		if (tx.getSender() == null || tx.getHash() == null ||
 			tx.getSignatureType() == null || tx.getSignature() == null)
 		{
 			var exc = new InvalidTransactionException("At least one field is null");

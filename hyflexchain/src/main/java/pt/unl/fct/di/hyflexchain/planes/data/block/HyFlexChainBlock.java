@@ -37,7 +37,7 @@ public record HyFlexChainBlock(
 
 		HyFlexChainTransaction tx = new HyFlexChainTransaction();
 		tx.setVersion(HyFlexChainTransaction.Version.V1_0.toString());
-		tx.setAddress(new Address("genesis address"));
+		tx.setSender(new Address("genesis address"));
 		tx.setSignatureType("genesis signature alg");
 		tx.setNonce(0);
 		tx.setInputTxs(new TxInput[0]);

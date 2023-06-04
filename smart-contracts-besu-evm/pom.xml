@@ -5,9 +5,9 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>pt.unl.fct.di.hyflexchain.evm</groupId>
+  <groupId>pt.unl.fct.di.hyflexchain</groupId>
   <artifactId>hyflexchain-evm</artifactId>
-  <version>1.0</version>
+  <version>1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>HyFlexChain-Smart-Contracts-EVM</name>
@@ -164,6 +164,14 @@
   </dependencyManagement>
 
   <build>
+    <sourceDirectory>src/main/java</sourceDirectory>
+
+    <resources>
+      <resource>
+        <directory>${basedir}/src/</directory>
+      </resource>
+    </resources>
+
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

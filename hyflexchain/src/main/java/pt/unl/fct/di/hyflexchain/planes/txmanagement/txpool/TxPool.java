@@ -104,7 +104,7 @@ public class TxPool
 			return false;
 		}
 
-		log.info("Submited tx: " + tx.getHash());
+		log.info("Submited tx [{}]: {}", consensus.getConsensus(), tx.getHash());
 
 		synchronized(tx)
 		{

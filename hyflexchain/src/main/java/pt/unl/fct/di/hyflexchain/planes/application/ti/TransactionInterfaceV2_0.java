@@ -9,14 +9,14 @@ import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction.
 import pt.unl.fct.di.hyflexchain.planes.txmanagement.TransactionManagement;
 
 /**
- * A transaction interface implementation in ehich transactions
- * do not have a smart contract.
+ * A transaction interface implementation in which transactions
+ * must have a smart contract.
  */
-public class TransactionInterfaceV1_0 implements TransactionInterface {
+public class TransactionInterfaceV2_0 implements TransactionInterface {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(TransactionInterfaceV1_0.class.getSimpleName());
 
-	@Override
+    @Override
 	public void verifyTx(HyFlexChainTransaction tx) throws InvalidTransactionException
 	{
 		HyFlexChainTransaction.Version version;
@@ -36,7 +36,8 @@ public class TransactionInterfaceV1_0 implements TransactionInterface {
 		}
 
 		if (tx.getSender() == null || tx.getHash() == null ||
-			tx.getSignatureType() == null || tx.getSignature() == null)
+			tx.getSignatureType() == null || tx.getSignature() == null
+            || tx.getData() == null)
 		{
 			var exc = new InvalidTransactionException("At least one field is null");
 			LOGGER.info(exc.getMessage());

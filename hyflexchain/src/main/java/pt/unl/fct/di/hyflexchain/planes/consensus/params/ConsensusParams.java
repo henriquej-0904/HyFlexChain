@@ -1,7 +1,5 @@
 package pt.unl.fct.di.hyflexchain.planes.consensus.params;
 
-import java.util.Optional;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
@@ -31,15 +29,14 @@ public class ConsensusParams {
     /**
      * Parse the value as a ConsensusParams object.
      * @param value
-     * @return an optional of ConsensusParams.
+     * @return ConsensusParams
      */
-    public static Optional<ConsensusParams> parse(String value)
+    public static ConsensusParams parse(String value)
     {
         try {
-            var res = Utils.json.readValue(value, ConsensusParams.class);
-            return Optional.of(res);
+            return Utils.json.readValue(value, ConsensusParams.class);
         } catch (JsonProcessingException e) {
-            return Optional.empty();
+            throw new IllegalArgumentException(e.getMessage(), e);
         }
     }
 

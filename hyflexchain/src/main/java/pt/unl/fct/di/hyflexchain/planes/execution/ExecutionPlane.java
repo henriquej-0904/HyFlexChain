@@ -1,6 +1,9 @@
 package pt.unl.fct.di.hyflexchain.planes.execution;
 
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
+import pt.unl.fct.di.hyflexchain.planes.consensus.params.ConsensusParams;
+import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
+import pt.unl.fct.di.hyflexchain.planes.execution.contracts.InvalidSmartContractException;
 
 /**
  * Represents the Execution Plane.
@@ -11,6 +14,20 @@ import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
  */
 public interface ExecutionPlane {
     
-    
+    static ExecutionPlane getInstance()
+    {
+        return ExecutionPlaneImpl.getInstance();
+    }
+
+    /**
+     * Execute the smart contract present in the transaction
+     * and get the {@link ConsensusParams} result.
+     * The provided smart contract will be deployed on a temporary
+     * EVM account and executed on a stateless environment.
+     * @param tx The transaction which contains the smart contract to be executed.
+     * @return {@link ConsensusParams}
+     * @exception InvalidSmartContractException if an error occurred in the deploy or execution phase.
+     */
+    ConsensusParams callGetConsensusParams(HyFlexChainTransaction tx) throws InvalidSmartContractException;
 
 }

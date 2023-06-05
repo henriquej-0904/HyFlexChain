@@ -13,6 +13,13 @@ public interface TransactionInterface {
 	}
 
 	/**
+	 * Verify a transaction.
+	 * @param tx
+	 * @throws InvalidTransactionException
+	 */
+	void verifyTx(HyFlexChainTransaction tx) throws InvalidTransactionException;
+
+	/**
 	 * Send transaction primitive:
 	 * submits a transaction for verification and,
 	 * if successfull, dispatch it to the system for ordering.

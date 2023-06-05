@@ -2,9 +2,21 @@ package pt.unl.fct.di.hyflexchain.planes.consensus;
 
 import java.util.LinkedHashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import pt.unl.fct.di.hyflexchain.planes.application.lvi.LedgerViewInterface;
+import pt.unl.fct.di.hyflexchain.planes.application.ti.InvalidTransactionException;
+import pt.unl.fct.di.hyflexchain.planes.application.ti.TransactionInterface;
+import pt.unl.fct.di.hyflexchain.planes.data.block.BlockBody;
+import pt.unl.fct.di.hyflexchain.planes.data.block.BlockHeader;
+import pt.unl.fct.di.hyflexchain.planes.data.block.BlockMetaHeader;
 import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
+import pt.unl.fct.di.hyflexchain.planes.data.transaction.TransactionState;
+import pt.unl.fct.di.hyflexchain.planes.execution.ExecutionPlane;
+import pt.unl.fct.di.hyflexchain.planes.execution.contracts.InvalidSmartContractException;
+import pt.unl.fct.di.hyflexchain.planes.txmanagement.TransactionManagement;
 
 /**
  * Represents the interface for interacting with a specific
@@ -12,6 +24,8 @@ import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
  */
 public abstract class ConsensusInterface
 {
+	protected static final Logger LOG = LoggerFactory.getLogger(ConsensusInterface.class.getSimpleName());
+
 	protected final ConsensusMechanism consensus;
 
 	protected final LedgerViewInterface lvi;
@@ -52,7 +66,91 @@ public abstract class ConsensusInterface
 	 * @param block The block to verify
 	 * @return true if it is valid, otherwise false.
 	 */
-	protected abstract boolean verifyBlock(HyFlexChainBlock block);
+	protected boolean verifyBlock(HyFlexChainBlock block)
+	{
+		if (!block.verifyBlock(LOG))
+			return false;
+
+		var header = block.header();
+		var metaHeader = header.getMetaHeader();
+
+		if (! verifyMetaHeader(metaHeader))
+		{
+			LOG.info("Invalid block meta header");
+			return false;
+		}
+
+		if (! verifyHeader(header, block.body()))
+		{
+			LOG.info("Invalid block header");
+			return false;
+		}
+
+		return verifyBody(block.body());
+	}
+
+	protected boolean verifyMetaHeader(BlockMetaHeader metaHeader)
+	{
+		return metaHeader.getConsensus() == this.consensus;
+	}
+
+	protected boolean verifyHeader(BlockHeader header, BlockBody body)
+	{
+		var lvi = LedgerViewInterface.getInstance();
+		
+		if (! header.getPrevHash().equalsIgnoreCase(lvi.getLastBlockHash(this.consensus)))
+		{
+			LOG.info("Invalid block header: prev hash");
+			return false;
+		}
+
+		/* if ( header.getNonce() != lvi.getBlockchainSize(POW) + 1)
+		{
+			LOG.info("Invalid block header: invalid nonce");
+			return false;
+		} */
+
+		if ( ! header.getMerkleRoot().equalsIgnoreCase(body.getMerkleTree().getRoot().hash()))
+		{
+			LOG.info("Invalid block header: invalid  merkle root");
+			return false;
+		}
+		
+		return true;
+	}
+
+	protected boolean verifyBody(BlockBody body)
+	{
+		var lvi = LedgerViewInterface.getInstance();
+		var ti = TransactionInterface.getInstance();
+		var txmanagement = TransactionManagement.getInstance();
+		var execution = ExecutionPlane.getInstance();
+
+		return body.getTransactions().values().stream()
+			.allMatch((tx) -> {
+				if (lvi.getTransactionState(tx.getHash(), this.consensus) == TransactionState.FINALIZED)
+				{
+					LOG.info("Invalid tx - is already finalized");
+					return false;
+				}
+					
+				try {
+					ti.verifyTx(tx);
+					txmanagement.verifyTx(tx);
+
+					ConsensusMechanism txConsensus = execution.callGetConsensusParams(tx).getMechanism();
+					if (txConsensus != this.consensus)
+					{
+						LOG.info("Invalid tx - smart contract exec failed -> consensus {} does not match the one for this block {}", txConsensus, this.consensus);
+						return false;
+					}
+
+					return true;
+				} catch (InvalidTransactionException | InvalidSmartContractException e) {
+					return false;
+				}
+			});
+	}
 
 	/**
 	 * Get the consensus mechanism of this class implementation.

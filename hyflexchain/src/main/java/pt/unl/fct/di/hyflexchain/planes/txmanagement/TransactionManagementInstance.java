@@ -23,7 +23,7 @@ public class TransactionManagementInstance {
 					instance = new TransactionManagementV1_0();
 					break;
 				case V2_0:
-					
+					instance = new TransactionManagementV2_0();
 					break;
 			}
 

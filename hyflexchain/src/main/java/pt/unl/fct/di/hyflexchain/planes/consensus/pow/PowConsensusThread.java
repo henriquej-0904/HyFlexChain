@@ -3,6 +3,7 @@ package pt.unl.fct.di.hyflexchain.planes.consensus.pow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import pt.unl.fct.di.hyflexchain.planes.application.ti.InvalidTransactionException;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.txmanagement.TransactionManagement;
 import pt.unl.fct.di.hyflexchain.planes.txmanagement.txpool.TxPool;
@@ -28,7 +29,13 @@ public class PowConsensusThread implements Runnable {
 	public void run() {
 
 		TransactionManagement txManag = TransactionManagement.getInstance();
-		TxPool txPool = txManag.getTxPool(ConsensusMechanism.PoW);
+		TxPool txPool;
+		try {
+			txPool = txManag.getTxPool(ConsensusMechanism.PoW);
+		} catch (InvalidTransactionException e) {
+			e.printStackTrace();
+			throw new Error(e.getMessage(), e);
+		}
 
 		try {
 			while (true) {

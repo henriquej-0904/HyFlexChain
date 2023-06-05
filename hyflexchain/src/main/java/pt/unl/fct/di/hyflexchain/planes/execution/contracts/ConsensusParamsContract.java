@@ -1,7 +1,6 @@
 package pt.unl.fct.di.hyflexchain.planes.execution.contracts;
 
 import java.util.Arrays;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.apache.tuweni.bytes.Bytes;
@@ -27,10 +26,15 @@ public class ConsensusParamsContract extends SmartContract {
         super(contractAddress, code);
     }
     
-    public static ConsensusParamsContract deploy(EvmExecutor evm, Address sender, Bytes codeBytes, WorldUpdater worldUpdater)
+    public static ConsensusParamsContract deploy(EvmExecutor evm, Address sender, Bytes codeBytes, WorldUpdater worldUpdater) throws InvalidSmartContractException
     {
-        var result = evm.deploySmartContract(sender, codeBytes, worldUpdater);
-        return new ConsensusParamsContract(result.getLeft(), result.getRight());
+        try {
+            var result = evm.deploySmartContract(sender, codeBytes, worldUpdater);
+            return new ConsensusParamsContract(result.getLeft(), result.getRight());
+        } catch (RuntimeException e) {
+            throw new InvalidSmartContractException(e.getMessage(), e);
+        }
+        
     }
 
     /**
@@ -39,11 +43,12 @@ public class ConsensusParamsContract extends SmartContract {
      * @param sender the evm sender address
      * @param worldUpdater the world updater
      * @param tx the transaction context for the call
-     * @return If succeeded, the consensus parameters.
+     * @return consensus parameters.
+     * @throws InvalidSmartContractException
      */
     @SuppressWarnings("rawtypes")
-    public Optional<ConsensusParams> callGetConsensusParams(final EvmExecutor evm, final Address sender,
-        final WorldUpdater worldUpdater, HyFlexChainTransaction tx)
+    public ConsensusParams callGetConsensusParams(final EvmExecutor evm, final Address sender,
+        final WorldUpdater worldUpdater, HyFlexChainTransaction tx) throws InvalidSmartContractException
     {
         long totalValue = Stream.of(tx.getOutputTxs())
         .filter((utxo) -> !utxo.recipient().equals(tx.getSender()))
@@ -64,8 +69,12 @@ public class ConsensusParamsContract extends SmartContract {
                 new org.web3j.abi.datatypes.generated.Int64(System.currentTimeMillis() / 1000)), 
                 Arrays.<TypeReference<?>>asList(new TypeReference<Utf8String>() {}));
 
-        var res = executeCallSingleValueReturn(evm, sender, function, String.class, worldUpdater);
-        return ConsensusParams.parse(res);
+        try {
+            var res = executeConstantCallSingleValueReturn(evm, sender, function, String.class, worldUpdater);
+            return ConsensusParams.parse(res);
+        } catch (RuntimeException e) {
+            throw new InvalidSmartContractException(e.getMessage(), e);
+        }
     }
 
 }

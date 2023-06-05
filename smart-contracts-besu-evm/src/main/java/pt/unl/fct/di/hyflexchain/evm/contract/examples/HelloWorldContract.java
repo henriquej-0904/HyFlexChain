@@ -48,7 +48,7 @@ public class HelloWorldContract extends SmartContract {
         final Function function = new Function(FUNC_GETGREETING, 
                 Arrays.<Type>asList(), 
                 Arrays.<TypeReference<?>>asList(new TypeReference<Utf8String>() {}));
-        return executeCallSingleValueReturn(evm, sender, function, String.class, worldUpdater);
+        return executeConstantCallSingleValueReturn(evm, sender, function, String.class, worldUpdater);
     }
 
     public static void main(String[] args) {

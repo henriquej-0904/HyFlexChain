@@ -56,12 +56,12 @@ public class SmartContract {
      * @return {@link List} of values returned by function call
      */
     @SuppressWarnings("rawtypes")
-    private List<Type> executeCall(final EvmExecutor evm, final Address sender, final Function function,
+    private List<Type> executeConstantCall(final EvmExecutor evm, final Address sender, final Function function,
             final WorldUpdater worldUpdater) {
         final String encodedFunction = FunctionEncoder.encode(function);
         final Bytes inputData = Bytes.fromHexString(encodedFunction);
 
-        final Bytes result = evm.execute(sender, getCode(), inputData, Wei.ZERO, getContractAddress(), worldUpdater.updater());
+        final Bytes result = evm.execute(sender, getCode(), inputData, Wei.ZERO, getContractAddress(), worldUpdater);
 
         return FunctionReturnDecoder.decode(result.toHexString(), function.getOutputParameters());
     }
@@ -78,9 +78,9 @@ public class SmartContract {
      * @return The result
      */
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public <T extends Type> T executeCallSingleValueReturn(final EvmExecutor evm, final Address sender,
+    public <T extends Type> T executeConstantCallSingleValueReturn(final EvmExecutor evm, final Address sender,
             final Function function, final WorldUpdater worldUpdater) {
-        List<Type> values = executeCall(evm, sender, function, worldUpdater);
+        List<Type> values = executeConstantCall(evm, sender, function, worldUpdater);
         if (!values.isEmpty()) {
             return (T) values.get(0);
         } else {
@@ -101,10 +101,10 @@ public class SmartContract {
      * @return The result of the specified java type
      */
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public <T extends Type, R> R executeCallSingleValueReturn(
+    public <T extends Type, R> R executeConstantCallSingleValueReturn(
             final EvmExecutor evm, final Address sender, final Function function, final Class<R> returnType,
             final WorldUpdater worldUpdater) {
-        T result = executeCallSingleValueReturn(evm, sender, function, worldUpdater);
+        T result = executeConstantCallSingleValueReturn(evm, sender, function, worldUpdater);
         if (result == null) {
             throw new ContractCallException("Empty value (0x) returned from contract");
         }
@@ -133,8 +133,8 @@ public class SmartContract {
      * @return {@link List} of values returned by function call
      */
     @SuppressWarnings({"rawtypes"})
-    public List<Type> executeCallMultipleValueReturn(final EvmExecutor evm, final Address sender,
+    public List<Type> executeConstantCallMultipleValueReturn(final EvmExecutor evm, final Address sender,
             final Function function, final WorldUpdater worldUpdater) {
-        return executeCall(evm, sender, function, worldUpdater);
+        return executeConstantCall(evm, sender, function, worldUpdater);
     }
 }

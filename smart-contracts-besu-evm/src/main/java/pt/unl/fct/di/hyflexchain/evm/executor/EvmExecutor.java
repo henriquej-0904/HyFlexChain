@@ -304,7 +304,7 @@ public class EvmExecutor {
 			final WorldUpdater worldUpdater) {
 
 		final Account senderAccount = worldUpdater.get(sender);
-		final Code code = evm.getCode(null, codeBytes);
+		final Code code = evm.getCode(Hash.hash(codeBytes), codeBytes);
 
 		final Address contractAddress = Address.contractAddress(sender, senderAccount.getNonce() + 1);
 

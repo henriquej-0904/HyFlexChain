@@ -1,5 +1,7 @@
 package pt.unl.fct.di.hyflexchain.planes.consensus;
 
+import java.util.stream.Stream;
+
 import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
@@ -32,6 +34,19 @@ public enum ConsensusMechanism
 	@Override
 	public String toString() {
 		return getConsensus();
+	}
+
+	public static ConsensusMechanism parse(String value)
+	{
+		final var valToComp = value.toLowerCase();
+		var res = Stream.of(ConsensusMechanism.values())
+			.filter((c) -> c.getConsensus().equals(valToComp))
+			.findFirst();
+
+		if (!res.isPresent())
+			throw new IllegalArgumentException("Invalid consensus mechanism: " + value);
+
+		return res.get();
 	}
 
 	

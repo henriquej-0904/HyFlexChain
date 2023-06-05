@@ -128,7 +128,7 @@
                 <li>DLT: &nbsp<span style="font-weight: 500;">.&#x2F;index.js</span></li>
                 <li>Name: &nbsp<span style="font-weight: 500;"></span></li>
                 <li>Description: &nbsp<span style="font-weight: 500;"></span></li>
-                <li>Benchmark Rounds: &nbsp<span style="font-weight: 500;">3</span></li>
+                <li>Benchmark Rounds: &nbsp<span style="font-weight: 500;">4</span></li>
                 <li><a href="#benchmarkInfo">Details</a></li>
             </ul>
             <ul>
@@ -137,6 +137,7 @@
                     <li><a href="#Submit 5000 Transactions 50 tps">Submit 5000 Transactions 50 tps</a></li>
                     <li><a href="#Submit 10000 Transactions 100 tps">Submit 10000 Transactions 100 tps</a></li>
                     <li><a href="#Submit 20000 Transactions 200 tps">Submit 20000 Transactions 200 tps</a></li>
+                    <li><a href="#Submit 30000 Transactions 300 tps">Submit 30000 Transactions 300 tps</a></li>
             </ul>
             <ul>
                 <h3>&nbspSystem under test</h3>
@@ -154,13 +155,16 @@
                     </tr>
 
                     <tr>
-                         <td>Submit 5000 Transactions 50 tps</td> <td>5000</td> <td>0</td> <td>50.0</td> <td>1.23</td> <td>0.05</td> <td>0.19</td> <td>50.0</td>
+                         <td>Submit 5000 Transactions 50 tps</td> <td>5000</td> <td>0</td> <td>50.0</td> <td>0.79</td> <td>0.06</td> <td>0.21</td> <td>49.9</td>
                     </tr>
                     <tr>
-                         <td>Submit 10000 Transactions 100 tps</td> <td>10000</td> <td>0</td> <td>100.0</td> <td>0.30</td> <td>0.05</td> <td>0.15</td> <td>99.9</td>
+                         <td>Submit 10000 Transactions 100 tps</td> <td>10000</td> <td>0</td> <td>100.0</td> <td>0.31</td> <td>0.05</td> <td>0.16</td> <td>99.9</td>
                     </tr>
                     <tr>
-                         <td>Submit 20000 Transactions 200 tps</td> <td>20000</td> <td>0</td> <td>200.0</td> <td>0.23</td> <td>0.05</td> <td>0.13</td> <td>199.8</td>
+                         <td>Submit 20000 Transactions 200 tps</td> <td>20000</td> <td>0</td> <td>200.0</td> <td>0.29</td> <td>0.05</td> <td>0.14</td> <td>199.8</td>
+                    </tr>
+                    <tr>
+                         <td>Submit 30000 Transactions 300 tps</td> <td>30000</td> <td>0</td> <td>300.0</td> <td>0.28</td> <td>0.05</td> <td>0.13</td> <td>299.7</td>
                     </tr>
                 </table>
             </div>
@@ -178,7 +182,7 @@
                                      <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
                                 </tr>
                                 <tr>
-                                     <td>Submit 5000 Transactions 50 tps</td> <td>5000</td> <td>0</td> <td>50.0</td> <td>1.23</td> <td>0.05</td> <td>0.19</td> <td>50.0</td>
+                                     <td>Submit 5000 Transactions 50 tps</td> <td>5000</td> <td>0</td> <td>50.0</td> <td>0.79</td> <td>0.06</td> <td>0.21</td> <td>49.9</td>
                                 </tr>
                             </table>
                         <h3>Resource utilization for Submit 5000 Transactions 50 tps</h3>
@@ -190,16 +194,16 @@
                                          <th>Name</th> <th>CPU%(max)</th> <th>CPU%(avg)</th> <th>Memory(max) [MB]</th> <th>Memory(avg) [MB]</th> <th>Traffic In [MB]</th> <th>Traffic Out [MB]</th> <th>Disc Write [KB]</th> <th>Disc Read [B]</th>
                                     </tr>
                                     <tr>
-                                         <td>&#x2F;replica-3</td> <td>12.6</td> <td>3.69</td> <td>426</td> <td>385</td> <td>43.2</td> <td>42.5</td> <td>320</td> <td>0.00</td>
+                                         <td>&#x2F;replica-3</td> <td>4.61</td> <td>2.72</td> <td>560</td> <td>522</td> <td>44.1</td> <td>44.2</td> <td>320</td> <td>0.00</td>
                                     </tr>
                                     <tr>
-                                         <td>&#x2F;replica-2</td> <td>11.63</td> <td>3.75</td> <td>428</td> <td>403</td> <td>43.0</td> <td>43.1</td> <td>320</td> <td>0.00</td>
+                                         <td>&#x2F;replica-2</td> <td>5.36</td> <td>2.73</td> <td>560</td> <td>505</td> <td>44.0</td> <td>44.7</td> <td>320</td> <td>0.00</td>
                                     </tr>
                                     <tr>
-                                         <td>&#x2F;replica-1</td> <td>11.55</td> <td>5.57</td> <td>473</td> <td>464</td> <td>47.9</td> <td>44.8</td> <td>320</td> <td>0.00</td>
+                                         <td>&#x2F;replica-1</td> <td>6.64</td> <td>4.47</td> <td>591</td> <td>561</td> <td>49.0</td> <td>45.8</td> <td>320</td> <td>0.00</td>
                                     </tr>
                                     <tr>
-                                         <td>&#x2F;replica-0</td> <td>15.9</td> <td>5.84</td> <td>553</td> <td>494</td> <td>48.1</td> <td>44.3</td> <td>320</td> <td>0.00</td>
+                                         <td>&#x2F;replica-0</td> <td>6.95</td> <td>4.42</td> <td>613</td> <td>594</td> <td>49.6</td> <td>44.4</td> <td>320</td> <td>0.00</td>
                                     </tr>
                                 </table>
                                 </tr>
@@ -222,7 +226,7 @@
                                      <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
                                 </tr>
                                 <tr>
-                                     <td>Submit 10000 Transactions 100 tps</td> <td>10000</td> <td>0</td> <td>100.0</td> <td>0.30</td> <td>0.05</td> <td>0.15</td> <td>99.9</td>
+                                     <td>Submit 10000 Transactions 100 tps</td> <td>10000</td> <td>0</td> <td>100.0</td> <td>0.31</td> <td>0.05</td> <td>0.16</td> <td>99.9</td>
                                 </tr>
                             </table>
                         <h3>Resource utilization for Submit 10000 Transactions 100 tps</h3>
@@ -234,16 +238,16 @@
                                          <th>Name</th> <th>CPU%(max)</th> <th>CPU%(avg)</th> <th>Memory(max) [MB]</th> <th>Memory(avg) [MB]</th> <th>Traffic In [MB]</th> <th>Traffic Out [MB]</th> <th>Disc Write [KB]</th> <th>Disc Read [KB]</th>
                                     </tr>
                                     <tr>
-                                         <td>&#x2F;replica-3</td> <td>3.69</td> <td>2.83</td> <td>619</td> <td>602</td> <td>77.6</td> <td>76.8</td> <td>136</td> <td>0.00</td>
+                                         <td>&#x2F;replica-3</td> <td>2.84</td> <td>1.81</td> <td>646</td> <td>587</td> <td>79.1</td> <td>80.6</td> <td>304</td> <td>0.00</td>
                                     </tr>
                                     <tr>
-                                         <td>&#x2F;replica-2</td> <td>6.14</td> <td>3.16</td> <td>545</td> <td>462</td> <td>77.6</td> <td>76.7</td> <td>176</td> <td>0.00</td>
+                                         <td>&#x2F;replica-2</td> <td>3.12</td> <td>1.92</td> <td>586</td> <td>573</td> <td>80.0</td> <td>78.1</td> <td>304</td> <td>0.00</td>
                                     </tr>
                                     <tr>
-                                         <td>&#x2F;replica-1</td> <td>9.35</td> <td>5.89</td> <td>570</td> <td>541</td> <td>87.4</td> <td>80.3</td> <td>96.0</td> <td>16.0</td>
+                                         <td>&#x2F;replica-1</td> <td>5.91</td> <td>3.74</td> <td>840</td> <td>818</td> <td>90.1</td> <td>81.7</td> <td>320</td> <td>0.00</td>
                                     </tr>
                                     <tr>
-                                         <td>&#x2F;replica-0</td> <td>9.12</td> <td>5.91</td> <td>557</td> <td>554</td> <td>87.2</td> <td>81.1</td> <td>160</td> <td>0.00</td>
+                                         <td>&#x2F;replica-0</td> <td>5.42</td> <td>3.81</td> <td>692</td> <td>658</td> <td>89.4</td> <td>83.3</td> <td>304</td> <td>16.0</td>
                                     </tr>
                                 </table>
                                 </tr>
@@ -266,7 +270,7 @@
                                      <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
                                 </tr>
                                 <tr>
-                                     <td>Submit 20000 Transactions 200 tps</td> <td>20000</td> <td>0</td> <td>200.0</td> <td>0.23</td> <td>0.05</td> <td>0.13</td> <td>199.8</td>
+                                     <td>Submit 20000 Transactions 200 tps</td> <td>20000</td> <td>0</td> <td>200.0</td> <td>0.29</td> <td>0.05</td> <td>0.14</td> <td>199.8</td>
                                 </tr>
                             </table>
                         <h3>Resource utilization for Submit 20000 Transactions 200 tps</h3>
@@ -278,16 +282,60 @@
                                          <th>Name</th> <th>CPU%(max)</th> <th>CPU%(avg)</th> <th>Memory(max) [MB]</th> <th>Memory(avg) [MB]</th> <th>Traffic In [MB]</th> <th>Traffic Out [MB]</th> <th>Disc Write [KB]</th> <th>Disc Read [B]</th>
                                     </tr>
                                     <tr>
-                                         <td>&#x2F;replica-3</td> <td>9.29</td> <td>3.92</td> <td>621</td> <td>620</td> <td>148</td> <td>149</td> <td>48.0</td> <td>0.00</td>
+                                         <td>&#x2F;replica-3</td> <td>4.32</td> <td>2.05</td> <td>789</td> <td>710</td> <td>150</td> <td>151</td> <td>320</td> <td>0.00</td>
                                     </tr>
                                     <tr>
-                                         <td>&#x2F;replica-2</td> <td>4.33</td> <td>3.75</td> <td>1.01e+3</td> <td>664</td> <td>149</td> <td>148</td> <td>48.0</td> <td>0.00</td>
+                                         <td>&#x2F;replica-2</td> <td>4.06</td> <td>1.99</td> <td>812</td> <td>677</td> <td>151</td> <td>149</td> <td>320</td> <td>0.00</td>
                                     </tr>
                                     <tr>
-                                         <td>&#x2F;replica-1</td> <td>11.49</td> <td>8.21</td> <td>765</td> <td>687</td> <td>169</td> <td>153</td> <td>48.0</td> <td>0.00</td>
+                                         <td>&#x2F;replica-1</td> <td>8.05</td> <td>5.03</td> <td>887</td> <td>872</td> <td>171</td> <td>154</td> <td>320</td> <td>0.00</td>
                                     </tr>
                                     <tr>
-                                         <td>&#x2F;replica-0</td> <td>9.73</td> <td>7.96</td> <td>751</td> <td>680</td> <td>169</td> <td>154</td> <td>48.0</td> <td>0.00</td>
+                                         <td>&#x2F;replica-0</td> <td>7.6</td> <td>4.92</td> <td>991</td> <td>936</td> <td>170</td> <td>158</td> <td>320</td> <td>0.00</td>
+                                    </tr>
+                                </table>
+                                </tr>
+                            </table>
+                            <div class="charting">
+                            </div>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="Submit 30000 Transactions 300 tps">
+                <h2>Benchmark round: Submit 30000 Transactions 300 tps</h2>
+                <p>Test description for transfering money between accounts.</p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 300
+</pre>
+                        <h3>Performance metrics for Submit 30000 Transactions 300 tps</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>Submit 30000 Transactions 300 tps</td> <td>30000</td> <td>0</td> <td>300.0</td> <td>0.28</td> <td>0.05</td> <td>0.13</td> <td>299.7</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for Submit 30000 Transactions 300 tps</h3>
+                            <h4>Resource monitor: docker</h4>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                <table>
+                                    <tr>
+                                         <th>Name</th> <th>CPU%(max)</th> <th>CPU%(avg)</th> <th>Memory(max) [GB]</th> <th>Memory(avg) [MB]</th> <th>Traffic In [MB]</th> <th>Traffic Out [MB]</th> <th>Disc Write [KB]</th> <th>Disc Read [B]</th>
+                                    </tr>
+                                    <tr>
+                                         <td>&#x2F;replica-3</td> <td>1.92</td> <td>1.54</td> <td>0.961</td> <td>878</td> <td>221</td> <td>225</td> <td>320</td> <td>0.00</td>
+                                    </tr>
+                                    <tr>
+                                         <td>&#x2F;replica-2</td> <td>1.82</td> <td>1.55</td> <td>0.992</td> <td>843</td> <td>222</td> <td>220</td> <td>320</td> <td>0.00</td>
+                                    </tr>
+                                    <tr>
+                                         <td>&#x2F;replica-1</td> <td>7.02</td> <td>5.12</td> <td>1.03</td> <td>998</td> <td>253</td> <td>227</td> <td>320</td> <td>0.00</td>
+                                    </tr>
+                                    <tr>
+                                         <td>&#x2F;replica-0</td> <td>7.65</td> <td>5.15</td> <td>1.03</td> <td>998</td> <td>252</td> <td>231</td> <td>320</td> <td>0.00</td>
                                     </tr>
                                 </table>
                                 </tr>
@@ -327,6 +375,15 @@ rounds:
       type: fixed-rate
       opts:
         tps: 200
+    workload:
+      module: lib&#x2F;benchmarks&#x2F;CreateTransactionWithoutSC.js
+  - label: Submit 30000 Transactions 300 tps
+    description: Test description for transfering money between accounts.
+    txNumber: 30000
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 300
     workload:
       module: lib&#x2F;benchmarks&#x2F;CreateTransactionWithoutSC.js
 </pre>

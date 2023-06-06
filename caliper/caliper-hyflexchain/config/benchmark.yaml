@@ -41,25 +41,25 @@ test:
       workload:
         module: lib/benchmarks/CreateTransactionWithoutSC.js
 
-    - label: Submit 30000 Transactions 300 tps
+    - label: Submit 40000 Transactions 400 tps
       description: Test description for transfering money between accounts.
-      txNumber: 30000
+      txNumber: 40000
       rateControl:
         type: fixed-rate
         opts:
-          tps: 300
+          tps: 400
       workload:
         module: lib/benchmarks/CreateTransactionWithoutSC.js
 
-    # - label: Submit 40000 Transactions 400 tps
-    #   description: Test description for transfering money between accounts.
-    #   txNumber: 40000
-    #   rateControl:
-    #     type: fixed-rate
-    #     opts:
-    #       tps: 400
-    #   workload:
-    #     module: lib/benchmarks/CreateTransactionWithoutSC.js
+    - label: Submit 80000 Transactions 800 tps
+      description: Test description for transfering money between accounts.
+      txNumber: 80000
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 800
+      workload:
+        module: lib/benchmarks/CreateTransactionWithoutSC.js
   
 monitors:
   resource:

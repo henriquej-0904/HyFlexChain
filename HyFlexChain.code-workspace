@@ -13,7 +13,7 @@
                         "path": "hyflexchain"
                 },
                 {
-                	"path": "smart-contracts-evm"
+                	"path": "smart-contracts-besu-evm"
                 }
 
 		

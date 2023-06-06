@@ -10,7 +10,7 @@ import pt.unl.fct.di.hyflexchain.planes.txmanagement.txpool.TxPool;
 
 public class PowConsensusThread implements Runnable {
 
-	protected static final Logger LOG = LoggerFactory.getLogger(PowConsensusThread.class.getSimpleName());
+	protected static final Logger LOG = LoggerFactory.getLogger(PowConsensusThread.class);
 
 	private final int nTxsInBlock;
 

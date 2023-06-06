@@ -28,7 +28,7 @@ import pt.unl.fct.di.hyflexchain.util.config.MultiLedgerConfig;
 
 public class PowConsensus extends ConsensusInterface
 {
-	protected static final Logger LOG = LoggerFactory.getLogger(PowConsensus.class.getSimpleName());
+	protected static final Logger LOG = LoggerFactory.getLogger(PowConsensus.class);
 
     private static final byte[] TRUE = new byte[] {1};
 	private static final byte[] FALSE = new byte[] {0};
@@ -134,7 +134,7 @@ public class PowConsensus extends ConsensusInterface
 
 	public class BlockmessConnector extends ApplicationInterface
     {
-		protected static final Logger LOG = LoggerFactory.getLogger(BlockmessConnector.class.getSimpleName());
+		protected static final Logger LOG = LoggerFactory.getLogger(BlockmessConnector.class);
 
         public BlockmessConnector() {
             super(defaultBlockmessProperties());

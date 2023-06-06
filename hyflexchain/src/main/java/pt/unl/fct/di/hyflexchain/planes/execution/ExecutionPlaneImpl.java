@@ -21,7 +21,7 @@ import pt.unl.fct.di.hyflexchain.planes.execution.contracts.InvalidSmartContract
  */
 public class ExecutionPlaneImpl implements ExecutionPlane
 {
-    protected static final Logger LOG = LoggerFactory.getLogger(ExecutionPlaneImpl.class.getSimpleName());
+    protected static final Logger LOG = LoggerFactory.getLogger(ExecutionPlaneImpl.class);
 
     private static ExecutionPlane instance;
 
@@ -75,7 +75,7 @@ public class ExecutionPlaneImpl implements ExecutionPlane
 
             return contract.callGetConsensusParams(this.evm, sender.getAddress(), updater, tx);
         } catch (InvalidSmartContractException e) {
-            LOG.debug(e.getMessage());
+            LOG.info(e.getMessage());
             throw e;
         }
     }

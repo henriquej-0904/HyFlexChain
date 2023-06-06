@@ -26,7 +26,7 @@ import pt.unl.fct.di.hyflexchain.util.config.MultiLedgerConfig;
  */
 public class TransactionManagementV2_0 implements TransactionManagement
 {
-	private static final Logger LOGGER = LoggerFactory.getLogger(TransactionManagementV2_0.class.getSimpleName());
+	private static final Logger LOGGER = LoggerFactory.getLogger(TransactionManagementV2_0.class);
 
 	protected final EnumMap<ConsensusMechanism, TxPool> txPools;
 

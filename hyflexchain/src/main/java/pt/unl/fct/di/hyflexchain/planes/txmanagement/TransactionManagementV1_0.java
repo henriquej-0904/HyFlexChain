@@ -22,7 +22,7 @@ import pt.unl.fct.di.hyflexchain.planes.txmanagement.txpool.TxPool;
  */
 public class TransactionManagementV1_0 implements TransactionManagement
 {
-	private static final Logger LOGGER = LoggerFactory.getLogger(TransactionManagementV1_0.class.getSimpleName());
+	private static final Logger LOGGER = LoggerFactory.getLogger(TransactionManagementV1_0.class);
 
 	protected final EnumMap<ConsensusMechanism, TxPool> txPools;
 

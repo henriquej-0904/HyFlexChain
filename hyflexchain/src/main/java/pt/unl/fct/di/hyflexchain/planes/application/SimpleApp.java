@@ -119,7 +119,7 @@ public class SimpleApp extends ApplicationInterface
 	public static void main(String[] args) throws FileNotFoundException, IOException, ParseException {
 		SimpleApp app = new SimpleApp(new File(args[0]), args);
 
-		LoggerFactory.getLogger(SimpleApp.class.getSimpleName()).info("Ready...");
+		LoggerFactory.getLogger(SimpleApp.class).info("Ready...");
 
 		try (Scanner sc = new Scanner(System.in);)
 		{

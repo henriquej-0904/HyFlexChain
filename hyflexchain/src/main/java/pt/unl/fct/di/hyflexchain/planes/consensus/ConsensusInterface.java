@@ -1,6 +1,7 @@
 package pt.unl.fct.di.hyflexchain.planes.consensus;
 
 import java.util.LinkedHashMap;
+import java.util.function.Predicate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +18,7 @@ import pt.unl.fct.di.hyflexchain.planes.data.transaction.TransactionState;
 import pt.unl.fct.di.hyflexchain.planes.execution.ExecutionPlane;
 import pt.unl.fct.di.hyflexchain.planes.execution.contracts.InvalidSmartContractException;
 import pt.unl.fct.di.hyflexchain.planes.txmanagement.TransactionManagement;
+import pt.unl.fct.di.hyflexchain.util.config.MultiLedgerConfig;
 
 /**
  * Represents the interface for interacting with a specific
@@ -24,11 +26,13 @@ import pt.unl.fct.di.hyflexchain.planes.txmanagement.TransactionManagement;
  */
 public abstract class ConsensusInterface
 {
-	protected static final Logger LOG = LoggerFactory.getLogger(ConsensusInterface.class.getSimpleName());
+	protected static final Logger LOG = LoggerFactory.getLogger(ConsensusInterface.class);
 
 	protected final ConsensusMechanism consensus;
 
 	protected final LedgerViewInterface lvi;
+
+	private final Predicate<BlockBody> verifyBlockBodyPred;
 
 	/**
 	 * Create a new Consensus interface.
@@ -38,6 +42,19 @@ public abstract class ConsensusInterface
 	protected ConsensusInterface(ConsensusMechanism consensus, LedgerViewInterface lvi) {
 		this.consensus = consensus;
 		this.lvi = lvi;
+
+		switch (MultiLedgerConfig.getInstance()
+		.getSystemVersion()) {
+			case V1_0:
+				this.verifyBlockBodyPred = this::verifyBody1_0;
+				break;
+			case V2_0:
+				this.verifyBlockBodyPred = this::verifyBody2_0;
+				break;
+			default:
+				this.verifyBlockBodyPred = this::verifyBody2_0;
+				break;			
+		}
 	}
 
 	/**
@@ -68,7 +85,7 @@ public abstract class ConsensusInterface
 	 */
 	protected boolean verifyBlock(HyFlexChainBlock block)
 	{
-		if (!block.verifyBlock(LOG))
+		if (!block.verifyBlock())
 			return false;
 
 		var header = block.header();
@@ -120,6 +137,27 @@ public abstract class ConsensusInterface
 	}
 
 	protected boolean verifyBody(BlockBody body)
+	{
+		return this.verifyBlockBodyPred.test(body);
+	}
+
+	private boolean verifyBody1_0(BlockBody body)
+	{
+		var lvi = LedgerViewInterface.getInstance();
+
+		return body.getTransactions().values().stream()
+			.allMatch((tx) -> {
+				if (lvi.getTransactionState(tx.getHash(), this.consensus) == TransactionState.FINALIZED)
+				{
+					LOG.info("Invalid tx - is already finalized");
+					return false;
+				}
+
+				return true;
+			});
+	}
+
+	private boolean verifyBody2_0(BlockBody body)
 	{
 		var lvi = LedgerViewInterface.getInstance();
 		var ti = TransactionInterface.getInstance();

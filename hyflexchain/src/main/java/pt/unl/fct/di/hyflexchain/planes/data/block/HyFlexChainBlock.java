@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.Address;
@@ -23,6 +24,8 @@ public record HyFlexChainBlock(
 	BlockHeader header, BlockBody body
 )
 {
+	protected static final Logger LOG = LoggerFactory.getLogger(HyFlexChainBlock.class);
+
 	public static final EnumMap<ConsensusMechanism, HyFlexChainBlock>
 		GENESIS_BLOCK = Stream.of(ConsensusMechanism.values())
 			.map(HyFlexChainBlock::genesisBlock)
@@ -98,11 +101,11 @@ public record HyFlexChainBlock(
 		return hash.equalsIgnoreCase(calcHash());
 	}
 
-	public boolean verifyBlock(Logger log)
+	public boolean verifyBlock()
 	{
 		if (!verifyHash())
 		{
-			log.info("Block invalid hash.");
+			LOG.info("Block invalid hash.");
 			return false;
 		}
 
@@ -110,7 +113,7 @@ public record HyFlexChainBlock(
 			body().getTransactions().keySet()
 		))
 		{
-			log.info("Block Merkle tree.");
+			LOG.info("Block Merkle tree.");
 			return false;
 		}
 

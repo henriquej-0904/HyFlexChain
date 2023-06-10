@@ -60,12 +60,30 @@ public class LedgerConfig {
 		}
 	}
 
+	/**
+	 * The maximum time to wait when creating a block of transactions.
+	 * @return The maximum time to wait when creating a block of transactions.
+	 */
+	public long getCreateBlockTime()
+	{
+		try {
+			return Long.valueOf(getConfigValue(CONFIG.CREATE_BLOCK_TIME.toString()));
+		} catch (Exception e) {
+			throw new Error("Configuration: CREATE_BLOCK_TIME is required!");
+		}
+	}
+
 	public static enum CONFIG
 	{
 		/**
 		 * The number of transactions inside a block.
 		 */
-		N_TXS_IN_BLOCK
+		N_TXS_IN_BLOCK,
+
+		/**
+		 * The maximum time to wait when creating a block of transactions.
+		 */
+		CREATE_BLOCK_TIME
 	}
 	
 

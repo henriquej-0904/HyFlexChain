@@ -67,8 +67,7 @@ public class PowConsensus extends ConsensusInterface
 		this.blockmess = new BlockmessConnector();
 		
 		new Thread(
-			new PowConsensusThread(this,
-				config.getLedgerConfig(this.consensus).getNumTxsInBlock()),
+			new PowConsensusThread(this, config.getLedgerConfig(this.consensus)),
 			"PoW-Consensus-Thread")
 		.start();
 	}

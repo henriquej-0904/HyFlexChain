@@ -13,6 +13,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import applicationInterface.ApplicationInterface;
 import pt.unl.fct.di.hyflexchain.planes.application.lvi.LedgerViewInterface;
+import pt.unl.fct.di.hyflexchain.planes.application.ti.InvalidTransactionException;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusInterface;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.data.DataPlane;
@@ -21,14 +22,13 @@ import pt.unl.fct.di.hyflexchain.planes.data.block.BlockHeader;
 import pt.unl.fct.di.hyflexchain.planes.data.block.BlockMetaHeader;
 import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
-import pt.unl.fct.di.hyflexchain.planes.data.transaction.TransactionState;
 import pt.unl.fct.di.hyflexchain.planes.txmanagement.TransactionManagement;
 import pt.unl.fct.di.hyflexchain.util.Utils;
 import pt.unl.fct.di.hyflexchain.util.config.MultiLedgerConfig;
 
 public class PowConsensus extends ConsensusInterface
 {
-	protected static final Logger LOG = LoggerFactory.getLogger(PowConsensus.class.getSimpleName());
+	protected static final Logger LOG = LoggerFactory.getLogger(PowConsensus.class);
 
     private static final byte[] TRUE = new byte[] {1};
 	private static final byte[] FALSE = new byte[] {0};
@@ -67,8 +67,7 @@ public class PowConsensus extends ConsensusInterface
 		this.blockmess = new BlockmessConnector();
 		
 		new Thread(
-			new PowConsensusThread(this,
-				config.getLedgerConfig(this.consensus).getNumTxsInBlock()),
+			new PowConsensusThread(this, config.getLedgerConfig(this.consensus)),
 			"PoW-Consensus-Thread")
 		.start();
 	}
@@ -91,8 +90,12 @@ public class PowConsensus extends ConsensusInterface
 							(tx) -> tx, (tx) -> res)
 						);
 
-					TransactionManagement.getInstance().getTxPool(POW)
-						.removePendingTxsAndNotify(mapTxRes);
+					try {
+						TransactionManagement.getInstance().getTxPool(POW)
+							.removePendingTxsAndNotify(mapTxRes);
+					} catch (InvalidTransactionException e) {
+						LOG.info(e.getMessage());
+					}
 
 					// LOG.info("blockmess reply: {}", reply);
 			});
@@ -118,80 +121,19 @@ public class PowConsensus extends ConsensusInterface
 	}
 
 	@Override
-	public boolean verifyBlock(HyFlexChainBlock block)
-	{
-		if (!block.verifyBlock(LOG))
-			return false;
-
-		var header = block.header();
-		var metaHeader = header.getMetaHeader();
-
-		if (! verifyMetaHeader(metaHeader))
-		{
-			LOG.info("Invalid block meta header");
-			return false;
-		}
-
-		if (! verifyHeader(header, block.body()))
-		{
-			LOG.info("Invalid block header");
-			return false;
-		}
-		
-		var lvi = LedgerViewInterface.getInstance();
-
-		boolean validTxs = block.body().getTransactions().keySet().stream()
-			.map((hash) -> lvi.getTransactionState(hash, POW))
-			.noneMatch((s) -> s == TransactionState.FINALIZED);
-		
-		if (!validTxs)
-		{
-			LOG.info("Invalid txs - block has already finalized txs.");
-			return false;
-		}
-
-		return true;
-	}
-
 	protected boolean verifyMetaHeader(BlockMetaHeader metaHeader)
 	{
-		return metaHeader.getConsensus() == POW &&
+		return super.verifyMetaHeader(metaHeader) &&
 			metaHeader.getDifficultyTarget() == DIFF_TARGET &&
 			Arrays.equals(VALIDATORS, metaHeader.getValidators()) &&
 			metaHeader.getCommitteeId().equalsIgnoreCase(COMMITTEE_ID) &&
 			metaHeader.getCommitteeBlockHash().equalsIgnoreCase(COMMITTEE_BLOCK_HASH);
 	}
-
-	protected boolean verifyHeader(BlockHeader header, BlockBody body)
-	{
-		var lvi = LedgerViewInterface.getInstance();
-		
-		if (! header.getPrevHash().equalsIgnoreCase(lvi.getLastBlockHash(POW)))
-		{
-			LOG.info("Invalid block header: prev hash");
-			return false;
-		}
-
-		/* if ( header.getNonce() != lvi.getBlockchainSize(POW) + 1)
-		{
-			LOG.info("Invalid block header: invalid nonce");
-			return false;
-		} */
-
-		if ( ! header.getMerkleRoot().equalsIgnoreCase(body.getMerkleTree().getRoot().hash()))
-		{
-			LOG.info("Invalid block header: invalid  merkle root");
-			return false;
-		}
-		
-		return true;
-	}
-	
 	
 
 	public class BlockmessConnector extends ApplicationInterface
     {
-		protected static final Logger LOG = LoggerFactory.getLogger(BlockmessConnector.class.getSimpleName());
+		protected static final Logger LOG = LoggerFactory.getLogger(BlockmessConnector.class);
 
         public BlockmessConnector() {
             super(defaultBlockmessProperties());
@@ -255,10 +197,6 @@ public class PowConsensus extends ConsensusInterface
 				}
 
 				// process new valid block
-
-				// TransactionManagement.getInstance().getTxPool(POW)
-					// .removePendingTxsAndNotify(block.body().getTransactions().keySet());
-				
 				DataPlane.getInstance().writeOrderedBlock(block, POW);
     
 				LOG.info("Appended valid block with size=" + operation.length + " & hash: " +

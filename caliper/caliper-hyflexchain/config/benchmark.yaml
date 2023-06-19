@@ -3,7 +3,7 @@ test:
     number: 2
   rounds:
     # - label: Prepare System
-    #   txNumber: 250
+    #   txDuration: 250
     #   rateControl:
     #     type: fixed-load
     #     opts:
@@ -13,6 +13,7 @@ test:
 
     - label: Submit 5000 Transactions 50 tps
       description: Test description for transfering money between accounts.
+      # txDuration: 60
       txNumber: 5000
       rateControl:
         type: fixed-rate
@@ -23,6 +24,7 @@ test:
 
     - label: Submit 10000 Transactions 100 tps
       description: Test description for transfering money between accounts.
+      # txDuration: 60
       txNumber: 10000
       rateControl:
         type: fixed-rate
@@ -33,6 +35,7 @@ test:
 
     - label: Submit 20000 Transactions 200 tps
       description: Test description for transfering money between accounts.
+      # txDuration: 60
       txNumber: 20000
       rateControl:
         type: fixed-rate
@@ -41,23 +44,40 @@ test:
       workload:
         module: lib/benchmarks/CreateTransactionWithoutSC.js
 
-    # - label: Submit 40000 Transactions 400 tps
-    #   description: Test description for transfering money between accounts.
-    #   txNumber: 40000
-    #   rateControl:
-    #     type: fixed-rate
-    #     opts:
-    #       tps: 400
-    #   workload:
-    #     module: lib/benchmarks/CreateTransactionWithoutSC.js
+    - label: Submit 40000 Transactions 400 tps
+      description: Test description for transfering money between accounts.
+      # txDuration: 60
+      txNumber: 40000
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 400
+      workload:
+        module: lib/benchmarks/CreateTransactionWithoutSC.js
+
+    - label: Submit 80000 Transactions 800 tps
+      description: Test description for transfering money between accounts.
+      # txDuration: 60
+      txNumber: 80000
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 800
+      workload:
+        module: lib/benchmarks/CreateTransactionWithoutSC.js
   
-monitors:
-  resource:
-  - module: docker
-    options:
-      interval: 5
-      containers:
-      - /replica-0
-      - /replica-1
-      - /replica-2
-      - /replica-3
+# monitors:
+#   resource:
+#   - module: docker
+#     options:
+#       interval: 5
+#       containers:
+#       - /replica-0
+#       - /replica-1
+#       - /replica-2
+#       - /replica-3
+#       charting:
+#         bar:
+#           metrics: [Memory(avg), CPU%(avg)]
+#         polar:
+#           metrics: [all]

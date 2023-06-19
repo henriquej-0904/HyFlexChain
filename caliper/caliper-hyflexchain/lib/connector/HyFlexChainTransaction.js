@@ -22,7 +22,7 @@ class HyFlexChainTransaction
 	{
 		this.version = "V1_0";
 		this.hash = undefined;
-		this.address = {address : origin};
+		this.sender = {address : origin};
 		this.signatureType = "SHA256withECDSA";
 		this.signature = undefined;
 		this.nonce = Util.getRandomInt(0, Number.MAX_SAFE_INTEGER);
@@ -42,7 +42,7 @@ class HyFlexChainTransaction
 		let sig = cryptoUtils.getSigInstance();
 
 		sig.update(Buffer.from(this.version, "utf-8"));
-		sig.update(Buffer.from(this.address.address, "utf-8"));
+		sig.update(Buffer.from(this.sender.address, "utf-8"));
 
 		let buff = Buffer.alloc(8);
 		buff.writeBigInt64BE(BigInt(this.nonce));
@@ -58,7 +58,7 @@ class HyFlexChainTransaction
 		});
 
 		this.outputTxs.forEach((element, index, array) => {
-			sig.update(Buffer.from(element.address.address, "utf-8"));
+			sig.update(Buffer.from(element.recipient.address, "utf-8"));
 
 			let buff = Buffer.alloc(8);
 			buff.writeBigInt64BE(BigInt(element.value));
@@ -82,7 +82,7 @@ class HyFlexChainTransaction
 		let hash = cryptoUtils.getHashInstance();
 
 		hash.update(Buffer.from(this.version, "utf-8"));
-		hash.update(Buffer.from(this.address.address, "utf-8"));
+		hash.update(Buffer.from(this.sender.address, "utf-8"));
 		hash.update(Buffer.from(this.signatureType, "utf-8"));
 		hash.update(Buffer.from(this.signature, "utf-8"));
 
@@ -100,7 +100,7 @@ class HyFlexChainTransaction
 		});
 
 		this.outputTxs.forEach((element, index, array) => {
-			hash.update(Buffer.from(element.address.address, "utf-8"));
+			hash.update(Buffer.from(element.recipient.address, "utf-8"));
 
 			let buff = Buffer.alloc(8);
 			buff.writeBigInt64BE(BigInt(element.value));
@@ -124,7 +124,7 @@ class HyFlexChainTransaction
 
 	static createOutputTx(address, value)
 	{
-		return {address : {address : address}, value : value};
+		return {recipient : {address : address}, value : value};
 	}
 	
 }

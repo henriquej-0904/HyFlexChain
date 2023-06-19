@@ -22,7 +22,15 @@ public interface TransactionManagement {
 	 * @return the transaction pool for the specified consensus
 	 * mechanism.
 	 */
-	TxPool getTxPool(ConsensusMechanism consensus);
+	TxPool getTxPool(ConsensusMechanism consensus) throws InvalidTransactionException;
+
+	/**
+	 * Verifies if a transaction is valid, the cryptographic signature is correct
+	 * and other aspects.
+	 * @param tx The transaction to verify
+	 * @throws InvalidTransactionException if the transaction was not verified.
+	 */
+	void verifyTx(HyFlexChainTransaction tx) throws InvalidTransactionException;
 
 	/**
 	 * Receives a transaction to be verified

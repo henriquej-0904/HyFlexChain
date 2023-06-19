@@ -11,12 +11,16 @@
 		},
 		{
                         "path": "hyflexchain"
+                },
+                {
+                	"path": "smart-contracts-besu-evm"
                 }
 
 		
 	],
 	"settings": {
 		"java.configuration.updateBuildConfiguration": "interactive",
-		"java.compile.nullAnalysis.mode": "automatic"
+		"java.compile.nullAnalysis.mode": "automatic",
+		"java.dependency.packagePresentation": "hierarchical"
 	}
 }

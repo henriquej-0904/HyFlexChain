@@ -13,7 +13,7 @@ import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
 @Singleton
 public class HyFlexChainResource implements TransactionInterfaceRest {
 	
-	Logger LOG = LoggerFactory.getLogger(HyFlexChainResource.class.getSimpleName());
+	Logger LOG = LoggerFactory.getLogger(HyFlexChainResource.class);
 
 	private static ApplicationInterface hyflexchainInterface;
 

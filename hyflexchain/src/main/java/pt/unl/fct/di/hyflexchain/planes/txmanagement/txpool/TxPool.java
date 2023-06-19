@@ -104,7 +104,7 @@ public class TxPool
 			return false;
 		}
 
-		log.info("Submited tx: " + tx.getHash());
+		log.info("Submited tx [{}]: {}", consensus.getConsensus(), tx.getHash());
 
 		synchronized(tx)
 		{
@@ -134,7 +134,6 @@ public class TxPool
 				try {
 					Thread.sleep(WAIT_MILLIS);
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -175,6 +174,61 @@ public class TxPool
 					() -> new LinkedHashMap<>(n)
 				)
 			); */
+	}
+
+	/**
+	 * Get a list of n transactions.
+	 * The map is sorted by the insertion order of transactions.
+	 * This method waits for the specified number of txs to be available
+	 * or when the specified time expires with at least 1 transaction.
+	 * @param n The minimum number of transactions
+	 * @param millis The maximum time to wait in ms
+	 * @return A list of transactions.
+	 */
+	public LinkedHashMap<String, HyFlexChainTransaction> waitForMinPendingTxs(int n, long millis)
+	{
+		while (true) {
+			while (
+				this.pending.isEmpty() ||
+				(this.pending.size() < n && millis >= WAIT_MILLIS)
+			)
+			{
+				// wait for min number of txs in tx pool
+		
+				try {
+					Thread.sleep(WAIT_MILLIS);
+					millis -= WAIT_MILLIS;
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+
+			this.lock.lock();
+
+			if (this.pending.isEmpty() ||
+				(this.pending.size() < n && millis >= WAIT_MILLIS))
+			{
+				this.lock.unlock();
+				continue;
+			}
+
+			LinkedHashMap<String, HyFlexChainTransaction> list =
+				new LinkedHashMap<>(n);
+
+			var it = this.pending.entrySet().iterator();
+			for (int i = 0; i < n && it.hasNext(); i++) {
+				var tx = it.next();
+				it.remove();
+
+				list.put(tx.getKey(), tx.getValue());
+			}
+
+			this.waitingForFinalization.putAll(list);
+
+			this.lock.unlock();
+
+			return list;
+		}
 	}
 
 	public Optional<HyFlexChainTransaction> getPendingTx(String txHash)

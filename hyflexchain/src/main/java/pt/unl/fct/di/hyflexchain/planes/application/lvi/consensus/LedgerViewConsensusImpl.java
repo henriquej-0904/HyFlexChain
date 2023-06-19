@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import pt.unl.fct.di.hyflexchain.planes.application.lvi.BlockFilter;
+import pt.unl.fct.di.hyflexchain.planes.application.ti.InvalidTransactionException;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.consensus.committees.Committee;
 import pt.unl.fct.di.hyflexchain.planes.data.DataPlane;
@@ -110,7 +111,12 @@ public class LedgerViewConsensusImpl implements LedgerViewConsensusInterface {
 	protected TxPool getTxPool()
 	{
 		if (this.txPool == null)
-			this.txPool = TransactionManagement.getInstance().getTxPool(consensus);
+			try {
+				this.txPool = TransactionManagement.getInstance().getTxPool(consensus);
+			} catch (InvalidTransactionException e) {
+				e.printStackTrace();
+				throw new Error(e.getMessage(), e);
+			}
 
 		return this.txPool;
 	}

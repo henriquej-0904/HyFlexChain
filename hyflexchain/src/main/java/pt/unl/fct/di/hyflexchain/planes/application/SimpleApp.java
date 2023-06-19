@@ -53,7 +53,7 @@ public class SimpleApp extends ApplicationInterface
 	{
 		HyFlexChainTransaction tx = new HyFlexChainTransaction();
 		tx.setVersion(HyFlexChainTransaction.Version.V1_0.toString());
-		tx.setAddress(this.address);
+		tx.setSender(this.address);
 		tx.setSignatureType(Crypto.DEFAULT_SIGNATURE_TRANSFORMATION);
 		tx.setNonce(nonce++);
 		tx.setInputTxs(new TxInput[]{
@@ -119,7 +119,7 @@ public class SimpleApp extends ApplicationInterface
 	public static void main(String[] args) throws FileNotFoundException, IOException, ParseException {
 		SimpleApp app = new SimpleApp(new File(args[0]), args);
 
-		LoggerFactory.getLogger(SimpleApp.class.getSimpleName()).info("Ready...");
+		LoggerFactory.getLogger(SimpleApp.class).info("Ready...");
 
 		try (Scanner sc = new Scanner(System.in);)
 		{

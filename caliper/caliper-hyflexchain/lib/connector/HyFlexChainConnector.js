@@ -160,7 +160,7 @@ class HyFlexChainConnector extends ConnectorBase
         const data = {
             version : request.version,
             hash : request.hash,
-            address : request.address,
+            sender : request.sender,
             signatureType : request.signatureType,
             signature : request.signature,
             nonce : request.nonce,

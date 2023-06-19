@@ -14,10 +14,10 @@ import pt.unl.fct.di.hyflexchain.planes.txmanagement.TransactionManagement;
  */
 public class TransactionInterfaceV1_0 implements TransactionInterface {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(TransactionInterfaceV1_0.class.getSimpleName());
+	private static final Logger LOGGER = LoggerFactory.getLogger(TransactionInterfaceV1_0.class);
 
-
-	protected void verifyTx(HyFlexChainTransaction tx) throws InvalidTransactionException
+	@Override
+	public void verifyTx(HyFlexChainTransaction tx) throws InvalidTransactionException
 	{
 		HyFlexChainTransaction.Version version;
 		try {
@@ -35,7 +35,7 @@ public class TransactionInterfaceV1_0 implements TransactionInterface {
 			throw exc;
 		}
 
-		if (tx.getAddress() == null || tx.getHash() == null ||
+		if (tx.getSender() == null || tx.getHash() == null ||
 			tx.getSignatureType() == null || tx.getSignature() == null)
 		{
 			var exc = new InvalidTransactionException("At least one field is null");

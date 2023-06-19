@@ -17,6 +17,7 @@ import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.TransactionState;
 import pt.unl.fct.di.hyflexchain.planes.execution.ExecutionPlane;
 import pt.unl.fct.di.hyflexchain.planes.execution.contracts.InvalidSmartContractException;
+import pt.unl.fct.di.hyflexchain.planes.execution.contracts.TransactionParamsContract.TransactionParamsContractResult;
 import pt.unl.fct.di.hyflexchain.planes.txmanagement.TransactionManagement;
 import pt.unl.fct.di.hyflexchain.util.config.MultiLedgerConfig;
 
@@ -176,10 +177,12 @@ public abstract class ConsensusInterface
 					ti.verifyTx(tx);
 					txmanagement.verifyTx(tx);
 
-					ConsensusMechanism txConsensus = execution.callGetConsensusParams(tx).getMechanism();
-					if (txConsensus != this.consensus)
+					final TransactionParamsContractResult txParams =
+						execution.callGetTransactionParams(tx);
+
+					if (txParams.getConsensus() != this.consensus)
 					{
-						LOG.info("Invalid tx - smart contract exec failed -> consensus {} does not match the one for this block {}", txConsensus, this.consensus);
+						LOG.info("Invalid tx - smart contract exec failed -> consensus {} does not match the one for this block {}", txParams.getConsensus(), this.consensus);
 						return false;
 					}
 

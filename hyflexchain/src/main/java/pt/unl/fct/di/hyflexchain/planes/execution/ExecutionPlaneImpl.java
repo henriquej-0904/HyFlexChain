@@ -6,14 +6,15 @@ import org.hyperledger.besu.datatypes.Wei;
 import org.hyperledger.besu.evm.account.EvmAccount;
 import org.hyperledger.besu.evm.fluent.SimpleWorld;
 import org.hyperledger.besu.evm.internal.EvmConfiguration;
+import org.hyperledger.besu.evm.tracing.StandardJsonTracer;
 import org.hyperledger.besu.evm.worldstate.WorldUpdater;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pt.unl.fct.di.hyflexchain.evm.executor.EvmExecutor;
-import pt.unl.fct.di.hyflexchain.planes.consensus.params.ConsensusParams;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
-import pt.unl.fct.di.hyflexchain.planes.execution.contracts.ConsensusParamsContract;
+import pt.unl.fct.di.hyflexchain.planes.execution.contracts.TransactionParamsContract;
+import pt.unl.fct.di.hyflexchain.planes.execution.contracts.TransactionParamsContract.TransactionParamsContractResult;
 import pt.unl.fct.di.hyflexchain.planes.execution.contracts.InvalidSmartContractException;
 
 /**
@@ -50,6 +51,10 @@ public class ExecutionPlaneImpl implements ExecutionPlane
      */
     public ExecutionPlaneImpl() {
         this.evm = EvmExecutor.london(EvmConfiguration.DEFAULT);
+
+        if (LOG.isTraceEnabled())
+            this.evm.tracer(new StandardJsonTracer(System.out, false, true, true));
+
         this.updater = new SimpleWorld();
     }
 
@@ -64,16 +69,16 @@ public class ExecutionPlaneImpl implements ExecutionPlane
     }
 
     @Override
-    public ConsensusParams callGetConsensusParams(HyFlexChainTransaction tx) throws InvalidSmartContractException
+    public TransactionParamsContractResult callGetTransactionParams(HyFlexChainTransaction tx) throws InvalidSmartContractException
     {
         final WorldUpdater updater = getTmpUpdater();
         final EvmAccount sender = createDefaultAccount(updater);
 
         try {
-            final ConsensusParamsContract contract =
-            ConsensusParamsContract.deploy(this.evm, sender.getAddress(), Bytes.wrap(tx.getData()), updater);
+            final var contract =
+            TransactionParamsContract.deploy(this.evm, sender.getAddress(), Bytes.wrap(tx.getData()), updater);
 
-            return contract.callGetConsensusParams(this.evm, sender.getAddress(), updater, tx);
+            return contract.callgetTransactionParams(this.evm, sender.getAddress(), updater, tx);
         } catch (InvalidSmartContractException e) {
             LOG.info(e.getMessage());
             throw e;

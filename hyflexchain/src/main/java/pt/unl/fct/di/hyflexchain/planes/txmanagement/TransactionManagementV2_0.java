@@ -11,10 +11,10 @@ import org.slf4j.LoggerFactory;
 
 import pt.unl.fct.di.hyflexchain.planes.application.ti.InvalidTransactionException;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
-import pt.unl.fct.di.hyflexchain.planes.consensus.params.ConsensusParams;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
 import pt.unl.fct.di.hyflexchain.planes.execution.ExecutionPlane;
 import pt.unl.fct.di.hyflexchain.planes.execution.contracts.InvalidSmartContractException;
+import pt.unl.fct.di.hyflexchain.planes.execution.contracts.TransactionParamsContract.TransactionParamsContractResult;
 import pt.unl.fct.di.hyflexchain.planes.txmanagement.txpool.TxPool;
 import pt.unl.fct.di.hyflexchain.util.config.MultiLedgerConfig;
 
@@ -81,10 +81,10 @@ public class TransactionManagementV2_0 implements TransactionManagement
 		}
 	}
 
-    protected ConsensusParams callGetConsensusParams(HyFlexChainTransaction tx) throws InvalidTransactionException
+    protected TransactionParamsContractResult callGetTransactionParams(HyFlexChainTransaction tx) throws InvalidTransactionException
     {
         try {
-            return ExecutionPlane.getInstance().callGetConsensusParams(tx);
+            return ExecutionPlane.getInstance().callGetTransactionParams(tx);
         } catch (InvalidSmartContractException e) {
             LOGGER.info(e.getMessage());
 			throw new InvalidTransactionException(e.getMessage(), e);
@@ -111,7 +111,7 @@ public class TransactionManagementV2_0 implements TransactionManagement
 	{
 		verifyTx(tx);
 
-        final ConsensusMechanism c = callGetConsensusParams(tx).getMechanism();
+        final ConsensusMechanism c = callGetTransactionParams(tx).getConsensus();
 		checkAddPendingTx(getTxPool(c).addTxIfAbsent(tx));
 
 		LOGGER.info("Submited tx [{}]: {}", c.getConsensus(), tx.getHash());
@@ -123,7 +123,7 @@ public class TransactionManagementV2_0 implements TransactionManagement
 	{
 		verifyTx(tx);
 
-        final ConsensusMechanism c = callGetConsensusParams(tx).getMechanism();
+        final ConsensusMechanism c = callGetTransactionParams(tx).getConsensus();
 		checkAddPendingTx(getTxPool(c).addTxIfAbsentAndWait(tx, LOGGER));
 
 		LOGGER.info("Finalized tx: " + tx.getHash());

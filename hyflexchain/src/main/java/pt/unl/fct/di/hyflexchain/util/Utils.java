@@ -16,10 +16,12 @@ import java.util.Calendar;
 import org.slf4j.Logger;
 
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 
 public class Utils
 {
-    public static final JsonMapper json = new JsonMapper();
+    public static final JsonMapper json = (JsonMapper)
+        new JsonMapper().registerModule(new Jdk8Module());
 
     public static ByteBuffer toBytes(int value)
     {

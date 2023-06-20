@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>pt.unl.fct.di.blockmess.wrapper</groupId>
@@ -21,8 +23,8 @@
 
   <repositories>
     <repository>
-        <id>blockmess_lib</id>
-        <url>file:///${project.basedir}/../dependencies/blockmess_lib</url>
+      <id>blockmess_lib</id>
+      <url>file:///${project.basedir}/../dependencies/blockmess_lib</url>
     </repository>
   </repositories>
 
@@ -32,10 +34,10 @@
       <artifactId>commons-lang3</artifactId>
     </dependency>
 
-    <dependency> 
+    <dependency>
       <groupId>org.bouncycastle</groupId>
-      <artifactId>bcprov-jdk15on</artifactId>  
-      <version>1.70</version> 
+      <artifactId>bcprov-jdk15on</artifactId>
+      <version>1.70</version>
     </dependency>
     <dependency>
       <groupId>org.bouncycastle</groupId>
@@ -47,10 +49,10 @@
       <artifactId>bcutil-jdk15on</artifactId>
       <version>1.70</version>
     </dependency>
-    <dependency> 
+    <dependency>
       <groupId>org.bouncycastle</groupId>
-      <artifactId>bcprov-ext-jdk15on</artifactId>  
-      <version>1.70</version> 
+      <artifactId>bcprov-ext-jdk15on</artifactId>
+      <version>1.70</version>
     </dependency>
 
     <!-- Dependencies for blockmess-->
@@ -60,11 +62,11 @@
       <version>1.0-SNAPSHOT</version>
     </dependency>
 
-    <dependency> 
-      <groupId>org.slf4j</groupId>  
-      <artifactId>slf4j-simple</artifactId>  
-      <version>1.7.32</version> 
-    </dependency>  
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>1.7.32</version>
+    </dependency>
 
     <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
     <dependency>
@@ -89,11 +91,11 @@
         <version>3.12.0</version>
       </dependency>
 
-      <dependency> 
-        <groupId>org.slf4j</groupId>  
-        <artifactId>slf4j-simple</artifactId>  
-        <version>1.7.32</version> 
-      </dependency>  
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-simple</artifactId>
+        <version>1.7.32</version>
+      </dependency>
 
       <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
       <dependency>
@@ -114,7 +116,7 @@
 
   <build>
     <plugins>
-    <plugin>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <version>3.5.0</version>
@@ -127,12 +129,14 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <version>2.22.1</version>
       </plugin>
-      <!-- clean lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#clean_Lifecycle -->
+      <!-- clean lifecycle, see
+      https://maven.apache.org/ref/current/maven-core/lifecycles.html#clean_Lifecycle -->
       <plugin>
         <artifactId>maven-clean-plugin</artifactId>
         <version>3.1.0</version>
       </plugin>
-      <!-- default lifecycle, jar packaging: see https://maven.apache.org/ref/current/maven-core/default-bindings.html#Plugin_bindings_for_jar_packaging -->
+      <!-- default lifecycle, jar packaging: see
+      https://maven.apache.org/ref/current/maven-core/default-bindings.html#Plugin_bindings_for_jar_packaging -->
       <plugin>
         <artifactId>maven-resources-plugin</artifactId>
         <version>3.0.2</version>
@@ -144,7 +148,7 @@
           <source>19</source>
           <target>19</target>
           <debug>true</debug>
-          <debuglevel>lines,vars,source</debuglevel> 
+          <debuglevel>lines,vars,source</debuglevel>
         </configuration>
       </plugin>
       <plugin>

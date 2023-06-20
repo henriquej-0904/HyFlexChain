@@ -17,30 +17,29 @@ public class BlockmessWrapper
 {
     private static final byte[] EMPTY = new byte[0];
 
-    protected final DataInputStream input;
+    protected DataInputStream input;
 
-    protected final DataOutputStream output;
+    protected DataOutputStream output;
 
-    protected Blockmess blockmess;
+    protected final Blockmess blockmess;
 
     /**
      * Initialize the wrapper and the underlying Blockmess
      * @param input The stream to read input from
      * @param output The stream to write the output
      */
-    public BlockmessWrapper(InputStream input, OutputStream output) {
-        this.input = new DataInputStream(input);
-        this.output = new DataOutputStream(output);
+    public BlockmessWrapper(String[] blockmessProps) {
+        this.blockmess = new Blockmess(blockmessProps);
     }
 
     /**
      * Start waiting for requests in the input stream.
      * @throws IOException
      */
-    public void start(String[] blockmessProps) throws IOException
+    public void start(InputStream input, OutputStream output) throws IOException
     {
-        if (this.blockmess == null)
-            this.blockmess = new Blockmess(blockmessProps);
+        this.input = new DataInputStream(input);
+        this.output = new DataOutputStream(output);
 
         while (true) {
             waitAndSubmitOperation();
@@ -72,13 +71,16 @@ public class BlockmessWrapper
      */
     protected void processOperation(byte[] operation)
     {
-        if (operation.length == 0)
+        if (operation.length == 0 || this.output == null)
             return;
 
         try {
             this.output.writeInt(operation.length);
             this.output.write(operation);
-        } catch (IOException e) {
+        } catch (Exception e) {
+            this.input = null;
+            this.output = null;
+            
             e.printStackTrace();
         }
     }

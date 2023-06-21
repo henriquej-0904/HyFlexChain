@@ -6,11 +6,11 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>pt.unl.fct.di.blockmess.wrapper</groupId>
-  <artifactId>Blockmess-Wrapper</artifactId>
+  <artifactId>Blockmess-Wrapper-Client</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>Blockmess-Wrapper</name>
+  <name>Blockmess-Wrapper-Client</name>
   <!-- FIXME change it to the project's website -->
   <url>http://www.example.com</url>
 
@@ -24,55 +24,16 @@
   <repositories>
     <repository>
       <id>blockmess_lib</id>
-      <url>file:///${project.basedir}/../dependencies/blockmess_lib</url>
+      <url>file:///${project.basedir}/../../dependencies/blockmess_lib</url>
     </repository>
   </repositories>
 
   <dependencies>
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-lang3</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.bouncycastle</groupId>
-      <artifactId>bcprov-jdk15on</artifactId>
-      <version>1.70</version>
-    </dependency>
-    <dependency>
-      <groupId>org.bouncycastle</groupId>
-      <artifactId>bcpkix-jdk15on</artifactId>
-      <version>1.70</version>
-    </dependency>
-    <dependency>
-      <groupId>org.bouncycastle</groupId>
-      <artifactId>bcutil-jdk15on</artifactId>
-      <version>1.70</version>
-    </dependency>
-    <dependency>
-      <groupId>org.bouncycastle</groupId>
-      <artifactId>bcprov-ext-jdk15on</artifactId>
-      <version>1.70</version>
-    </dependency>
-
-    <!-- Dependencies for blockmess-->
-    <dependency>
-      <groupId>blockmess</groupId>
-      <artifactId>Blockmess_Simple_PoET</artifactId>
-      <version>1.0-SNAPSHOT</version>
-    </dependency>
 
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-simple</artifactId>
       <version>1.7.32</version>
-    </dependency>
-
-    <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-core</artifactId>
-      <version>2.20.0</version>
     </dependency>
 
     <dependency>
@@ -86,22 +47,9 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-lang3</artifactId>
-        <version>3.12.0</version>
-      </dependency>
-
-      <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-simple</artifactId>
         <version>1.7.32</version>
-      </dependency>
-
-      <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
-      <dependency>
-        <groupId>org.apache.logging.log4j</groupId>
-        <artifactId>log4j-core</artifactId>
-        <version>2.20.0</version>
       </dependency>
 
       <dependency>
@@ -190,7 +138,7 @@
         <configuration>
           <images>
             <image>
-              <name>henriquej0904/blockmess-wrapper</name>
+              <name>henriquej0904/blockmess-wrapper-client</name>
               <build>
                 <dockerFile>${project.basedir}/Dockerfile</dockerFile>
               </build>

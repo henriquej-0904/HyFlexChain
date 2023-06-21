@@ -4,7 +4,8 @@
 
 replicaId=$1
 
-blockmess_port=`expr 18000 + $replicaId`
+blockmess_port=`expr 10000 + $replicaId`
+blockmess_wrapper_port=`expr 18000 + $replicaId`
 
 network_name=blockmess_wrapper
 
@@ -21,7 +22,7 @@ docker run --rm -d --name $replica_name -h $replica_name  \
 	-v "$(pwd)/blockmess/config:/app/config" \
 	-v "$(pwd)/blockmess/keys:/app/keys" \
 	-v "$(pwd)/blockmess/logs:/app/blockmess-logs" \
-	henriquej0904/blockmess-wrapper \
+	henriquej0904/blockmess-wrapper-server \
 	pt.unl.fct.di.blockmess.wrapper.server.tcp.BlockmessWrapperServerTCP \
-	$blockmess_port interface=$interface address=$address contact=$contact
+	$blockmess_wrapper_port interface=$interface address=$address port=$blockmess_port contact=$contact
 

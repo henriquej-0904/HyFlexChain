@@ -10,6 +10,8 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import applicationInterface.ApplicationInterface;
 
@@ -18,7 +20,9 @@ import applicationInterface.ApplicationInterface;
  */
 public class BlockmessWrapperServer
 {
-    private static final byte[] EMPTY = new byte[0];
+    protected static final Logger LOG = LoggerFactory.getLogger(BlockmessWrapperServer.class);
+
+    private static final byte[] TRUE = new byte[] {1};
 
     protected DataInputStream input;
 
@@ -47,6 +51,8 @@ public class BlockmessWrapperServer
      */
     public void start(InputStream input, OutputStream output) throws IOException
     {
+        // LOG.info("Before lock");
+
         this.lock.lock();
 
         this.input = new DataInputStream(input);
@@ -54,7 +60,11 @@ public class BlockmessWrapperServer
 
         this.waitForStream.signalAll();
 
+        // LOG.info("After signal");
+
         this.lock.unlock();
+
+        // LOG.info("After lock");
 
         while (true) {
             waitAndSubmitOperation();
@@ -91,11 +101,13 @@ public class BlockmessWrapperServer
 
         while (true) {
 
-            var oldOutput = this.output;
+            var output = this.output;
 
             try {
-                oldOutput.writeInt(operation.length);
-                oldOutput.write(operation);
+                output.writeInt(operation.length);
+                output.write(operation);
+                
+                // LOG.info("Sent operation");
                 return;
                 
             } catch (Exception e) {
@@ -104,14 +116,17 @@ public class BlockmessWrapperServer
                 // failed
                 this.lock.lock();
 
-                if (oldOutput == this.output)
+                if (output == this.output)
                 {
                     try {
+                        // LOG.info("Waiting for streams to become available");
                         this.waitForStream.await();
                     } catch (InterruptedException e1) {
                         e1.printStackTrace();
                     }
                 }
+
+                LOG.info("Streams are available lock");
 
                 this.lock.unlock();
             }
@@ -126,8 +141,10 @@ public class BlockmessWrapperServer
 
         @Override
         public byte[] processOperation(byte[] operation) {
+            // LOG.info("called process operation");
+
             BlockmessWrapperServer.this.processOperation(operation);
-            return EMPTY;
+            return TRUE;
         }
     }
 

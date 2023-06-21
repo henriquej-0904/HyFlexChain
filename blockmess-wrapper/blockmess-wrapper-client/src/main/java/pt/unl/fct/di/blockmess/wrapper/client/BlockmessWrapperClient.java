@@ -43,7 +43,7 @@ public abstract class BlockmessWrapperClient {
         if (operation.length == 0)
             return;
 
-        var oldOutput = this.output;
+        var output = this.output;
 
         while (true) {
             try {
@@ -55,7 +55,7 @@ public abstract class BlockmessWrapperClient {
                 // failed
                 this.lock.lock();
 
-                if (oldOutput == this.output)
+                if (output == this.output)
                     reset();
 
                 this.lock.unlock();
@@ -92,13 +92,13 @@ public abstract class BlockmessWrapperClient {
     protected byte[] receiveOrderedOperation() {
         while (true) {
 
-            var oldInput = this.input;
+            var input = this.input;
 
             try {
-                int count = oldInput.readInt();
+                int count = input.readInt();
                 byte[] operation = new byte[count];
 
-                oldInput.readFully(operation);
+                input.readFully(operation);
                 return operation;
 
             } catch (Exception e) {
@@ -107,7 +107,7 @@ public abstract class BlockmessWrapperClient {
                 // failed
                 this.lock.lock();
 
-                if (oldInput == this.input)
+                if (input == this.input)
                     reset();
 
                 this.lock.unlock();

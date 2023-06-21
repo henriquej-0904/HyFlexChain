@@ -40,18 +40,6 @@ public class PowConsensus extends ConsensusInterface
 
 	protected static final ConsensusMechanism POW = ConsensusMechanism.PoW;
 
-    /**
-     * @return the blockmess
-     */
-    public BlockmessConnector getBlockmess() {
-        return blockmess;
-    }
-
-    public void setBlockmess(BlockmessConnector blockmess)
-    {
-        this.blockmess = blockmess;
-    }
-
 	protected BlockmessConnector blockmess;
 
     public PowConsensus(LedgerViewInterface lvi)

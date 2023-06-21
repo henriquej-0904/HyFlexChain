@@ -1,10 +1,13 @@
-package pt.unl.fct.di.blockmess.wrapper;
+package pt.unl.fct.di.blockmess.wrapper.server;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -13,13 +16,17 @@ import applicationInterface.ApplicationInterface;
 /**
  * A wrapper for the blockmess system.
  */
-public class BlockmessWrapper
+public class BlockmessWrapperServer
 {
     private static final byte[] EMPTY = new byte[0];
 
     protected DataInputStream input;
 
     protected DataOutputStream output;
+
+    protected final Lock lock;
+
+    protected final Condition waitForStream;
 
     protected final Blockmess blockmess;
 
@@ -28,7 +35,9 @@ public class BlockmessWrapper
      * @param input The stream to read input from
      * @param output The stream to write the output
      */
-    public BlockmessWrapper(String[] blockmessProps) {
+    public BlockmessWrapperServer(String[] blockmessProps) {
+        this.lock = new ReentrantLock();
+        this.waitForStream = this.lock.newCondition();
         this.blockmess = new Blockmess(blockmessProps);
     }
 
@@ -38,8 +47,14 @@ public class BlockmessWrapper
      */
     public void start(InputStream input, OutputStream output) throws IOException
     {
+        this.lock.lock();
+
         this.input = new DataInputStream(input);
         this.output = new DataOutputStream(output);
+
+        this.waitForStream.signalAll();
+
+        this.lock.unlock();
 
         while (true) {
             waitAndSubmitOperation();
@@ -71,17 +86,35 @@ public class BlockmessWrapper
      */
     protected void processOperation(byte[] operation)
     {
-        if (operation.length == 0 || this.output == null)
+        if (operation.length == 0)
             return;
 
-        try {
-            this.output.writeInt(operation.length);
-            this.output.write(operation);
-        } catch (Exception e) {
-            this.input = null;
-            this.output = null;
-            
-            e.printStackTrace();
+        while (true) {
+
+            var oldOutput = this.output;
+
+            try {
+                oldOutput.writeInt(operation.length);
+                oldOutput.write(operation);
+                return;
+                
+            } catch (Exception e) {
+                e.printStackTrace();
+
+                // failed
+                this.lock.lock();
+
+                if (oldOutput == this.output)
+                {
+                    try {
+                        this.waitForStream.await();
+                    } catch (InterruptedException e1) {
+                        e1.printStackTrace();
+                    }
+                }
+
+                this.lock.unlock();
+            }
         }
     }
 
@@ -93,7 +126,7 @@ public class BlockmessWrapper
 
         @Override
         public byte[] processOperation(byte[] operation) {
-            BlockmessWrapper.this.processOperation(operation);
+            BlockmessWrapperServer.this.processOperation(operation);
             return EMPTY;
         }
     }

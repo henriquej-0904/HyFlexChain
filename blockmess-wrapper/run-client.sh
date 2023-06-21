@@ -10,6 +10,6 @@ docker run --rm -it  \
 	-v "$(pwd)/blockmess/keys:/app/keys" \
 	-v "$(pwd)/blockmess/logs:/app/blockmess-logs" \
 	henriquej0904/blockmess-wrapper \
-	'pt.unl.fct.di.blockmess.wrapper.tcp.BlockmessWrapperTCP$TestWrapper' \
+	'pt.unl.fct.di.blockmess.wrapper.client.tcp.BlockmessWrapperClientTCP$TestClientWrapper' \
 	$@
 

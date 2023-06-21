@@ -1,4 +1,4 @@
-package pt.unl.fct.di.blockmess.wrapper.tcp;
+package pt.unl.fct.di.blockmess.wrapper.server.tcp;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -9,13 +9,13 @@ import java.util.Arrays;
 import java.util.Random;
 import java.util.Scanner;
 
-import pt.unl.fct.di.blockmess.wrapper.BlockmessWrapper;
+import pt.unl.fct.di.blockmess.wrapper.server.BlockmessWrapperServer;
 
-public class BlockmessWrapperTCP {
+public class BlockmessWrapperServerTCP {
     public static void main(String[] args) {
 
         String[] blockmessProps = Arrays.copyOfRange(args, 1, args.length, String[].class);
-        BlockmessWrapper blockmess = new BlockmessWrapper(blockmessProps);
+        BlockmessWrapperServer blockmess = new BlockmessWrapperServer(blockmessProps);
         
         try (ServerSocket server = new ServerSocket(Integer.parseInt(args[0])))
         {

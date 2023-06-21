@@ -22,6 +22,6 @@ docker run --rm -d --name $replica_name -h $replica_name  \
 	-v "$(pwd)/blockmess/keys:/app/keys" \
 	-v "$(pwd)/blockmess/logs:/app/blockmess-logs" \
 	henriquej0904/blockmess-wrapper \
-	pt.unl.fct.di.blockmess.wrapper.tcp.BlockmessWrapperTCP \
+	pt.unl.fct.di.blockmess.wrapper.server.tcp.BlockmessWrapperServerTCP \
 	$blockmess_port interface=$interface address=$address contact=$contact
 

@@ -4,7 +4,7 @@ import java.util.List;
 
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.consensus.committees.Committee;
-import pt.unl.fct.di.hyflexchain.planes.consensus.pow.PowCommittee;
+import pt.unl.fct.di.hyflexchain.planes.consensus.mechanisms.pow.PowCommittee;
 
 public class PowLVI extends LedgerViewConsensusImpl {
 

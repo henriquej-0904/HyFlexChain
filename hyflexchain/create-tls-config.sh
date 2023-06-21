@@ -26,7 +26,7 @@ do
     mkdir -p $replicaFolder
 
     # Generate key pair
-    keytool -genkeypair -groupname secp256r1 -sigalg SHA256withECDSA -keyalg EC -alias $replicaAlias -validity 365 -dname "CN=itdlp,OU=,O=itdlp,L=Lisbon,ST=Lisbon,C=PT" -storetype pkcs12 -keystore $replicaFolder/keystore.pkcs12 -storepass $keystorepass -keypass $keystorepass
+    keytool -genkeypair -groupname secp521r1 -sigalg SHA256withECDSA -keyalg EC -alias $replicaAlias -validity 365 -dname "CN=itdlp,OU=,O=itdlp,L=Lisbon,ST=Lisbon,C=PT" -storetype pkcs12 -keystore $replicaFolder/keystore.pkcs12 -storepass $keystorepass -keypass $keystorepass
 
     # Export certificate
     keytool -export -alias $replicaAlias -keystore $replicaFolder/keystore.pkcs12 -storepass $keystorepass -file $replicaFolder/certificate.pem

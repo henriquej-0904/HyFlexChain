@@ -1,4 +1,4 @@
-package pt.unl.fct.di.hyflexchain.planes.consensus.pow;
+package pt.unl.fct.di.hyflexchain.planes.consensus.mechanisms.pow;
 
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.consensus.committees.Committee;

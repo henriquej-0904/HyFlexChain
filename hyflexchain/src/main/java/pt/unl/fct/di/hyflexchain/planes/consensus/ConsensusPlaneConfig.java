@@ -4,7 +4,7 @@ import java.util.EnumMap;
 import java.util.stream.Collectors;
 
 import pt.unl.fct.di.hyflexchain.planes.application.lvi.LedgerViewInterface;
-import pt.unl.fct.di.hyflexchain.planes.consensus.pow.PowConsensus;
+import pt.unl.fct.di.hyflexchain.planes.consensus.mechanisms.pow.PowConsensus;
 import pt.unl.fct.di.hyflexchain.util.config.MultiLedgerConfig;
 
 /**

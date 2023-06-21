@@ -1,4 +1,4 @@
-package pt.unl.fct.di.hyflexchain.planes.consensus.pow;
+package pt.unl.fct.di.hyflexchain.planes.consensus.mechanisms.pow;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -39,18 +39,6 @@ public class PowConsensus extends ConsensusInterface
 	private static final String COMMITTEE_BLOCK_HASH = "";
 
 	protected static final ConsensusMechanism POW = ConsensusMechanism.PoW;
-
-    /**
-     * @return the blockmess
-     */
-    public BlockmessConnector getBlockmess() {
-        return blockmess;
-    }
-
-    public void setBlockmess(BlockmessConnector blockmess)
-    {
-        this.blockmess = blockmess;
-    }
 
 	protected BlockmessConnector blockmess;
 

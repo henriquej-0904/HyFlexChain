@@ -1,4 +1,4 @@
-package pt.unl.fct.di.hyflexchain.planes.consensus.pow;
+package pt.unl.fct.di.hyflexchain.planes.consensus.mechanisms.pow;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

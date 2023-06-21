@@ -4,6 +4,7 @@ import java.util.EnumMap;
 import java.util.stream.Collectors;
 
 import pt.unl.fct.di.hyflexchain.planes.application.lvi.LedgerViewInterface;
+import pt.unl.fct.di.hyflexchain.planes.consensus.mechanisms.pbft.BftSmartConsensus;
 import pt.unl.fct.di.hyflexchain.planes.consensus.mechanisms.pow.PowConsensus;
 import pt.unl.fct.di.hyflexchain.util.config.MultiLedgerConfig;
 
@@ -46,6 +47,8 @@ public class ConsensusPlaneConfig {
 		return switch (consensus) {
 			case PoW ->
 				new PowConsensus(LedgerViewInterface.getInstance());
+			case BFT_SMaRt ->
+				new BftSmartConsensus(LedgerViewInterface.getInstance());
 		};
 	}
 

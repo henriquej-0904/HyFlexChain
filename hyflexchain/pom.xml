@@ -31,6 +31,11 @@
       <id>besu</id>
       <url>https://hyperledger.jfrog.io/artifactory/besu-maven/</url>
     </repository>
+
+    <repository>
+      <id>bft_smart</id>
+      <url>https://maven.scijava.org/content/repositories/public/</url>
+    </repository>
   </repositories>
 
   <dependencies>
@@ -142,6 +147,13 @@
       <groupId>com.fasterxml.jackson.datatype</groupId>
       <artifactId>jackson-datatype-jdk8</artifactId>
       <version>2.15.0-rc1</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/com.github.bft-smart/library -->
+    <dependency>
+      <groupId>com.github.bft-smart</groupId>
+      <artifactId>library</artifactId>
+      <version>1.2</version>
     </dependency>
 
     <dependency>

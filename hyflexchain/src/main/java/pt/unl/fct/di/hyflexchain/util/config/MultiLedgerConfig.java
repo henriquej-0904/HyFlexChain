@@ -158,7 +158,7 @@ public class MultiLedgerConfig
 	{
 		this.generalConfig = generalConfig;
 		this.configsPerConsensusType = configsPerConsensusType;
-		this.ledgerConfigs = Stream.of(ConsensusMechanism.values())
+		this.ledgerConfigs = configsPerConsensusType.keySet().stream()
 			.collect(
 				Collectors.toMap(
 					(c) -> c,

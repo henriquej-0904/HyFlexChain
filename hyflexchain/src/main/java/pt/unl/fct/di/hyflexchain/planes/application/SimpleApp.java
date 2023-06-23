@@ -20,7 +20,7 @@ import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.TransactionId;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.TxInput;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.UTXO;
-import pt.unl.fct.di.hyflexchain.util.Crypto;
+import pt.unl.fct.di.hyflexchain.util.crypto.Crypto;
 
 public class SimpleApp extends ApplicationInterface
 {

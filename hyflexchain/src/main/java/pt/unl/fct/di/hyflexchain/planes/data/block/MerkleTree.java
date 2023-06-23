@@ -4,10 +4,9 @@ import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Queue;
 
-import static pt.unl.fct.di.hyflexchain.util.Crypto.getSha256Digest;
-
 import static pt.unl.fct.di.hyflexchain.util.Utils.fromHex;
 import static pt.unl.fct.di.hyflexchain.util.Utils.toHex;
+import static pt.unl.fct.di.hyflexchain.util.crypto.Crypto.getSha256Digest;
 
 /**
  * A Merkle Tree for transactions in a block.

@@ -23,7 +23,7 @@ docker run --rm -d --name $replica_name -h $replica_name  \
 	-v "$(pwd)/blockmess/config:/app/config" \
 	-v "$(pwd)/blockmess/keys:/app/keys" \
 	-v "$(pwd)/blockmess/logs:/app/blockmess-logs" \
-	-v "$(pwd)/config:/app/hyflexchain-config" \
+	-v "$(pwd)/hyflexchain-config:/app/hyflexchain-config" \
 	henriquej0904/hyflexchain \
 	java -cp hyflexchain.jar pt.unl.fct.di.hyflexchain.api.rest.impl.server.HyFlexChainServer \
 	$replicaId $server_port /app/hyflexchain-config \

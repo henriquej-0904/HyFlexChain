@@ -2,6 +2,7 @@
 
 const { generateKeyPairSync, createPublicKey, createPrivateKey, createSign, createHash, Hash } = require('node:crypto');
 const KeyPair = require("./KeyPair");
+const Buffer = require('buffer').Buffer;
 
 /**
  * A crypto utils class
@@ -32,12 +33,14 @@ class Crypto
 	 */
 	encodePublicKey(pubKey)
 	{
-		return pubKey.export(
+		let res = pubKey.export(
 			{
 				type: "spki",
-				format: "pem"
+				format: "der"
 			}
 		);
+
+		return res.toString('hex');
 	}
 
 	/**
@@ -60,7 +63,7 @@ class Crypto
 	/**
 	 * Encode a key pair
 	 * @param {KeyPair} keyPair 
-	 * @returns {string[]} an encoded format of the key
+	 * @returns {object[]} an encoded format of the key
 	 */
 	encodeKeyPair(keyPair)
 	{
@@ -78,11 +81,13 @@ class Crypto
 	 */
 	decodePublicKey(pubKey)
 	{
+		let key = Buffer.from(pubKey, 'hex');
+
 		return createPublicKey(
 			{
-				key: pubKey,
+				key: key,
 				type: "spki",
-				format: "pem"
+				format: "der"
 			}
 		);
 	}

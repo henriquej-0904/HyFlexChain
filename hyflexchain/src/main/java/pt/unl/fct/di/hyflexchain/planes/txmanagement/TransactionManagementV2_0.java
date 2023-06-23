@@ -3,7 +3,6 @@ package pt.unl.fct.di.hyflexchain.planes.txmanagement;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
-import java.security.spec.InvalidKeySpecException;
 import java.util.EnumMap;
 
 import org.slf4j.Logger;
@@ -12,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import pt.unl.fct.di.hyflexchain.planes.application.ti.InvalidTransactionException;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
+import pt.unl.fct.di.hyflexchain.planes.data.transaction.InvalidAddressException;
 import pt.unl.fct.di.hyflexchain.planes.execution.ExecutionPlane;
 import pt.unl.fct.di.hyflexchain.planes.execution.contracts.InvalidSmartContractException;
 import pt.unl.fct.di.hyflexchain.planes.execution.contracts.TransactionParamsContract.TransactionParamsContractResult;
@@ -74,7 +74,7 @@ public class TransactionManagementV2_0 implements TransactionManagement
 				throw new InvalidTransactionException(msg);
 			}
 				
-		} catch (InvalidKeyException | InvalidKeySpecException |
+		} catch (InvalidAddressException | InvalidKeyException |
 				NoSuchAlgorithmException | SignatureException e) {
 			LOGGER.info(e.getMessage());
 			throw new InvalidTransactionException(e.getMessage(), e);

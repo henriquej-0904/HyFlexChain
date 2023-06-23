@@ -44,8 +44,8 @@ class CreateTransactionWithScWorkload extends WorkloadModuleBase {
      * @return {Promise<TxStatus[]>}
      */
     async submitTransaction() {
-        const originPubKey = "EC;" + this.sutContext.encodedPublicKey;
-        const destPubKey = "EC;" + this.getRandPubKey();
+        const originPubKey = "0x01" + this.sutContext.encodedPublicKey;
+        const destPubKey = this.getRandPubKey();
         const val = Util.getRandomInt32();
 
         const inputTxs = [HyFlexChainTransaction.createInputTx(this.getRandPubKey(), "some hash", 0)];
@@ -67,7 +67,7 @@ class CreateTransactionWithScWorkload extends WorkloadModuleBase {
     {
         const pubKeys = this.sutContext.encodedPublicKeys;
         const i = Util.getRandomIntExcept(0, pubKeys.length, this.workerIndex);
-        return "EC;" + pubKeys[i];
+        return "0x01" + pubKeys[i];
     }
 }
 

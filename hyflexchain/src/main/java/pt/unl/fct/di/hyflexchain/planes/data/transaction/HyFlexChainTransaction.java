@@ -7,12 +7,11 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
-import java.security.spec.InvalidKeySpecException;
 import java.util.function.Consumer;
 
 import pt.unl.fct.di.hyflexchain.util.Bytes;
-import pt.unl.fct.di.hyflexchain.util.Crypto;
 import pt.unl.fct.di.hyflexchain.util.Utils;
+import pt.unl.fct.di.hyflexchain.util.crypto.Crypto;
 
 /**
  * Represents a HyFlexChain Transaction
@@ -108,14 +107,14 @@ public class HyFlexChainTransaction {
 		return sigRes;
     }
 
-	public boolean verifySignature() throws InvalidKeySpecException, NoSuchAlgorithmException, InvalidKeyException, SignatureException
+	public boolean verifySignature() throws InvalidAddressException, NoSuchAlgorithmException, InvalidKeyException, SignatureException
     {
         var key = this.sender.readPublicKey();
 		var sigAlg = this.signatureType;
 		return verifySignature(key, sigAlg);
     }
 
-	protected boolean verifySignature(PublicKey key, String sigAlg) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException
+	public boolean verifySignature(PublicKey key, String sigAlg) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException
     {
         Signature signature = Crypto.createSignatureInstance(sigAlg);
         signature.initVerify(key);

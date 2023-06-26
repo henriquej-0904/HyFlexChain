@@ -4,10 +4,10 @@
     },
     "blockmess": {
         "url": [
-            "http://localhost:10800/api/rest",
-            "http://localhost:10801/api/rest",
-            "http://localhost:10802/api/rest",
-            "http://localhost:10803/api/rest"
+            "http://localhost:18000/api/rest",
+            "http://localhost:18001/api/rest",
+            "http://localhost:18002/api/rest",
+            "http://localhost:18003/api/rest"
         ],
         "connection_timeout" : "60000",
         "blockmess_config_folder" : ""

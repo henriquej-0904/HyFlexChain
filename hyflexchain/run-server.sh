@@ -5,7 +5,7 @@
 replicaId=$1
 
 blockmess_port=`expr 10000 + $replicaId`
-server_port=`expr 10800 + $replicaId`
+server_port=`expr 18000 + $replicaId`
 
 network_name=hyflexchain
 

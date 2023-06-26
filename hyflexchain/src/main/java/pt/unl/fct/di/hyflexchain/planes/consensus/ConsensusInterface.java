@@ -68,7 +68,22 @@ public abstract class ConsensusInterface
 	 * consensus implementation.
 	 * @param block The block to order.
 	 */
-	public abstract void orderBlock(HyFlexChainBlock block);
+	// public abstract void orderBlock(HyFlexChainBlock block);
+
+	/**
+	 * Order a block body (set of transactions) according to this specific
+	 * consensus implementation.
+	 * @param blockBody The block body to order.
+	 */
+	public abstract void orderTxs(BlockBody blockBody);
+
+	/**
+	 * Create a block for this consensus mechanism ready
+	 * to be proposed for ordering.
+	 * @param body The body of the block which includes the transactions.
+	 * @return A new created block with the specified block body
+	 */
+	protected abstract HyFlexChainBlock createBlock(BlockBody body);
 
 	/**
 	 * Create a block for this consensus mechanism ready
@@ -76,7 +91,10 @@ public abstract class ConsensusInterface
 	 * @param txs The list of transactions that will be included in the created block.
 	 * @return A new created block with the specified list of transactions.
 	 */
-	protected abstract HyFlexChainBlock createBlock(LinkedHashMap<String, HyFlexChainTransaction> txs);
+	protected HyFlexChainBlock createBlock(LinkedHashMap<String, HyFlexChainTransaction> txs)
+	{
+		return createBlock(BlockBody.from(txs));
+	}
 
 	/**
 	 * Verify a block when for integrity and all necessary

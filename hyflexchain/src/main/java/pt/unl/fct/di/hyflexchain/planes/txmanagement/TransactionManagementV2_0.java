@@ -42,10 +42,10 @@ public class TransactionManagementV2_0 implements TransactionManagement
 	}
 
 	@Override
-	public TxPool getTxPool(ConsensusMechanism consensus) throws InvalidTransactionException {
+	public TxPool getTxPool(ConsensusMechanism consensus) {
         TxPool pool = this.txPools.get(consensus);
         if (pool == null)
-		    throw new InvalidTransactionException("Consensus mechanism not supported: " + consensus.getConsensus());
+		    throw new Error("Consensus mechanism not supported: " + consensus.getConsensus());
 
         return pool;
 	}

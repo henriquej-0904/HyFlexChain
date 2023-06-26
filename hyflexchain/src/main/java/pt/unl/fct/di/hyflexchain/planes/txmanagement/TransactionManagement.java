@@ -22,7 +22,7 @@ public interface TransactionManagement {
 	 * @return the transaction pool for the specified consensus
 	 * mechanism.
 	 */
-	TxPool getTxPool(ConsensusMechanism consensus) throws InvalidTransactionException;
+	TxPool getTxPool(ConsensusMechanism consensus);
 
 	/**
 	 * Verifies if a transaction is valid, the cryptographic signature is correct

@@ -84,6 +84,13 @@
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
     </dependency>
+    <!-- https://mvnrepository.com/artifact/commons-codec/commons-codec -->
+    <dependency>
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
+      <version>1.16.0</version>
+    </dependency>
+
 
     <dependency>
       <groupId>org.bouncycastle</groupId>
@@ -154,6 +161,8 @@
       <groupId>com.github.bft-smart</groupId>
       <artifactId>library</artifactId>
       <version>1.2</version>
+      <scope>system</scope>
+      <systemPath>${project.basedir}/lib-bft-smart/BFT-SMaRt.jar</systemPath>
     </dependency>
 
     <dependency>

@@ -5,6 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.UUID;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -136,7 +137,16 @@ public class BlockmessWrapperServer
     protected class Blockmess extends ApplicationInterface {
 
         public Blockmess(@NotNull String[] blockmessProperties) {
-            super(blockmessProperties);
+            super(concat(blockmessProperties,
+                new String[]{"genesisUUID=" + UUID.randomUUID()}));
+        }
+
+        protected static String[] concat(String[] array1, String[] array2)
+        {
+            var res = new String[array1.length + array2.length];
+            System.arraycopy(array1, 0, res, 0, array1.length);
+            System.arraycopy(array2, 0, res, array1.length, array2.length);
+            return res;
         }
 
         @Override

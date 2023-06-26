@@ -1,5 +1,7 @@
 package pt.unl.fct.di.hyflexchain.util.config;
 
+import java.io.File;
+
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 
 /**
@@ -24,6 +26,11 @@ public class LedgerConfig {
 	protected LedgerConfig(MultiLedgerConfig allConfigs, ConsensusMechanism consensus) {
 		this.allConfigs = allConfigs;
 		this.consensus = consensus;
+	}
+
+	public File getConfigFolder()
+	{
+		return new File(getConfigValue(CONFIG.CONFIG_FOLDER.toString()));
 	}
 
 	
@@ -83,7 +90,12 @@ public class LedgerConfig {
 		/**
 		 * The maximum time to wait when creating a block of transactions.
 		 */
-		CREATE_BLOCK_TIME
+		CREATE_BLOCK_TIME,
+
+		/**
+		 * The configuration folder for this consensus mechanism.
+		 */
+		CONFIG_FOLDER
 	}
 	
 

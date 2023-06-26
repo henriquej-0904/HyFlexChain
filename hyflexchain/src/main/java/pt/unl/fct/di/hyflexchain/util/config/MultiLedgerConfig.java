@@ -4,6 +4,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.security.KeyPair;
+import java.security.KeyStore;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Map;
@@ -19,7 +23,9 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
+import pt.unl.fct.di.hyflexchain.planes.data.transaction.Address;
 import pt.unl.fct.di.hyflexchain.util.SystemVersion;
+import pt.unl.fct.di.hyflexchain.util.crypto.Crypto;
 
 /**
  * The parameters for the ledger.
@@ -67,10 +73,12 @@ public class MultiLedgerConfig
 		{
 			var consensusFolder = new File(configFolder, consensus.toString().toLowerCase());
 			var props = getProperties(new File(consensusFolder, DEFAULT_FILE_CONSENSUS_CONFIG.get(consensus)));
+			props.setProperty(LedgerConfig.CONFIG.CONFIG_FOLDER.toString(), consensusFolder.getAbsolutePath());
+			
 			consensusProps.put(consensus, props);
 		}
 
-		return init(generalConfig, consensusProps);
+		return init(configFolder, generalConfig, consensusProps);
 	}
 
 	
@@ -93,10 +101,10 @@ public class MultiLedgerConfig
 	 * @param configsPerConsensusType A config
 	 * for each consensus type.
 	 */
-	public static MultiLedgerConfig init(Properties generalConfig,
+	public static MultiLedgerConfig init(File configFolder, Properties generalConfig,
 		EnumMap<ConsensusMechanism, Properties> configsPerConsensusType)
 	{
-		config = new MultiLedgerConfig(generalConfig, configsPerConsensusType);
+		config = new MultiLedgerConfig(configFolder, generalConfig, configsPerConsensusType);
 		return config;
 	}
 
@@ -105,9 +113,9 @@ public class MultiLedgerConfig
 	 * 
 	 * @param generalConfig A general config of the ledger
 	 */
-	public static void init(Properties generalConfig)
+	public static void init(File configFolder, Properties generalConfig)
 	{
-		init(generalConfig, new EnumMap<>(ConsensusMechanism.class));
+		init(configFolder, generalConfig, new EnumMap<>(ConsensusMechanism.class));
 	}
 
 	/**
@@ -131,7 +139,7 @@ public class MultiLedgerConfig
 
 		try {
 			for (String consensus : consensusList) {
-				consensusSet.add(ConsensusMechanism.valueOf(consensus));
+				consensusSet.add(ConsensusMechanism.parse(consensus));
 			}
 		} catch (Exception e) {
 			throw new Error("Configuration: ACTIVE_CONSENSUS is required! Invalid config...", e);
@@ -140,11 +148,16 @@ public class MultiLedgerConfig
 		return consensusSet;
 	}
 
+	protected File configFolder;
+
 	protected Properties generalConfig;
 
 	protected EnumMap<ConsensusMechanism, Properties> configsPerConsensusType;
 
 	protected EnumMap<ConsensusMechanism, LedgerConfig> ledgerConfigs;
+
+	protected KeyPair selfKey;
+	protected Address selfAddress;
 
 	/**
 	 * Create a Ledger config object
@@ -153,9 +166,10 @@ public class MultiLedgerConfig
 	 * @param configsPerConsensusType A config
 	 * for each consensus type.
 	 */
-	protected MultiLedgerConfig(Properties generalConfig,
+	protected MultiLedgerConfig(File configFolder,  Properties generalConfig,
 		EnumMap<ConsensusMechanism, Properties> configsPerConsensusType)
 	{
+		this.configFolder = configFolder;
 		this.generalConfig = generalConfig;
 		this.configsPerConsensusType = configsPerConsensusType;
 		this.ledgerConfigs = configsPerConsensusType.keySet().stream()
@@ -167,6 +181,9 @@ public class MultiLedgerConfig
 					() -> new EnumMap<ConsensusMechanism, LedgerConfig>(ConsensusMechanism.class)
 				)
 			);
+
+		this.selfKey = getSelfKeyPairFromKeystore();
+		this.selfAddress = Address.fromPubKey(this.selfKey.getPublic());
 	}
 
 	/**
@@ -223,6 +240,11 @@ public class MultiLedgerConfig
 		return this.ledgerConfigs.get(consensus);
 	}
 
+	public File getConfigFolder()
+	{
+		return this.configFolder;
+	}
+
 	/**
 	 * Get the value of the specified key
 	 * @param key The key to search for the value
@@ -241,6 +263,21 @@ public class MultiLedgerConfig
 	public String getConfigValue(MultiLedgerConfig.GENERAL_CONFIG key)
 	{
 		return this.generalConfig.getProperty(key.toString());
+	}
+
+	/**
+	 * Get the value of the specified key
+	 * @param key The key to search for the value
+	 * @return The value associated with the specified key or null.
+	 */
+	public String getConfigValueOrThrowError(MultiLedgerConfig.GENERAL_CONFIG key)
+	{
+		var res = this.generalConfig.getProperty(key.toString());
+
+		if (res == null)
+			throw new Error(key + " is not defined in general config file");
+
+		return res;
 	}
 
 	/**
@@ -277,6 +314,41 @@ public class MultiLedgerConfig
 		return EnumSet.copyOf(this.ledgerConfigs.keySet());
 	}
 
+	private KeyPair getSelfKeyPairFromKeystore()
+	{
+		File keystoreFile = new File(getConfigValueOrThrowError(GENERAL_CONFIG.KEYSTORE));
+		String type = getConfigValueOrThrowError(GENERAL_CONFIG.KEYSTORE_TYPE);
+        String password = getConfigValueOrThrowError(GENERAL_CONFIG.KEYSTORE_PASS);
+        String alias = getConfigValueOrThrowError(GENERAL_CONFIG.KEYSTORE_ALIAS);
+
+        KeyStore ks = Crypto.getKeyStore(keystoreFile, password, type);
+
+		try {
+			PublicKey pubKey = ks.getCertificate(alias).getPublicKey();
+			PrivateKey privKey = (PrivateKey) ks.getKey(alias, password.toCharArray());
+
+			return new KeyPair(pubKey, privKey);
+		} catch (Exception e) {
+			throw new Error(e.getMessage(), e);
+		}
+	}
+
+	public KeyPair getSelfKeyPair()
+	{
+		return this.selfKey;
+	}
+
+	public Address getSelfAddress()
+	{
+		return this.selfAddress;
+	}
+
+	
+
+	
+
+	
+
 	/**
 	 * An enum of some General configurations and their type.
 	 */
@@ -288,6 +360,11 @@ public class MultiLedgerConfig
 		SYSTEM_VERSION,
 
 		ACTIVE_CONSENSUS,
+
+		KEYSTORE,
+		KEYSTORE_TYPE,
+		KEYSTORE_ALIAS,
+		KEYSTORE_PASS
 	}
 
 

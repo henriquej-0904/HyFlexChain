@@ -1,4 +1,4 @@
-package pt.unl.fct.di.hyflexchain.planes.consensus.mechanisms.pbft;
+package pt.unl.fct.di.hyflexchain.planes.consensus.mechanisms.bftsmart;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
@@ -11,6 +11,7 @@ import pt.unl.fct.di.blockmess.wrapper.client.tcp.BlockmessWrapperClientTCP;
 import pt.unl.fct.di.hyflexchain.planes.application.lvi.LedgerViewInterface;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusInterface;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
+import pt.unl.fct.di.hyflexchain.planes.data.block.BlockBody;
 import pt.unl.fct.di.hyflexchain.planes.data.block.BlockMetaHeader;
 import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
@@ -44,19 +45,11 @@ public class BftSmartConsensus extends ConsensusInterface
 
 
 
-    @Override
+    /* @Override
     public void orderBlock(HyFlexChainBlock block) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'orderBlock'");
-    }
-
-
-
-    @Override
-    protected HyFlexChainBlock createBlock(LinkedHashMap<String, HyFlexChainTransaction> txs) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'createBlock'");
-    }
+    } */
 
     @Override
 	protected boolean verifyMetaHeader(BlockMetaHeader metaHeader)
@@ -79,6 +72,20 @@ public class BftSmartConsensus extends ConsensusInterface
             throw new UnsupportedOperationException("Unimplemented method 'processOperation'");
         }
         
+    }
+
+
+
+    @Override
+    public void orderTxs(BlockBody blockBody) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'orderTxs'");
+    }
+
+    @Override
+    protected HyFlexChainBlock createBlock(BlockBody body) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'createBlock'");
     }
 
 

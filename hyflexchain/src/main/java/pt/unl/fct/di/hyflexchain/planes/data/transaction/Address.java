@@ -11,8 +11,8 @@ import pt.unl.fct.di.hyflexchain.util.crypto.CryptoAlgorithm;
  * the key pair and the encoded public key.
  * 
  * <p>
- * The format string of an address is:
- * {@code algorithm;hex(encoded_public_key)},
+ * The format string of an address is: <p>
+ * {@code hex( algorithmId;encoded_public_key )},
  * being {@code hex()} a function to convert byte[]
  * to an hexadecimal string.
  */

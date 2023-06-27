@@ -9,7 +9,7 @@ test:
     #     opts:
     #       transactionLoad: 5
     #   workload:
-    #     module: lib/benchmarks/CreateTransactionWithSC.js
+    #     module: lib/benchmarks/CreateTransactionPowWithSC.js
 
     - label: Submit 5000 Transactions 50 tps
       description: Test description for transfering money between accounts.
@@ -20,7 +20,7 @@ test:
         opts:
           tps: 50
       workload:
-        module: lib/benchmarks/CreateTransactionWithSC.js
+        module: lib/benchmarks/CreateTransactionPowWithSC.js
 
     - label: Submit 10000 Transactions 100 tps
       description: Test description for transfering money between accounts.
@@ -31,7 +31,7 @@ test:
         opts:
           tps: 100
       workload:
-        module: lib/benchmarks/CreateTransactionWithSC.js
+        module: lib/benchmarks/CreateTransactionPowWithSC.js
 
     - label: Submit 20000 Transactions 200 tps
       description: Test description for transfering money between accounts.
@@ -42,7 +42,7 @@ test:
         opts:
           tps: 200
       workload:
-        module: lib/benchmarks/CreateTransactionWithSC.js
+        module: lib/benchmarks/CreateTransactionPowWithSC.js
 
     - label: Submit 40000 Transactions 400 tps
       description: Test description for transfering money between accounts.
@@ -53,7 +53,7 @@ test:
         opts:
           tps: 400
       workload:
-        module: lib/benchmarks/CreateTransactionWithSC.js
+        module: lib/benchmarks/CreateTransactionPowWithSC.js
 
     - label: Submit 80000 Transactions 800 tps
       description: Test description for transfering money between accounts.
@@ -64,7 +64,7 @@ test:
         opts:
           tps: 800
       workload:
-        module: lib/benchmarks/CreateTransactionWithSC.js
+        module: lib/benchmarks/CreateTransactionPowWithSC.js
   
 # monitors:
 #   resource:

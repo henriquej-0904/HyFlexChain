@@ -27,7 +27,7 @@ const Buffer = require('buffer').Buffer;
 /**
  * Workload module for the benchmark round.
  */
-class CreateTransactionWithScWorkload extends WorkloadModuleBase {
+class CreateTransactionPowWorkload extends WorkloadModuleBase {
 
     /**
      * Initializes the workload module instance.
@@ -76,7 +76,7 @@ class CreateTransactionWithScWorkload extends WorkloadModuleBase {
  * @return {WorkloadModuleInterface}
  */
 function createWorkloadModule() {
-    return new CreateTransactionWithScWorkload();
+    return new CreateTransactionPowWorkload();
 }
 
 module.exports.createWorkloadModule = createWorkloadModule;

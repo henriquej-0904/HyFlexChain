@@ -28,6 +28,11 @@ public class LedgerConfig {
 		this.consensus = consensus;
 	}
 
+	public MultiLedgerConfig getMultiLedgerConfig()
+    {
+        return this.allConfigs;
+    }
+
 	public File getConfigFolder()
 	{
 		return new File(getConfigValue(CONFIG.CONFIG_FOLDER.toString()));

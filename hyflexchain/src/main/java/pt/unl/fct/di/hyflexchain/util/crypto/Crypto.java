@@ -37,10 +37,10 @@ public class Crypto {
 
     public static final File CONFIG_FOLDER = new File("tls-config");
 
-    public static final String DEFAULT_SIGNATURE_TRANSFORMATION = "SHA256withECDSA";
+    public static final SignatureAlgorithm DEFAULT_SIGNATURE_TRANSFORMATION = SignatureAlgorithm.SHA256withECDSA;
 	public static final String DEFAULT_PROVIDER = "BC";
 
-    public static final String DEFAULT_ASYMMETRIC_ALGORITHM = "EC";
+    public static final String DEFAULT_ASYMMETRIC_ALGORITHM = CryptoAlgorithm.EC.getName();
     public static final AlgorithmParameterSpec DEFAULT_ASYMMETRIC_GEN_KEY_SPEC = new ECGenParameterSpec("secp521r1");
 
 
@@ -129,7 +129,7 @@ public class Crypto {
     public static Signature createSignatureInstance()
     {
         try {
-            return Signature.getInstance(DEFAULT_SIGNATURE_TRANSFORMATION, DEFAULT_PROVIDER);
+            return Signature.getInstance(DEFAULT_SIGNATURE_TRANSFORMATION.getName(), DEFAULT_PROVIDER);
         } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
             throw new Error(e);
         }

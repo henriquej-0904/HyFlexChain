@@ -1,9 +1,12 @@
 package pt.unl.fct.di.hyflexchain.planes.data.transaction;
 
+import java.nio.ByteBuffer;
 import java.security.PublicKey;
 import org.apache.tuweni.bytes.Bytes;
+
 import pt.unl.fct.di.hyflexchain.util.crypto.Crypto;
 import pt.unl.fct.di.hyflexchain.util.crypto.CryptoAlgorithm;
+import pt.unl.fct.di.hyflexchain.util.serializers.BytesSerializer;
 
 /**
  * Represents an address in a transaction.
@@ -17,6 +20,8 @@ import pt.unl.fct.di.hyflexchain.util.crypto.CryptoAlgorithm;
  * to an hexadecimal string.
  */
 public record Address(String address) {
+
+	public static final BytesSerializer<Address> SERIALIZER = new Serializer();
 
 	public PublicKey readPublicKey() throws InvalidAddressException
 	{
@@ -41,6 +46,37 @@ public record Address(String address) {
 		Bytes encodedKey = Bytes.wrap(Crypto.encodePublicKey(key));
 
 		return new Address(Bytes.wrap(algId, encodedKey).toHexString());
+	}
+
+	public static class Serializer implements BytesSerializer<Address> {
+
+		protected BytesSerializer<byte[]> byteArraySerializer =
+			BytesSerializer.primitiveArraySerializer(byte[].class);
+
+		@Override
+		public int serializedSize(Address obj) {
+			return Integer.BYTES + obj.address.length() / 2;
+		}
+
+		@Override
+		public ByteBuffer serialize(Address obj, ByteBuffer buff) {
+			return byteArraySerializer.serialize(
+				Bytes.fromHexString(obj.address).toArrayUnsafe(),
+				buff
+			);
+		}
+
+		@Override
+		public Address deserialize(ByteBuffer buff) {
+			return new Address(
+				Bytes.wrap(byteArraySerializer.deserialize(buff)).toHexString()
+			);
+		}
+
+		@Override
+		public Class<Address> getType() {
+			return Address.class;
+		}
 	}
 
 }

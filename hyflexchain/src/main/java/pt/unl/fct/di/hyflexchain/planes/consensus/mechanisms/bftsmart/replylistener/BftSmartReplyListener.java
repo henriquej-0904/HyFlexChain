@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 import org.slf4j.Logger;
@@ -13,17 +14,19 @@ import bftsmart.communication.client.ReplyListener;
 import bftsmart.tom.AsynchServiceProxy;
 import bftsmart.tom.RequestContext;
 import bftsmart.tom.core.messages.TOMMessage;
+import bftsmart.tom.core.messages.TOMMessageType;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.Address;
 import pt.unl.fct.di.hyflexchain.util.reply.MultiSignedReply;
 import pt.unl.fct.di.hyflexchain.util.reply.SignedReply;
 
+/**
+ * An implementation of the ReplyListener
+ */
 public class BftSmartReplyListener implements ReplyListener
 {
     protected static final Logger LOG = LoggerFactory.getLogger(BftSmartReplyListener.class);
 
     protected final AsynchServiceProxy proxy;
-
-    protected final int requestId;
 
     protected final Set<Address> committeeAddresses;
 
@@ -31,38 +34,77 @@ public class BftSmartReplyListener implements ReplyListener
 
     protected final List<MultiSignedReply> replies;
 
-    protected final Consumer<MultiSignedReply> postAction;
+    protected int requestId;
 
     protected MultiSignedReply topReply;
 
+    protected Consumer<MultiSignedReply> postAction;
+
     /**
      * Create a new Reply Listener for BFT-SMaRt that waits for
-     * the specified number of replies and then calls the
-     * consumer.
+     * the specified number of replies.
      * @param proxy The bft-smart proxy
-     * @param requestId The requestId returned by the proxy
      * @param committeeAddresses The addresses of all the replicas in the committee
      * @param minReplies The min number of replies to conclude the
      * async bft-smart invocation
-     * @param postAction The action to execute when this client
-     * receives {@link #minReplies} replies
      * @return The created listener.
      */
     public BftSmartReplyListener(AsynchServiceProxy proxy,
-        int requestId,
-        Set<Address> committeeAddresses, int minReplies, Consumer<MultiSignedReply> postAction)
+        Set<Address> committeeAddresses, int minReplies)
     {
-        this.proxy = proxy;
-        this.requestId = requestId;
-        this.committeeAddresses = committeeAddresses;
+        this.proxy = Objects.requireNonNull(proxy);
+        this.committeeAddresses = Objects.requireNonNull(committeeAddresses);
+
+        if (minReplies <= 0)
+            throw new IllegalArgumentException("minReplies must be greater than 0");
+
         this.minReplies = minReplies;
         this.replies = new LinkedList<>();
-        this.postAction = postAction;
+        this.requestId = -1;
+    }
+
+    /**
+     * Submit an asynchronous ordered request,
+     * set the request id and execute the
+     * specified callback when reached consensus.
+     * @param request The serialized request
+     * @param postAction The action to execute when this client
+     * reaches consensus (receives {@link #minReplies} equal replies)
+     * @return The request Id
+     */
+    public int submitAsyncOrderedRequest(byte[] request, Consumer<MultiSignedReply> postAction)
+    {
+        this.postAction = Objects.requireNonNull(postAction);
+        this.requestId =
+            this.proxy.invokeAsynchRequest(request, this, TOMMessageType.ORDERED_REQUEST);
+
+        return this.requestId;
+    }
+
+    /**
+     * Submit an asynchronous unordered request,
+     * set the request id and execute the
+     * specified callback when reached consensus.
+     * @param request The serialized request
+     * @param postAction The action to execute when this client
+     * reaches consensus (receives {@link #minReplies} equal replies)
+     * @return The request Id
+     */
+    public int submitAsyncUnorderedRequest(byte[] request, Consumer<MultiSignedReply> postAction)
+    {
+        this.postAction = Objects.requireNonNull(postAction);
+        this.requestId =
+            this.proxy.invokeAsynchRequest(request, this, TOMMessageType.UNORDERED_REQUEST);
+
+        return this.requestId;
     }
 
     @Override
     public void replyReceived(RequestContext arg0, TOMMessage arg1)
     {
+        if (this.requestId == -1)
+            this.requestId = arg0.getOperationId();
+
         if (this.topReply != null)
             return;
 
@@ -194,4 +236,23 @@ public class BftSmartReplyListener implements ReplyListener
     public MultiSignedReply getTopReply() {
         return topReply;
     }
+
+    /**
+     * The requestId
+     * @return The requestId
+     */
+    public int getRequestId() {
+        return requestId;
+    }
+
+    /**
+     * The min number of replies to conclude the
+     * async bft-smart invocation
+     * @return The number of min replies
+     */
+    public int getMinReplies() {
+        return minReplies;
+    }
+
+    
 }

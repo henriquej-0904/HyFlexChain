@@ -17,62 +17,92 @@ import pt.unl.fct.di.hyflexchain.util.serializers.BytesSerializer;
  * and is valid.
  */
 public record VerifiedTransactionsReply(
-    byte[] prevBlockMerkleRootHash,
-    byte[] merkleRootHash
-)
+        byte[] prevBlockMerkleRootHash,
+        byte[] merkleRootHash)
 {
-    private static final BytesSerializer<byte[]> arraySerializer =
-        BytesSerializer.primitiveArraySerializer(byte[].class);
-
+    public static final BytesSerializer<VerifiedTransactionsReply> SERIALIZER =
+        new VerifiedTransactionsReply.Serializer();
+    
+    
+    private static final BytesSerializer<byte[]> arraySerializer = BytesSerializer
+            .primitiveArraySerializer(byte[].class);
 
     /**
      * Parse the signed reply.
+     * 
      * @param reply The reply to parse
      * @return The parsed reply
      */
-    public static VerifiedTransactionsReply fromReply(SignedReply reply)
-    {
+    public static VerifiedTransactionsReply fromReply(SignedReply reply) {
         ByteBuffer buff = ByteBuffer.wrap(reply.replyBytes);
 
         try {
             return new VerifiedTransactionsReply(
-                arraySerializer.deserialize(buff),
-                arraySerializer.deserialize(buff)
-            );
+                    arraySerializer.deserialize(buff),
+                    arraySerializer.deserialize(buff));
         } catch (Exception e) {
             throw new IllegalArgumentException("Invalid VerifiedTransactionsReply", e);
         }
     }
 
-
     /**
      * Create and a sign the reply.
-     * @param address The address of this node
-     * @param privKey The private key
+     * 
+     * @param address      The address of this node
+     * @param privKey      The private key
      * @param signatureAlg The signature algorithm
      * @return The signed reply
      * @throws InvalidKeyException
      * @throws SignatureException
      */
     public SignedReply signReply(
-        Address address,
-        PrivateKey privKey,
-        SignatureAlgorithm signatureAlg
-    ) throws InvalidKeyException, SignatureException
-    {
+            Address address,
+            PrivateKey privKey,
+            SignatureAlgorithm signatureAlg) throws InvalidKeyException, SignatureException {
         ByteBuffer data = serializeReply();
         HyflexchainSignature sig = HyflexchainSignature.sign(address, privKey, signatureAlg, data);
         return new SignedReply(sig, data.array());
     }
 
-    private ByteBuffer serializeReply()
-    {
+    private ByteBuffer serializeReply() {
         int size = arraySerializer.serializedSize(prevBlockMerkleRootHash) +
-            arraySerializer.serializedSize(merkleRootHash);
+                arraySerializer.serializedSize(merkleRootHash);
 
         ByteBuffer buff = ByteBuffer.allocate(size);
         buff = arraySerializer.serialize(prevBlockMerkleRootHash, buff);
         return arraySerializer.serialize(merkleRootHash, buff)
-            .position(0);
+                .position(0);
+    }
+
+    static class Serializer implements BytesSerializer<VerifiedTransactionsReply> {
+
+        @Override
+        public Class<VerifiedTransactionsReply> getType() {
+            return VerifiedTransactionsReply.class;
+        }
+
+        @Override
+        public int serializedSize(VerifiedTransactionsReply obj) {
+            return arraySerializer.serializedSize(obj.prevBlockMerkleRootHash) +
+                    arraySerializer.serializedSize(obj.merkleRootHash);
+        }
+
+        @Override
+        public ByteBuffer serialize(VerifiedTransactionsReply obj, ByteBuffer buff) {
+            buff = arraySerializer.serialize(obj.prevBlockMerkleRootHash, buff);
+            return arraySerializer.serialize(obj.merkleRootHash, buff);
+        }
+
+        @Override
+        public VerifiedTransactionsReply deserialize(ByteBuffer buff) {
+            try {
+                return new VerifiedTransactionsReply(
+                        arraySerializer.deserialize(buff),
+                        arraySerializer.deserialize(buff));
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Invalid VerifiedTransactionsReply", e);
+            }
+        }
+
     }
 }

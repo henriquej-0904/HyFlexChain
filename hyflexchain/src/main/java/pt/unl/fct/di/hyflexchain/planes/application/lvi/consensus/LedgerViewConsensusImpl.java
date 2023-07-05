@@ -42,7 +42,7 @@ public class LedgerViewConsensusImpl implements LedgerViewConsensusInterface {
 
 		this.data = DataPlane.getInstance();
 		this.data.uponNewBlock((block) ->
-			this.finalizedTxs.putAll(block.body().getTransactions()), consensus);
+			this.finalizedTxs.putAll(block.body().findTransactions()), consensus);
 
 	}
 

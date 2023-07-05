@@ -2,6 +2,8 @@ package pt.unl.fct.di.hyflexchain.util.serializers;
 
 import java.nio.ByteBuffer;
 
+import pt.unl.fct.di.hyflexchain.util.result.Result;
+
 public interface BytesSerializer<T>
 {
 	/**
@@ -24,6 +26,13 @@ public interface BytesSerializer<T>
 	 * @return The buffer
 	 */
 	ByteBuffer serialize(T obj, ByteBuffer buff);
+
+	default ByteBuffer serialize(T obj)
+	{
+		return serialize(obj,
+			ByteBuffer.allocate(serializedSize(obj))
+		).position(0);
+	}
 
 	/**
 	 * Convert bytes to an object
@@ -50,5 +59,24 @@ public interface BytesSerializer<T>
 	default BytesSerializer<T[]> toArraySerializer()
 	{
 		return ArraysBytesSerializer.genericSerializer(getType(), this);
+	}
+
+	/**
+	 * Get a serializer for a Result. Due to type erasure
+	 * it is not possible to return a serializer for the specified
+	 * generic types. Although, it is guaranteed that as long as
+	 * the caller uses the serializer with the same types used to
+	 * construct it, then there is no problem.
+	 * @param <Ok> The type of a Ok result
+	 * @param <Failed> The type of a Failed result
+	 * @param okSerializer The serializer fot the Ok result
+	 * @param failedSerializer The serializer for the Failed result
+	 * @return A result Serializer
+	 */
+	static <Ok, Failed> BytesSerializer<Result> resultSerializer(
+		BytesSerializer<Ok> okSerializer, BytesSerializer<Failed> failedSerializer
+	)
+	{
+		return new ResultSerializer<>(okSerializer, failedSerializer);
 	}
 }

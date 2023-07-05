@@ -22,6 +22,7 @@ import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
 import pt.unl.fct.di.hyflexchain.planes.txmanagement.TransactionManagement;
 import pt.unl.fct.di.hyflexchain.util.Utils;
 import pt.unl.fct.di.hyflexchain.util.config.MultiLedgerConfig;
+import pt.unl.fct.di.hyflexchain.util.crypto.HyflexchainSignature;
 
 public class PowConsensus extends ConsensusInterface
 {
@@ -31,7 +32,7 @@ public class PowConsensus extends ConsensusInterface
 	private static final byte[] FALSE = new byte[] {0};
 
 	private static final int DIFF_TARGET = 0;
-	private static final String[] VALIDATORS = new String[0];
+	private static final HyflexchainSignature[] VALIDATORS = new HyflexchainSignature[0];
 	private static final String COMMITTEE_ID = "";
 	private static final String COMMITTEE_BLOCK_HASH = "";
 
@@ -98,7 +99,7 @@ public class PowConsensus extends ConsensusInterface
 					boolean res = Arrays.equals(TRUE, reply.getLeft());
 
 					Map<String, Boolean> mapTxRes =
-						txs.getTransactions().keySet().stream()
+						txs.findTransactions().keySet().stream()
 						.collect(Collectors.toUnmodifiableMap(
 							(tx) -> tx, (tx) -> res)
 						);
@@ -128,9 +129,10 @@ public class PowConsensus extends ConsensusInterface
 	}
 
 	@Override
-	protected boolean verifyMetaHeader(BlockMetaHeader metaHeader)
+	protected boolean verifyMetaHeader(HyFlexChainBlock block)
 	{
-		return super.verifyMetaHeader(metaHeader) &&
+		var metaHeader = block.header().getMetaHeader();
+		return super.verifyMetaHeader(block) &&
 			metaHeader.getDifficultyTarget() == DIFF_TARGET &&
 			Arrays.equals(VALIDATORS, metaHeader.getValidators()) &&
 			metaHeader.getCommitteeId().equalsIgnoreCase(COMMITTEE_ID) &&

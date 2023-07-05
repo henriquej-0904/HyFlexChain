@@ -40,35 +40,19 @@ public class SignedReply
      */
     public boolean verifySignature() throws InvalidKeyException, SignatureException, InvalidAddressException
     {
-        return verifySignature(0, this.replyBytes.length);
+        return this.signature.verify(ByteBuffer.wrap(replyBytes));
     }
 
     /**
-     * Verify the signature based on a slice of the reply.
-     * @param off
-     * @param len
-     * @return true if the signature is valid.
-     * @throws InvalidAddressException
-     * @throws InvalidKeyException
-     * @throws SignatureException
-     */
-    public boolean verifySignature(int off, int len) throws InvalidAddressException, InvalidKeyException, SignatureException
-    {
-        return this.signature.verify(ByteBuffer.wrap(this.replyBytes, off, len));
-    }
-
-    /**
-     * Serialize this object into a new ByteBuffer.
-     * The returned buffer is at position 0, resulting of
-     * calling {@code ByteBuffer.position(0)}.
+     * Serialize this object.
      * @return The serialized object.
      */
-    public ByteBuffer serialize()
+    public byte[] serialize()
     {
         return SERIALIZER.serialize(
             this,
             ByteBuffer.allocate(SERIALIZER.serializedSize(this))
-        ).position(0);
+        ).array();
     }
 
     public static class Serializer implements BytesSerializer<SignedReply>

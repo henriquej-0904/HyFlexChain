@@ -4,6 +4,7 @@ import java.security.MessageDigest;
 
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.util.Utils;
+import pt.unl.fct.di.hyflexchain.util.crypto.HyflexchainSignature;
 
 /**
  * The MetaHeader of a block.
@@ -33,7 +34,7 @@ public class BlockMetaHeader
 	/**
 	 * The list of validators that participated in the consensus of this block
 	 */
-	protected String[] validators;
+	protected HyflexchainSignature[] validators;
 
 	/**
 	 * The id of the committee assigned to the consensus of this block
@@ -56,7 +57,7 @@ public class BlockMetaHeader
 	 * @param committeeBlockHash The hash of the block where the committee was created
 	 */
 	public BlockMetaHeader(String hash, String version, ConsensusMechanism consensus,
-			int difficultyTarget, String[] validators, String committeeId,
+			int difficultyTarget, HyflexchainSignature[] validators, String committeeId,
 			String committeeBlockHash) {
 		this.hash = hash;
 		this.version = version;
@@ -76,7 +77,7 @@ public class BlockMetaHeader
 	 * @param committeeBlockHash The hash of the block where the committee was created
 	 */
 	public BlockMetaHeader(ConsensusMechanism consensus,
-			int difficultyTarget, String[] validators, String committeeId,
+			int difficultyTarget, HyflexchainSignature[] validators, String committeeId,
 			String committeeBlockHash) {
 		this.version = Version.V1_0.getVersion();
 		this.consensus = consensus;
@@ -182,7 +183,7 @@ public class BlockMetaHeader
 	 * The list of validators that participated in the consensus of this block
 	 * @return the validators
 	 */
-	public String[] getValidators() {
+	public HyflexchainSignature[] getValidators() {
 		return validators;
 	}
 
@@ -190,7 +191,7 @@ public class BlockMetaHeader
 	 * The list of validators that participated in the consensus of this block
 	 * @param validators the validators to set
 	 */
-	public void setValidators(String[] validators) {
+	public void setValidators(HyflexchainSignature[] validators) {
 		this.validators = validators;
 	}
 
@@ -234,8 +235,10 @@ public class BlockMetaHeader
 
 		if ( !(validators == null || validators.length == 0) )
 		{
-			for (String validator : validators) {
-				msgDigest.update(validator.getBytes());
+			for (HyflexchainSignature validator : validators) {
+				msgDigest.update(validator.address().address().getBytes());
+				msgDigest.update(validator.signatureAlg().getAlgId());
+				msgDigest.update(validator.signature());
 			}
 		}
 

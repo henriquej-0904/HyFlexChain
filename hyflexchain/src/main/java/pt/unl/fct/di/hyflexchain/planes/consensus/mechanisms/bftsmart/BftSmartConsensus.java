@@ -51,12 +51,7 @@ public class BftSmartConsensus extends ConsensusInterface
         throw new UnsupportedOperationException("Unimplemented method 'orderBlock'");
     } */
 
-    @Override
-	protected boolean verifyMetaHeader(BlockMetaHeader metaHeader)
-    {
-        // TODO:
-        return super.verifyMetaHeader(metaHeader);
-    }
+    
 
 
 
@@ -82,11 +77,7 @@ public class BftSmartConsensus extends ConsensusInterface
         throw new UnsupportedOperationException("Unimplemented method 'orderTxs'");
     }
 
-    @Override
-    protected HyFlexChainBlock createBlock(BlockBody body) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'createBlock'");
-    }
+    
 
 
 

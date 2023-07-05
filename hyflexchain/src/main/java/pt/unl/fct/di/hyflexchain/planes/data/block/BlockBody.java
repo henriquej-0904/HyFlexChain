@@ -5,6 +5,9 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
 
@@ -120,16 +123,24 @@ public class BlockBody
 	 * The list of transactions in this block
 	 * @return the transactions
 	 */
-	public LinkedHashMap<String, HyFlexChainTransaction> getTransactions() {
-		return transactions;
+	public HyFlexChainTransaction[] getTransactions() {
+		return transactions.values().toArray(HyFlexChainTransaction[]::new);
 	}
 
 	/**
 	 * The list of transactions in this block
 	 * @param transactions the transactions to set
 	 */
-	public void setTransactions(LinkedHashMap<String, HyFlexChainTransaction> transactions) {
-		this.transactions = transactions;
+	public void setTransactions(HyFlexChainTransaction[] transactions) {
+		this.transactions = Stream.of(transactions)
+			.collect(
+				Collectors.toMap(
+					HyFlexChainTransaction::hash,
+					UnaryOperator.identity(),
+					(x, y) -> x,
+					() -> LinkedHashMap.newLinkedHashMap(transactions.length)
+				)
+			);
 	}
 
 	/**
@@ -159,6 +170,11 @@ public class BlockBody
 		}
 
 		return txs;
+	}
+
+	public LinkedHashMap<String, HyFlexChainTransaction> findTransactions()
+	{
+		return this.transactions;
 	}
 
 

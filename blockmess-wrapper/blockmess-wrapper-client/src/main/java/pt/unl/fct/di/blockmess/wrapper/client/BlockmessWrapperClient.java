@@ -3,6 +3,8 @@ package pt.unl.fct.di.blockmess.wrapper.client;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -16,12 +18,19 @@ public abstract class BlockmessWrapperClient {
 
     protected final Lock lock;
 
-    protected Thread processOperationsThread;
+    protected final BlockingQueue<byte[]> pendingOperations;
+
+    protected final Thread submitOperationsThread;
+
+    protected final Thread processOperationsThread;
 
     /**
      * Create a new client.
      */
     protected BlockmessWrapperClient() {
+        this.pendingOperations = new ArrayBlockingQueue<>(1000);
+        this.submitOperationsThread = new Thread(this::submitOperations);
+        this.processOperationsThread = new Thread(this::processOperations);
         this.lock = new ReentrantLock();
     }
 
@@ -29,7 +38,7 @@ public abstract class BlockmessWrapperClient {
      * Initialize the Blockmess client.
      */
     public void init() {
-        this.processOperationsThread = new Thread(this::processOperations);
+        this.submitOperationsThread.start();
         this.processOperationsThread.start();
     }
 
@@ -40,6 +49,25 @@ public abstract class BlockmessWrapperClient {
      * @throws IOException if an error occurred
      */
     public void invokeAsync(byte[] operation) {
+        try {
+            pendingOperations.put(operation);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void submitOperations()
+    {
+        while (true) {
+            try {
+                submitOperation(pendingOperations.take());
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void submitOperation(byte[] operation) {
         if (operation.length == 0)
             return;
 
@@ -49,6 +77,8 @@ public abstract class BlockmessWrapperClient {
             try {
                 this.output.writeInt(operation.length);
                 this.output.write(operation);
+                return;
+                
             } catch (Exception e) {
                 e.printStackTrace();
 

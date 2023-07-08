@@ -24,6 +24,8 @@ public class ApplicationInterface
 
 	protected final TransactionInterface ti;
 
+	protected final MultiLedgerConfig config;
+
 	private final ConsensusPlaneConfig consensusPlaneConfig;
 
 	/**
@@ -38,8 +40,7 @@ public class ApplicationInterface
 	 */
 	public ApplicationInterface(File configFolder, String[] overridenConfigs) throws FileNotFoundException, IOException, ParseException
 	{
-		MultiLedgerConfig config = MultiLedgerConfig.init(configFolder);
-		config.addOverridenConfigs(overridenConfigs);
+		this.config = MultiLedgerConfig.init(configFolder, overridenConfigs);
 
 		this.lvi = LedgerViewInterface.getInstance();
 		this.ti = TransactionInterface.getInstance();
@@ -63,5 +64,10 @@ public class ApplicationInterface
 		return ti;
 	}
 
-	
+	/**
+	 * @return the config
+	 */
+	public MultiLedgerConfig getConfig() {
+		return config;
+	}	
 }

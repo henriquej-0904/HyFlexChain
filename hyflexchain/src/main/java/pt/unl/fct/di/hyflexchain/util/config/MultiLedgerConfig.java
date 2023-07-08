@@ -57,19 +57,30 @@ public class MultiLedgerConfig
 	protected static MultiLedgerConfig config;
 
 	/**
-	 * Initialize the config with the specified config folder
-	 * @param configFolder
-	 * @return
+	 * Initialize the config with the specified config folder.
+	 * The configuration is overriden by the specified array
+	 * of key=value pairs. <p>
+	 * For each consensus mechanism, their configurations
+	 * must comply with the property pattern, for example: <p>
+	 * -for general configs: {@code -G key=value} <p>
+	 * -for PoW configs:
+	 * {@code -POW key=value}
+	 * @param configFolder The config folder
+	 * @param configs the configs to override the current one.
+	 * 
+	 * @return The config object
 	 * @throws FileNotFoundException
 	 * @throws IOException
+	 * @throws ParseException
 	 */
-	public static MultiLedgerConfig init(File configFolder) throws FileNotFoundException, IOException
+	public static MultiLedgerConfig init(File configFolder,
+		String[] overridenConfigs) throws FileNotFoundException, IOException, ParseException
 	{
 		var generalConfig = getProperties(new File(configFolder, DEFAULT_FILE_GENERAL_CONFIG));
 		EnumMap<ConsensusMechanism, Properties> consensusProps = new EnumMap<>(ConsensusMechanism.class);
 
-		for (ConsensusMechanism consensus :
-				MultiLedgerConfig.getActiveConsensusMechanisms(generalConfig))
+		var activeConsensus = MultiLedgerConfig.getActiveConsensusMechanisms(generalConfig);
+		for (ConsensusMechanism consensus : activeConsensus)
 		{
 			var consensusFolder = new File(configFolder, consensus.toString().toLowerCase());
 			var props = getProperties(new File(consensusFolder, DEFAULT_FILE_CONSENSUS_CONFIG.get(consensus)));
@@ -78,7 +89,7 @@ public class MultiLedgerConfig
 			consensusProps.put(consensus, props);
 		}
 
-		return init(configFolder, generalConfig, consensusProps);
+		return init(configFolder, generalConfig, consensusProps, overridenConfigs);
 	}
 
 	
@@ -100,11 +111,14 @@ public class MultiLedgerConfig
 	 * @param generalConfig A general config of the ledger
 	 * @param configsPerConsensusType A config
 	 * for each consensus type.
+	 * @throws ParseException
 	 */
 	public static MultiLedgerConfig init(File configFolder, Properties generalConfig,
-		EnumMap<ConsensusMechanism, Properties> configsPerConsensusType)
+		EnumMap<ConsensusMechanism, Properties> configsPerConsensusType,
+		String[] overridenConfigs) throws ParseException
 	{
-		config = new MultiLedgerConfig(configFolder, generalConfig, configsPerConsensusType);
+		config = new MultiLedgerConfig(configFolder, generalConfig, configsPerConsensusType,
+		overridenConfigs);
 		return config;
 	}
 
@@ -113,10 +127,10 @@ public class MultiLedgerConfig
 	 * 
 	 * @param generalConfig A general config of the ledger
 	 */
-	public static void init(File configFolder, Properties generalConfig)
+	/* public static void init(File configFolder, Properties generalConfig)
 	{
 		init(configFolder, generalConfig, new EnumMap<>(ConsensusMechanism.class));
-	}
+	} */
 
 	/**
 	 * Get the config instance.
@@ -165,13 +179,19 @@ public class MultiLedgerConfig
 	 * @param generalConfig A general config of the ledger
 	 * @param configsPerConsensusType A config
 	 * for each consensus type.
+	 * @throws ParseException
 	 */
 	protected MultiLedgerConfig(File configFolder,  Properties generalConfig,
-		EnumMap<ConsensusMechanism, Properties> configsPerConsensusType)
+		EnumMap<ConsensusMechanism, Properties> configsPerConsensusType,
+		String[] overridenConfigs) throws ParseException
 	{
 		this.configFolder = configFolder;
 		this.generalConfig = generalConfig;
 		this.configsPerConsensusType = configsPerConsensusType;
+
+		var activeConsensus = EnumSet.copyOf(configsPerConsensusType.keySet());
+		addOverridenConfigs(overridenConfigs, activeConsensus);
+
 		this.ledgerConfigs = configsPerConsensusType.keySet().stream()
 			.collect(
 				Collectors.toMap(
@@ -194,10 +214,11 @@ public class MultiLedgerConfig
 	 * -for general configs: {@code -Generalkey=value} <p>
 	 * -for PoW configs:
 	 * {@code -PoWkey=value}
-	 * @param configs the configs to override the current ones.
+	 * @param configs the configs to override the current one.
+	 * @param activeConsensus The active consensus mechanisms
 	 * @throws ParseException
 	 */
-	public void addOverridenConfigs(String[] configs) throws ParseException
+	private void addOverridenConfigs(String[] configs, EnumSet<ConsensusMechanism> activeConsensus) throws ParseException
 	{
 		if (configs.length == 0)
 			return;
@@ -209,7 +230,7 @@ public class MultiLedgerConfig
 			.hasArgs().valueSeparator('=').build();
 		ops.addOption(generalOp);
 
-		for (var consensus : ConsensusMechanism.values()) {
+		for (var consensus : activeConsensus) {
 			var op = Option.builder(consensus.toString().toUpperCase())
 				.hasArgs().valueSeparator('=').build();
 			ops.addOption(op);
@@ -220,7 +241,7 @@ public class MultiLedgerConfig
 		this.generalConfig = new Properties(this.generalConfig);
 		this.generalConfig.putAll(cmd.getOptionProperties(generalOp));
 
-		for (var consensus : ConsensusMechanism.values()) {
+		for (var consensus : activeConsensus) {
 			var defaultProps = this.configsPerConsensusType.get(consensus);
 			var overridenProps = cmd.getOptionProperties(consensus.toString().toUpperCase());
 			Properties props = new Properties(defaultProps);

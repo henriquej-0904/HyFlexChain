@@ -6,13 +6,31 @@
 min_id=$1
 max_id=$2
 
-# for (( replicaId=$min_id; replicaId <= $max_id; replicaId++ ));
-# do
-#     ./run-blockmess_server_bft_smart.sh $replicaId
-# done
 
-for (( replicaId=$min_id; replicaId <= $max_id; replicaId++ ));
+echo "Starting Blockmess Servers"
+
+./run-blockmess_server.sh $min_id
+
+sleep 3
+
+for (( replicaId=$min_id+1; replicaId <= $max_id; replicaId++ ));
+do
+    ./run-blockmess_server.sh $replicaId
+done
+
+echo "Done"
+sleep 5
+
+echo "Starting HyFlexChain servers"
+
+./run-server_2_consensus.sh $min_id
+
+sleep 3
+
+for (( replicaId=$min_id+1; replicaId <= $max_id; replicaId++ ));
 do
     ./run-server_2_consensus.sh $replicaId
 done
+
+echo "Done"
 

@@ -102,11 +102,10 @@ public class BftSmartReplyListener implements ReplyListener
     @Override
     public void replyReceived(RequestContext arg0, TOMMessage arg1)
     {
+        LOG.info("Received BFT-SMART reply!");
+
         if (this.requestId == -1)
             this.requestId = arg0.getOperationId();
-
-        if (this.topReply != null)
-            return;
 
         ByteBuffer replyBytes = ByteBuffer.wrap(arg1.getContent());
 

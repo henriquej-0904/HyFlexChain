@@ -37,8 +37,9 @@ public class BftSmartConsensusThread implements Runnable {
 		try {
 			while (true) {
 				var txs = txPool.waitForMinPendingTxs(this.nTxsInBlock, this.blockCreateTime);
-				// var block = this.consensus.createBlock(txs);
-				// this.consensus.orderBlock(block);
+
+				LOG.info("BFT-SMART: Order block of transactions");
+
 				this.consensus.orderTxs(BlockBody.from(txs));
 			}
 		} catch (Exception e) {

@@ -118,6 +118,7 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
     protected void initBlockmess() {
         try {
             this.blockmess = new BlockmessConnector();
+            this.blockmess.init();
         } catch (IOException e) {
             throw new Error(e.getMessage(), e);
         }
@@ -131,8 +132,10 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
             if (this.bftSmartClientAsync != null)
                 return this.bftSmartClientAsync;
 
-            this.bftSmartClientAsync = new AsynchServiceProxy(config.getBftSmartReplicaId() * 3256,
-                    config.getBftSmartConfigFolder().getAbsolutePath(), null, null, null);
+            this.bftSmartClientAsync = new AsynchServiceProxy(
+                    (config.getBftSmartReplicaId() + 1) * 3256,
+                    "", // config.getBftSmartConfigFolder().getAbsolutePath(),
+                    null, null, null);
 
             return this.bftSmartClientAsync;
         }
@@ -159,10 +162,15 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
                         .removePendingTxsAndNotify(mapTxRes);
 
                     if (!res)
-                        return;
+                    {
+                        LOG.info("BFT-SMART: Invalided block from committee with {} signatures",
+                            reply.getSignaturesCount());
 
+                        return;
+                    }
+                    
                     // txs ordered and valid
-                    // disseminate through blockmess a pair of MultisignedReply
+                    // disseminate through blockmess the created block
 
                     var okReply = result.getOkResult();
                     String previous = Bytes.wrap(okReply.prevBlockMerkleRootHash())
@@ -171,6 +179,10 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
                     var block = createBlock(reply.getSignatures().values()
                     .toArray(HyflexchainSignature[]::new), previous, blockBody);
                     
+                    LOG.info("BFT-SMART: Validated block from committee with {} signatures: {}",
+                            reply.getSignaturesCount(),
+                            block.header().getMetaHeader().getHash());
+
                     // invoke blockmess
                     this.blockmess.invokeAsync(Utils.json.writeValueAsBytes(block));
 
@@ -196,40 +208,6 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
             this.staticCommittee.getCommitteeAddresses(),
             3);
     }
-
-    // @Override
-    // public void orderBlock(HyFlexChainBlock block) {
-    // LOG.info("Order block: " + block.header().getMetaHeader().getHash());
-
-    // try {
-    // byte[] requestBytes = Utils.json.writeValueAsBytes(block);
-
-    // //TODO: blockmess
-
-    // /* blockmess.invokeAsyncOperation(requestBytes,
-    // (reply) -> {
-
-    // boolean res = Arrays.equals(TRUE, reply.getLeft());
-
-    // Map<String, Boolean> mapTxRes =
-    // block.body().getTransactions().keySet().stream()
-    // .collect(Collectors.toUnmodifiableMap(
-    // (tx) -> tx, (tx) -> res)
-    // );
-
-    // try {
-    // TransactionManagement.getInstance().getTxPool(POW)
-    // .removePendingTxsAndNotify(mapTxRes);
-    // } catch (InvalidTransactionException e) {
-    // LOG.info(e.getMessage());
-    // }
-
-    // // LOG.info("blockmess reply: {}", reply);
-    // }); */
-    // } catch (JsonProcessingException e) {
-    // e.printStackTrace();
-    // }
-    // }
 
     protected HyFlexChainBlock createBlock(HyflexchainSignature[] validators, String previous, BlockBody body) {
         BlockMetaHeader metaHeader = new BlockMetaHeader(this.consensus, DIFF_TARGET, validators,
@@ -331,8 +309,33 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
 		
 		return true;
 	}
-    
 
+    @Override
+    protected boolean verifyBody(BlockBody body) {
+            if (!body.getMerkleTree().verifyTree(
+                    body.findTransactions().keySet())) {
+                LOG.info("Invalid Block Merkle tree.");
+                return false;
+            }
+
+            var ti = TransactionInterface.getInstance();
+            var txmanagement = TransactionManagement.getInstance();
+
+            try {
+                for (var tx : body.findTransactions().values()) {
+                    ti.verifyTx(tx);
+                    txmanagement.verifyTx(tx);
+                }
+            } catch (Exception e) {
+                return false;
+            }
+
+            return true;
+        }
+    
+    /**
+     * An implementation of the BFT-SMaRT replica.
+     */
     protected class BFT_SMaRtServiceReplica extends DefaultSingleRecoverable {
         protected static final Logger LOG = LoggerFactory.getLogger(BFT_SMaRtServiceReplica.class);
 
@@ -350,7 +353,8 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
             var config = BftSmartStaticCommitteeConsensus.this.config;
             this.replica = new ServiceReplica(
                     config.getBftSmartReplicaId(),
-                    config.getBftSmartConfigFolder().getAbsolutePath(),
+                    "",
+                    // config.getBftSmartConfigFolder().getAbsolutePath(),
                     this, this, null, new DefaultReplier(), null);
 
             var multiledgerConfig = config.getLedgerConfig().getMultiLedgerConfig();
@@ -360,33 +364,16 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
             this.lastBlockHash = lvi.getLastBlockHash(consensus);
         }
 
-        // @Override
-        // public byte[] appExecuteOrdered(byte[] arg0, MessageContext arg1) {
-        //     try {
-		// 		BlockBody blockBody = Utils.json.readValue(arg0, BlockBody.class);
-				
-		// 		if (!verifyBody(blockBody))
-		// 		{
-		// 			LOG.info("Invalid block body -> merkle tree: " + blockBody.getMerkleTree().getRoot().hash());
-		// 			return FALSE;
-		// 		}
-
-		// 		// process new valid block
-		// 		var block = createBlock(blockBody);
-		// 		DataPlane.getInstance().writeOrderedBlock(block, consensus);
-    
-		// 		LOG.info("Appended valid block body with size=" + arg0.length + " & block hash: " +
-		// 			block.header().getMetaHeader().getHash());
-
-		// 		return TRUE;
-                
-        //     } catch (Exception e) {
-        //         Utils.logError(e, LOG);
-        //         return EMPTY;
-        //     }
-        // }
-
-
+        /**
+         * Verify the body of a block for integrity
+         * and the validity of all transactions (including smart-contracts)
+         * @param body
+         * @return true if verified
+         */
+        protected boolean verifyBody(BlockBody body)
+        {
+            return BftSmartStaticCommitteeConsensus.super.verifyBody(body);
+        }
         
         @Override
         public byte[] appExecuteOrdered(byte[] arg0, MessageContext arg1) {
@@ -394,7 +381,7 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
             /**
              * Process an ordered operation through BFT-SMaRt:
              * 1) verify the proposed transactions.
-             * 2) if valid, save the BlockBody to the waitingForSignatures collection
+             * 2) if valid, set the previous merkle tree hash to the current one
              * 3) reply to the client, signed by this replica
              */
 
@@ -419,14 +406,6 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
                  * The merkle hash of the previous block
                  */
                 final String previousMerkleHash = this.lastBlockHash;
-                // var it = waitingForSignatures.keySet().iterator();
-                // synchronized (waitingForSignatures)
-                // {
-                //     if (it.hasNext())
-                //         previousMerkleHash = it.next();
-                //     else
-                //         previousMerkleHash = lvi.getLastBlockHash(consensus);
-                // }
 
                 // Update previous merkkle hash with the current one
                 this.lastBlockHash = merkleHash;
@@ -439,7 +418,7 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
                 var signedReply = reply.signReply(
                     this.selfAddress, this.selfKeyPair.getPrivate(), this.sigAlg);
 
-				// waitingForSignatures.put(merkleHash, MutablePair.of(Optional.empty(), blockBody));
+                LOG.info("BFT-SMART: Accepted block with hash: " + merkleHash);
 
 				return signedReply.serialize();
                 
@@ -452,7 +431,6 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
         @Override
         public byte[] appExecuteUnordered(byte[] arg0, MessageContext arg1) {
             LOG.warn("Called execute unordered");
-
             return EMPTY;
         }
 
@@ -466,6 +444,9 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
         }
     }
 
+    /**
+     * An implementation of the Blockmess replica.
+     */
     public class BlockmessConnector extends BlockmessWrapperClientTCP {
 
         public BlockmessConnector() throws UnknownHostException, IOException {
@@ -475,53 +456,16 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
         }
 
         /**
-         * Verify a block when for integrity and all necessary
-         * checks.
-         * 
-         * @param block The block to verify
-         * @return true if it is valid, otherwise false.
+         * Process the received block.
+         * Verifies if it was already processed and
+         * verifies it (integrity and validity of the committee that approved it).
+         * Then, delivers the verified block to the block processor.
+         * @param data The serialized block
          */
-        protected boolean verifyBlock(HyFlexChainBlock block) {
-            if (!verifyMetaHeader(block)) {
-                LOG.info("Invalid block meta header");
-                return false;
-            }
-
-            if (!verifyHeader(block)) {
-                LOG.info("Invalid block header");
-                return false;
-            }
-
-            return verifyBody(block.body());
-        }
-
-        protected boolean verifyBody(BlockBody body) {
-            if (!body.getMerkleTree().verifyTree(
-                    body.findTransactions().keySet())) {
-                LOG.info("Invalid Block Merkle tree.");
-                return false;
-            }
-
-            var ti = TransactionInterface.getInstance();
-            var txmanagement = TransactionManagement.getInstance();
-
-            try {
-                for (var tx : body.findTransactions().values()) {
-                    ti.verifyTx(tx);
-                    txmanagement.verifyTx(tx);
-                }
-            } catch (Exception e) {
-                return false;
-            }
-
-            return true;
-        }
-
-        @Override
-        public void processOperation(byte[] operation)
+        protected void processReceivedBlock(byte[] data)
         {
             try {
-                final HyFlexChainBlock block = Utils.json.readValue(operation, HyFlexChainBlock.class);
+                final HyFlexChainBlock block = Utils.json.readValue(data, HyFlexChainBlock.class);
 
                 if (blockProcessor.alreadyProcessed(block))
                 {
@@ -535,11 +479,20 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
                     return;
                 }
 
+                LOG.info("BFT-SMART (Blockmess): Received valid block from committee with hash: " +
+                    block.header().getMetaHeader().getHash());
+
                 blockProcessor.processBlock(block);
 
             } catch (Exception e) {
                 LOG.info(e.getMessage());
             }
+        }
+        
+        @Override
+        public void processOperation(byte[] operation)
+        {
+            processReceivedBlock(operation);
         }
     }
 

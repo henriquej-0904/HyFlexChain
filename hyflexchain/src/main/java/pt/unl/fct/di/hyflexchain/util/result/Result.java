@@ -1,41 +1,79 @@
 package pt.unl.fct.di.hyflexchain.util.result;
 
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+/**
+ * Represents a successfull or failed result
+ */
+public interface Result<Ok, Failed>  {
+    
+    boolean isOk();
 
-import jakarta.ws.rs.WebApplicationException;
+    Ok getOkResult();
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
-@JsonSubTypes({
-    @JsonSubTypes.Type(value = OkResult.class, name = "OkResult"),
+    Failed getFailedResult();
 
-    @JsonSubTypes.Type(value = ErrorResult.class, name = "ErrorResult") }
-)
-public interface Result<T>
-{
-    boolean isOK();
-
-    T resultOrThrow() throws WebApplicationException;
-
-    T value();
-
-    int error();
-
-    WebApplicationException errorException();
-
-    static <T> Result<T> ok(T result) {
-        return new OkResult<T>(result);
+    static <Ok, Failed> Result<Ok, Failed> ok(Ok result)
+    {
+        return new OkResult<Ok,Failed>(result);
     }
 
-    static <T> OkResult<T> ok() {
-        return new OkResult<T>(null);
+    static <Ok, Failed> Result<Ok, Failed> failed(Failed result)
+    {
+        return new FailedResult<Ok,Failed>(result);
     }
 
-    static <T> ErrorResult<T> error(int error) {
-        return new ErrorResult<T>(error);
+    class OkResult<Ok, Failed> implements Result<Ok, Failed>
+    {
+        private final Ok result;
+
+        /**
+         * @param result
+         */
+        public OkResult(Ok result) {
+            this.result = result;
+        }
+
+        @Override
+        public boolean isOk() {
+            return true;
+        }
+
+        @Override
+        public Ok getOkResult() {
+            return this.result;
+        }
+
+        @Override
+        public Failed getFailedResult() {
+            throw new RuntimeException("There is no failed result.");
+        }
+        
     }
 
-    static <T> ErrorResult<T> error(WebApplicationException e) {
-        return new ErrorResult<T>(e);
+    class FailedResult<Ok, Failed> implements Result<Ok, Failed>
+    {
+        private final Failed result;
+
+        /**
+         * @param result
+         */
+        public FailedResult(Failed result) {
+            this.result = result;
+        }
+
+        @Override
+        public boolean isOk() {
+            return false;
+        }
+
+        @Override
+        public Ok getOkResult() {
+            throw new RuntimeException("There is no successfull result.");
+        }
+
+        @Override
+        public Failed getFailedResult() {
+            return this.result;
+        }
+        
     }
 }

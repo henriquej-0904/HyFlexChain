@@ -17,6 +17,7 @@ public class BlockmessWrapperServerTCP {
         String[] blockmessProps = Arrays.copyOfRange(args, 1, args.length, String[].class);
         BlockmessWrapperServer blockmess = new BlockmessWrapperServer(blockmessProps);
         
+        System.out.println("Starting server in port: " + args[0]);
         try (ServerSocket server = new ServerSocket(Integer.parseInt(args[0])))
         {
             while (true) {

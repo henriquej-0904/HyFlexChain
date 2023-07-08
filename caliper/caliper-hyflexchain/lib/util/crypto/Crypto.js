@@ -19,7 +19,7 @@ class Crypto
 		let res = generateKeyPairSync(
 			"ec",
 			{
-				namedCurve: "secp521r1"
+				namedCurve: "P-256"
 			}
 		);
 

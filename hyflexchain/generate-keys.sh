@@ -26,7 +26,7 @@ do
     mkdir -p $replicaFolder
 
     # Generate key pair
-    keytool -genkeypair -groupname secp521r1 -sigalg SHA256withECDSA -keyalg EC -alias $replicaAlias -validity 365 -dname "CN=hyflexchain,OU=,O=hyflexchain,L=Lisbon,ST=Lisbon,C=PT" -storetype pkcs12 -keystore $replicaFolder/keystore.pkcs12 -storepass $keystorepass -keypass $keystorepass
+    keytool -genkeypair -groupname secp256r1 -sigalg SHA256withECDSA -keyalg EC -alias $replicaAlias -validity 365 -dname "CN=hyflexchain,OU=,O=hyflexchain,L=Lisbon,ST=Lisbon,C=PT" -storetype pkcs12 -keystore $replicaFolder/keystore.pkcs12 -storepass $keystorepass -keypass $keystorepass
 
     # Export certificate
     keytool -export -alias $replicaAlias -keystore $replicaFolder/keystore.pkcs12 -storepass $keystorepass -file $replicaFolder/certificate.pem
@@ -35,5 +35,7 @@ do
     keytool -import -noprompt -alias $replicaAlias -file $replicaFolder/certificate.pem -keystore $configFolder/truststore.pkcs12 -storepass $keystorepass -storetype pkcs12
 
 done
+
+java -cp target/hyflexchain-jar-with-dependencies.jar pt.unl.fct.di.hyflexchain.util.crypto.GenerateAddress hyflexchain-config/keys/truststore.pkcs12 keystorepwd PKCS12 > $configFolder/addresses.json
 
 echo "Created configs with success"

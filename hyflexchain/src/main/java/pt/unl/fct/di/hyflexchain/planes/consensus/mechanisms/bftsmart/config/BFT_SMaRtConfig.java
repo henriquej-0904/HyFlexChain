@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
+import pt.unl.fct.di.hyflexchain.planes.consensus.committees.CommitteeElectionCriteria.CommitteeValidity;
+import pt.unl.fct.di.hyflexchain.planes.consensus.committees.CommitteeElectionCriteria.RandSource;
+import pt.unl.fct.di.hyflexchain.planes.consensus.committees.bft.BftCommitteeElectionCriteria;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.Address;
 import pt.unl.fct.di.hyflexchain.planes.network.Host;
 import pt.unl.fct.di.hyflexchain.planes.network.directory.AddressDirectoryService;
@@ -86,6 +89,17 @@ public class BFT_SMaRtConfig
             throw new Error(e.getMessage(), e);
         }
     }
+
+    public BftCommitteeElectionCriteria getStaticElectionCriteria()
+    {
+        var n = this.config.getConfigIntValueOrThrowError(Configs.COMMITTEE_N.name);
+        var f = this.config.getConfigIntValueOrThrowError(Configs.COMMITTEE_F.name);
+        var threshold = this.config.getConfigIntValueOrThrowError(Configs.COMMITTEE_THRESHOLD.name);
+        var validityBlocks = this.config.getConfigIntValueOrThrowError(Configs.COMMITTEE_VALIDITY_N_BLOCKS.name);
+
+        return new BftCommitteeElectionCriteria(n, threshold, RandSource.LOCAL_RAND,
+            new CommitteeValidity(validityBlocks), f);
+    }
     
     public List<Address> getStaticCommitteeAddresses()
     {
@@ -120,6 +134,17 @@ public class BFT_SMaRtConfig
          * the corresponding IP address
          */
         ADDRESSES_CONFIG_FILE ("ADDRESSES_CONFIG_FILE"),
+
+
+        COMMITTEE_N ("COMMITTEE_N"),
+
+        COMMITTEE_F ("COMMITTEE_F"),
+
+        COMMITTEE_THRESHOLD("COMMITTEE_THRESHOLD"),
+
+        COMMITTEE_VALIDITY_N_BLOCKS("COMMITTEE_VALIDITY_N_BLOCKS"),
+
+
 
         /**
          * A list of HyFlexChain addresses (';' separated) that belong to the static

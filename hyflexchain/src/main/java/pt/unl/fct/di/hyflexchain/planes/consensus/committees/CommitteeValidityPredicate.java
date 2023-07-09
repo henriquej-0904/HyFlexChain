@@ -8,7 +8,7 @@ import pt.unl.fct.di.hyflexchain.util.TimeInterval;
 /**
  * An interface to verify if a committee is still valid
  */
-public interface CommitteeValidity extends Predicate<Committee> {
+public interface CommitteeValidityPredicate extends Predicate<Committee> {
 	
 	/**
 	 * Create a new CommitteeValidity based on the specified time interval.
@@ -16,7 +16,7 @@ public interface CommitteeValidity extends Predicate<Committee> {
 	 * @param interval The interval where the committee is valid.
 	 * @return The CommitteeValidity object
 	 */
-	public static CommitteeValidity fromInterval(TimeInterval interval) {
+	public static CommitteeValidityPredicate fromInterval(TimeInterval interval) {
 		return new CommitteeValidityTimeInterval(interval);
 	}
 
@@ -24,7 +24,7 @@ public interface CommitteeValidity extends Predicate<Committee> {
 	 * An implementation of the CommitteeValidity Interface based on a time interval.
 	 */
 	public static class CommitteeValidityTimeInterval
-		implements CommitteeValidity
+		implements CommitteeValidityPredicate
 	{
 
 		private final TimeInterval interval;

@@ -28,6 +28,8 @@ public class Committee
 	}
 
 	/**
+	 * 
+	 * @param consensusMechanism
 	 * @param criteria
 	 * @param committee
 	 */

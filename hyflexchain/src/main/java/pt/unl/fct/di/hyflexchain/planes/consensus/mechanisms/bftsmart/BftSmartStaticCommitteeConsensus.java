@@ -23,8 +23,8 @@ import pt.unl.fct.di.hyflexchain.planes.application.lvi.LedgerViewInterface;
 import pt.unl.fct.di.hyflexchain.planes.application.ti.TransactionInterface;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusInterface;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
-import pt.unl.fct.di.hyflexchain.planes.consensus.committees.Committee;
-import pt.unl.fct.di.hyflexchain.planes.consensus.committees.SybilResistantCommitteeElection;
+import pt.unl.fct.di.hyflexchain.planes.consensus.committees.bft.BftCommittee;
+import pt.unl.fct.di.hyflexchain.planes.consensus.committees.bft.SybilResistantBftCommitteeElection;
 import pt.unl.fct.di.hyflexchain.planes.consensus.mechanisms.bftsmart.config.BFT_SMaRtConfig;
 import pt.unl.fct.di.hyflexchain.planes.consensus.mechanisms.bftsmart.election.StaticElection;
 import pt.unl.fct.di.hyflexchain.planes.consensus.mechanisms.bftsmart.replylistener.BftSmartReplyListener;
@@ -50,25 +50,14 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
 
     protected BFT_SMaRtConfig config;
 
-    protected SybilResistantCommitteeElection committeeElection;
+    protected SybilResistantBftCommitteeElection committeeElection;
 
-    protected Committee staticCommittee;
+    protected BftCommittee staticCommittee;
 
     protected BFT_SMaRtServiceReplica bftSmartReplica;
     protected AsynchServiceProxy bftSmartClientAsync;
 
     protected BlockmessConnector blockmess;
-
-    /**
-     * A blockchain structure to temporary save the ordered and valid
-     * transactions: <p> {@code map(merkle root hash, pair(finalized block, block body))}. <p>
-     * When the required block with signatures is received via
-     * blockmess, then it is added to this collection (left field in the pair),
-     * When there are consecutive valid blocks from the beggining,
-     * then they are appendend to the blockchain and removed from
-     * this collection (FIFO through LinkedHashMap).
-     */
-    // protected Map<String, Pair<Optional<HyFlexChainBlock>, BlockBody>> waitingForSignatures;
 
     /**
      * A blockchain structure to temporary save the ordered and valid
@@ -101,7 +90,8 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
 
     @Override
     public void init() {
-        this.staticCommittee = this.committeeElection.performCommitteeElection(this.lvi, null);
+        this.staticCommittee = this.committeeElection.performCommitteeElection(this.lvi,
+            this.config.getStaticElectionCriteria());
 
         // init bft smart
         this.bftSmartReplica = new BFT_SMaRtServiceReplica();

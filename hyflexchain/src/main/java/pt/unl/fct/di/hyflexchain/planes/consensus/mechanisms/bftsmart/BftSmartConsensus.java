@@ -2,8 +2,6 @@ package pt.unl.fct.di.hyflexchain.planes.consensus.mechanisms.bftsmart;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
-import java.util.LinkedHashMap;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,9 +10,6 @@ import pt.unl.fct.di.hyflexchain.planes.application.lvi.LedgerViewInterface;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusInterface;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.data.block.BlockBody;
-import pt.unl.fct.di.hyflexchain.planes.data.block.BlockMetaHeader;
-import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
-import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
 
 /**
  * An implementation of a consensus mechanism based on the

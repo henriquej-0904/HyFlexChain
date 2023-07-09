@@ -3,25 +3,36 @@ package pt.unl.fct.di.hyflexchain.planes.consensus.committees;
 /**
  * Represents the criteria used to elect a specific
  * committee for a consensus mechanism.
- * 
- * @param size Max size of the committee
- * @param sizeThreshold The min number of active participants
- * to be able to execute the committee functions
- * @param randSource The type of randomness source used to elect a committee
- * @param validity An object to verify if a committee is still valid to be used.
  */
-public record CommitteeElectionCriteria(
-	int size,
-	int sizeThreshold,
-	RandSource randSource,
-	CommitteeValidity validity
-) {
-	
+public class CommitteeElectionCriteria {
+	public final int size;
+
+	public final int sizeThreshold;
+
+	public final RandSource randSource;
+
+	public final CommitteeValidity validity;
+
+	/**
+	 * @param size          Max size of the committee
+	 * @param sizeThreshold The min number of active participants
+	 *                      to be able to execute the committee functions
+	 * @param randSource    The type of randomness source used to elect a committee
+	 * @param validity      An object to verify if a committee is still valid to be
+	 *                      used.
+	 */
+	public CommitteeElectionCriteria(int size, int sizeThreshold, RandSource randSource,
+		CommitteeValidity validity) {
+		this.size = size;
+		this.sizeThreshold = sizeThreshold;
+		this.randSource = randSource;
+		this.validity = validity;
+	}
+
 	/**
 	 * The type of randomness source used to elect a committee.
 	 */
-	public static enum RandSource
-	{
+	public static enum RandSource {
 		/**
 		 * Randomness based on a local approach where each node
 		 * computes a deterministic function to obtain a random seed.
@@ -36,6 +47,12 @@ public record CommitteeElectionCriteria(
 		DRAND
 	}
 
-	
+	/**
+	 * The validity of a committee measured in the max number of blocks
+	 * it can create.
+	 * 
+	 * @param blocks The max number of blocks a committee can create
+	 */
+	public static record CommitteeValidity(int blocks) {}
 
 }

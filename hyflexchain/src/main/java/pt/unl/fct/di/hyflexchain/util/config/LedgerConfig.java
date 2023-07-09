@@ -54,6 +54,32 @@ public class LedgerConfig {
 	 * @param key The key to search for the value
 	 * @return The value associated with the specified key or null.
 	 */
+	public String getConfigValueOrThrowError(String key)
+	{
+		var res = this.allConfigs.getConfigValue(key, this.consensus);
+
+		if (res == null)
+			throw new Error(String.format(
+				"%s is not defined in %s config.", key, this.consensus));
+
+		return res;
+	}
+
+	public int getConfigIntValueOrThrowError(String key)
+	{
+		try {
+			return Integer.parseInt(getConfigValueOrThrowError(key));
+		} catch (Exception e) {
+			throw new Error(String.format(
+				"%s is not defined in %s config.", key, this.consensus), e);
+		}
+	}
+
+	/**
+	 * Get the value of the specified key
+	 * @param key The key to search for the value
+	 * @return The value associated with the specified key or null.
+	 */
 	public String getConfigValue(MultiLedgerConfig.GENERAL_CONFIG key)
 	{
 		return getConfigValue(key.toString());

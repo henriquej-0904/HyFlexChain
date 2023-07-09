@@ -1,12 +1,24 @@
-package pt.unl.fct.di.hyflexchain.planes.consensus.committees;
+package pt.unl.fct.di.hyflexchain.planes.consensus.committees.election;
 
 import pt.unl.fct.di.hyflexchain.planes.application.lvi.LedgerViewInterface;
+import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
+import pt.unl.fct.di.hyflexchain.planes.consensus.committees.Committee;
+import pt.unl.fct.di.hyflexchain.planes.consensus.committees.CommitteeElectionCriteria;
 
 /**
  * An Interface for electing a committee of nodes with sybil resistance.
  */
-public interface SybilResistantCommitteeElection {
+public interface SybilResistantCommitteeElection
+	<T extends Committee, Criteria extends CommitteeElectionCriteria>
+{
 	
+	/**
+	 * The consensus mechanism of the elected committees.
+	 * @return The consensus mechanism of the elected committees.
+	 */
+	ConsensusMechanism consensus();
+
+
 	/**
 	 * Perform a commitee election procedure based on the current
 	 * Ledger view, consensus mechanism and election criteria.
@@ -14,7 +26,7 @@ public interface SybilResistantCommitteeElection {
 	 * @param criteria Other election criteria
 	 * @return The elected committee.
 	 */
-	Committee performCommitteeElection(LedgerViewInterface lvi, CommitteeElectionCriteria criteria);
+	T performCommitteeElection(LedgerViewInterface lvi, Criteria criteria);
 
 
 	/**

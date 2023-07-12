@@ -8,6 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.Address;
 import pt.unl.fct.di.hyflexchain.util.Utils;
@@ -35,7 +36,7 @@ public class GenerateAddress {
         String entry;
         PublicKey key;
 
-        Map<Address, String> map = new LinkedHashMap<>();
+        Map<String, String> map = new LinkedHashMap<>();
 
         while (entries.hasMoreElements()) {
             entry = entries.nextElement();
@@ -44,11 +45,12 @@ public class GenerateAddress {
                 continue;
 
             key = ks.getCertificate(entry).getPublicKey();
-            map.put(Address.fromPubKey(key), entry);
+            map.put(Address.fromPubKey(key).address(), entry);
 
             // System.out.printf("%s:\t%s\n", entry, Address.fromPubKey(key).address());
         }
 
+        Utils.json.configure(SerializationFeature.INDENT_OUTPUT, true);
         System.out.println(Utils.json.writeValueAsString(map));
     }
 }

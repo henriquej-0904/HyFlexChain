@@ -58,7 +58,7 @@ public record HyFlexChainBlock(
 
 		BlockMetaHeader metaHeader =
 			new BlockMetaHeader(consensus, 0, new HyflexchainSignature[0],
-			"", "");
+			0, "");
 		BlockHeader header = BlockHeader.create(metaHeader, "genesis block",
 			body.getMerkleTree().getRoot().hash(), 0);
 

@@ -4,14 +4,20 @@ package pt.unl.fct.di.hyflexchain.planes.consensus.committees;
  * Represents the criteria used to elect a specific
  * committee for a consensus mechanism.
  */
-public class CommitteeElectionCriteria {
-	public final int size;
+public class CommitteeElectionCriteria
+{
+	protected int size;
 
-	public final int sizeThreshold;
+	protected int sizeThreshold;
 
-	public final RandSource randSource;
+	protected RandSource randSource;
 
-	public final CommitteeValidity validity;
+	protected CommitteeValidity validity;
+
+	public CommitteeElectionCriteria()
+	{
+
+	}
 
 	/**
 	 * @param size          Max size of the committee
@@ -28,6 +34,66 @@ public class CommitteeElectionCriteria {
 		this.randSource = randSource;
 		this.validity = validity;
 	}
+
+	
+
+	/**
+	 * @return the size
+	 */
+	public int getSize() {
+		return size;
+	}
+
+	/**
+	 * @param size the size to set
+	 */
+	public void setSize(int size) {
+		this.size = size;
+	}
+
+	/**
+	 * @return the sizeThreshold
+	 */
+	public int getSizeThreshold() {
+		return sizeThreshold;
+	}
+
+	/**
+	 * @param sizeThreshold the sizeThreshold to set
+	 */
+	public void setSizeThreshold(int sizeThreshold) {
+		this.sizeThreshold = sizeThreshold;
+	}
+
+	/**
+	 * @return the randSource
+	 */
+	public RandSource getRandSource() {
+		return randSource;
+	}
+
+	/**
+	 * @param randSource the randSource to set
+	 */
+	public void setRandSource(RandSource randSource) {
+		this.randSource = randSource;
+	}
+
+	/**
+	 * @return the validity
+	 */
+	public CommitteeValidity getValidity() {
+		return validity;
+	}
+
+	/**
+	 * @param validity the validity to set
+	 */
+	public void setValidity(CommitteeValidity validity) {
+		this.validity = validity;
+	}
+
+
 
 	/**
 	 * The type of randomness source used to elect a committee.
@@ -53,6 +119,15 @@ public class CommitteeElectionCriteria {
 	 * 
 	 * @param blocks The max number of blocks a committee can create
 	 */
-	public static record CommitteeValidity(int blocks) {}
+	public static record CommitteeValidity(int blocks) {
+
+		public static final CommitteeValidity INFINITE_VALIDITY =
+			new CommitteeValidity(-1);
+
+		public boolean infiniteValidity()
+		{
+			return blocks == -1;
+		}
+	}
 
 }

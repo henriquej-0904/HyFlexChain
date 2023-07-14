@@ -2,6 +2,7 @@ package pt.unl.fct.di.hyflexchain.planes.consensus.mechanisms.bftsmart;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.SignatureException;
@@ -71,7 +72,7 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
     private static final byte[] FALSE = new byte[] { 0 };
 
     private static final int DIFF_TARGET = 0;
-    private static final String COMMITTEE_ID = "0";
+    private static final int COMMITTEE_ID = 0;
     private static final String COMMITTEE_BLOCK_HASH = "";
 
     /**
@@ -93,14 +94,21 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
         this.staticCommittee = this.committeeElection.performCommitteeElection(this.lvi,
             this.config.getStaticElectionCriteria());
 
-        // init bft smart
-        this.bftSmartReplica = new BFT_SMaRtServiceReplica();
+        var selfAddress = config.getLedgerConfig().getMultiLedgerConfig().getSelfAddress();
+
+        // check if this node is in the committee
+        if (this.staticCommittee.getCommitteeAddresses().contains(selfAddress))
+        {
+            // init bft smart
+            this.bftSmartReplica = new BFT_SMaRtServiceReplica(this.staticCommittee);
+        }
 
         // init blockmess connector
         initBlockmess();
 
         new Thread(
-			new BftSmartConsensusThread(this, config.getLedgerConfig()),
+			new BftSmartConsensusThread(this, config.getLedgerConfig(),
+                () -> this.staticCommittee),
 			"BFT-SMaRt-Consensus-Thread")
 		.start();
     }
@@ -124,8 +132,7 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
 
             this.bftSmartClientAsync = new AsynchServiceProxy(
                     (config.getBftSmartReplicaId() + 1) * 3256,
-                    "", // config.getBftSmartConfigFolder().getAbsolutePath(),
-                    null, null, null);
+                    "", null, null, null);
 
             return this.bftSmartClientAsync;
         }
@@ -140,7 +147,9 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
             listener.submitAsyncOrderedRequest(operation, (reply) -> {
                 try {
                     BftsmartConsensusResult result =
-                        BftsmartConsensusResult.fromReply(reply.getReplyBytes());
+                        BftsmartConsensusResult.SERIALIZER.deserialize(
+                            ByteBuffer.wrap(reply.getReplyBytes())
+                        );
 
                     boolean res = result.isOk();
 
@@ -167,7 +176,7 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
                         .toHexString();
 
                     var block = createBlock(reply.getSignatures().values()
-                    .toArray(HyflexchainSignature[]::new), previous, blockBody);
+                    .toArray(HyflexchainSignature[]::new), okReply.nonce(), previous, blockBody);
                     
                     LOG.info("BFT-SMART: Validated block from committee with {} signatures: {}",
                             reply.getSignaturesCount(),
@@ -196,10 +205,12 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
         return new BftSmartReplyListener(
             getBftSmartClientAsync(),
             this.staticCommittee.getCommitteeAddresses(),
-            3);
+            this.staticCommittee.getBftCriteria().consensusQuorum());
     }
 
-    protected HyFlexChainBlock createBlock(HyflexchainSignature[] validators, String previous, BlockBody body) {
+    protected HyFlexChainBlock createBlock(HyflexchainSignature[] validators, long nonce,
+        String previous, BlockBody body)
+    {
         BlockMetaHeader metaHeader = new BlockMetaHeader(this.consensus, DIFF_TARGET, validators,
                 COMMITTEE_ID, COMMITTEE_BLOCK_HASH);
 
@@ -215,7 +226,7 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
 
         BlockHeader header = BlockHeader.create(metaHeader, previous,
                 body.getMerkleTree().getRoot().hash(),
-                lvi.getBlockchainSize(this.consensus) + 1);
+                nonce);
 
         HyFlexChainBlock block = new HyFlexChainBlock(header, body);
         
@@ -230,7 +241,7 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
         return  block.header().getMetaHeader().getConsensus() == this.consensus &&
                 metaHeader.getDifficultyTarget() == DIFF_TARGET &&
                 verifyValidators(block) &&
-                metaHeader.getCommitteeId().equalsIgnoreCase(COMMITTEE_ID) &&
+                metaHeader.getCommitteeId() == COMMITTEE_ID &&
                 metaHeader.getCommitteeBlockHash().equalsIgnoreCase(COMMITTEE_BLOCK_HASH);
     }
 
@@ -240,7 +251,7 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
         var previous = block.header().getPrevHash();
         var hash = block.header().getMerkleRoot();
 
-        if (validators.length < 3)
+        if (validators.length < this.staticCommittee.getBftCriteria().consensusQuorum())
         {
             LOG.info("Invalid block meta header: not enough validators - " + validators.length);
             return false;
@@ -260,6 +271,7 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
 
         var data = BftsmartConsensusResult.SERIALIZER.serialize(
             BftsmartConsensusResult.ok(new VerifiedTransactionsReply(
+                    block.header().getNonce(),
                     Bytes.fromHexString(previous).toArrayUnsafe(),
                     Bytes.fromHexString(hash).toArrayUnsafe()
             ))
@@ -331,21 +343,29 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
 
         protected final byte[] EMPTY = new byte[0];
 
-        protected ServiceReplica replica;
+        protected final ServiceReplica replica;
 
-        protected Address selfAddress;
-        protected KeyPair selfKeyPair;
-        protected SignatureAlgorithm sigAlg;
+        protected final BftCommittee committee;
+        protected final long nBlocksValidity;
+        protected long successfullOrderedBlocks;
+
+        protected final Address selfAddress;
+        protected final KeyPair selfKeyPair;
+        protected final SignatureAlgorithm sigAlg;
 
         protected String lastBlockHash;
 
-        protected BFT_SMaRtServiceReplica() {
+        protected BFT_SMaRtServiceReplica(BftCommittee committee) {
             var config = BftSmartStaticCommitteeConsensus.this.config;
             this.replica = new ServiceReplica(
                     config.getBftSmartReplicaId(),
                     "",
                     // config.getBftSmartConfigFolder().getAbsolutePath(),
                     this, this, null, new DefaultReplier(), null);
+
+            this.committee = committee;
+            this.nBlocksValidity = this.committee.getBftCriteria().getValidity().blocks();
+            this.successfullOrderedBlocks = 0;
 
             var multiledgerConfig = config.getLedgerConfig().getMultiLedgerConfig();
             this.selfAddress = multiledgerConfig.getSelfAddress();
@@ -364,9 +384,21 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
         {
             return BftSmartStaticCommitteeConsensus.super.verifyBody(body);
         }
+
+        protected boolean isCommitteeActive()
+        {
+            return this.nBlocksValidity == -1 ||
+                this.nBlocksValidity > this.successfullOrderedBlocks;
+        }
         
         @Override
         public byte[] appExecuteOrdered(byte[] arg0, MessageContext arg1) {
+
+            if (!isCommitteeActive())
+            {
+                LOG.info("BFT_SMART: Committee is no longer valid");
+                return FALSE;
+            }
 
             /**
              * Process an ordered operation through BFT-SMaRt:
@@ -388,7 +420,7 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
                         Bytes.fromHexString(merkleHash).toArrayUnsafe()
                     ).signReply(this.selfAddress, this.selfKeyPair.getPrivate(), this.sigAlg)
                     .serialize();
-				}
+				} 
 
                 final String merkleHash = blockBody.getMerkleTree().getRoot().hash();
 
@@ -397,10 +429,11 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
                  */
                 final String previousMerkleHash = this.lastBlockHash;
 
-                // Update previous merkkle hash with the current one
+                // Update previous merkle hash with the current one
                 this.lastBlockHash = merkleHash;
 
                 var reply = BftsmartConsensusResult.ok(new VerifiedTransactionsReply(
+                    this.successfullOrderedBlocks,
                     Bytes.fromHexString(previousMerkleHash).toArrayUnsafe(),
                     Bytes.fromHexString(merkleHash).toArrayUnsafe()
                 ));
@@ -410,7 +443,12 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
 
                 LOG.info("BFT-SMART: Accepted block with hash: " + merkleHash);
 
-				return signedReply.serialize();
+				var replyBytes = signedReply.serialize();
+
+                // increment n blocks
+                this.successfullOrderedBlocks++;
+
+                return replyBytes;
                 
             } catch (Exception e) {
                 Utils.logError(e, LOG);
@@ -466,6 +504,15 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
                 if (!verifyBlock(block))
                 {
                     LOG.info("Received invalid block with hash: " + block.header().getMetaHeader().getHash());
+                    return;
+                }
+
+                var nonce = block.header().getNonce();
+                var committeeValidity = staticCommittee.getBftCriteria().getValidity();
+                if ( !committeeValidity.infiniteValidity() && nonce >= committeeValidity.blocks())
+                {
+                    LOG.info("Received invalid block from committee with invalid validity with hash {}, nonce {}, validity {}",
+                        block.header().getMetaHeader().getHash(), nonce, committeeValidity.blocks());
                     return;
                 }
 

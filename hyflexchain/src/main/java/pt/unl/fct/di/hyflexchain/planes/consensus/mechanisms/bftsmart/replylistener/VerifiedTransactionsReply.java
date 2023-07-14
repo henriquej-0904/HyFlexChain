@@ -17,15 +17,12 @@ import pt.unl.fct.di.hyflexchain.util.serializers.BytesSerializer;
  * and is valid.
  */
 public record VerifiedTransactionsReply(
+        long nonce,
         byte[] prevBlockMerkleRootHash,
         byte[] merkleRootHash)
 {
     public static final BytesSerializer<VerifiedTransactionsReply> SERIALIZER =
         new VerifiedTransactionsReply.Serializer();
-    
-    
-    private static final BytesSerializer<byte[]> arraySerializer = BytesSerializer
-            .primitiveArraySerializer(byte[].class);
 
     /**
      * Parse the signed reply.
@@ -34,15 +31,8 @@ public record VerifiedTransactionsReply(
      * @return The parsed reply
      */
     public static VerifiedTransactionsReply fromReply(SignedReply reply) {
-        ByteBuffer buff = ByteBuffer.wrap(reply.replyBytes);
-
-        try {
-            return new VerifiedTransactionsReply(
-                    arraySerializer.deserialize(buff),
-                    arraySerializer.deserialize(buff));
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Invalid VerifiedTransactionsReply", e);
-        }
+        final ByteBuffer buff = ByteBuffer.wrap(reply.replyBytes);
+        return SERIALIZER.deserialize(buff);
     }
 
     /**
@@ -55,26 +45,18 @@ public record VerifiedTransactionsReply(
      * @throws InvalidKeyException
      * @throws SignatureException
      */
-    public SignedReply signReply(
-            Address address,
-            PrivateKey privKey,
-            SignatureAlgorithm signatureAlg) throws InvalidKeyException, SignatureException {
-        ByteBuffer data = serializeReply();
+    public SignedReply signReply(Address address, PrivateKey privKey,
+        SignatureAlgorithm signatureAlg) throws InvalidKeyException, SignatureException
+    {
+        final ByteBuffer data = SERIALIZER.serialize(this);
         HyflexchainSignature sig = HyflexchainSignature.sign(address, privKey, signatureAlg, data);
         return new SignedReply(sig, data.array());
     }
 
-    private ByteBuffer serializeReply() {
-        int size = arraySerializer.serializedSize(prevBlockMerkleRootHash) +
-                arraySerializer.serializedSize(merkleRootHash);
-
-        ByteBuffer buff = ByteBuffer.allocate(size);
-        buff = arraySerializer.serialize(prevBlockMerkleRootHash, buff);
-        return arraySerializer.serialize(merkleRootHash, buff)
-                .position(0);
-    }
-
     static class Serializer implements BytesSerializer<VerifiedTransactionsReply> {
+
+        private static final BytesSerializer<byte[]> arraySerializer = BytesSerializer
+            .primitiveArraySerializer(byte[].class);
 
         @Override
         public Class<VerifiedTransactionsReply> getType() {
@@ -83,12 +65,13 @@ public record VerifiedTransactionsReply(
 
         @Override
         public int serializedSize(VerifiedTransactionsReply obj) {
-            return arraySerializer.serializedSize(obj.prevBlockMerkleRootHash) +
+            return Long.BYTES + arraySerializer.serializedSize(obj.prevBlockMerkleRootHash) +
                     arraySerializer.serializedSize(obj.merkleRootHash);
         }
 
         @Override
         public ByteBuffer serialize(VerifiedTransactionsReply obj, ByteBuffer buff) {
+            buff.putLong(obj.nonce);
             buff = arraySerializer.serialize(obj.prevBlockMerkleRootHash, buff);
             return arraySerializer.serialize(obj.merkleRootHash, buff);
         }
@@ -97,6 +80,7 @@ public record VerifiedTransactionsReply(
         public VerifiedTransactionsReply deserialize(ByteBuffer buff) {
             try {
                 return new VerifiedTransactionsReply(
+                        buff.getLong(),
                         arraySerializer.deserialize(buff),
                         arraySerializer.deserialize(buff));
             } catch (Exception e) {

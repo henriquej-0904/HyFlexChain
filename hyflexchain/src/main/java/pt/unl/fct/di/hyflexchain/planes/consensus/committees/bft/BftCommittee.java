@@ -16,4 +16,9 @@ public class BftCommittee extends Committee
     {
 		super(consensusMechanism, criteria, committee);
 	}
+
+	public BftCommitteeElectionCriteria getBftCriteria()
+	{
+		return (BftCommitteeElectionCriteria) this.criteria;
+	}
 }

@@ -8,7 +8,12 @@ import pt.unl.fct.di.hyflexchain.planes.consensus.committees.CommitteeElectionCr
 public class BftCommitteeElectionCriteria extends CommitteeElectionCriteria
 {
 
-    public final int f;
+    protected int f;
+
+    public BftCommitteeElectionCriteria()
+    {
+
+    }
 
     /**
      * @param size
@@ -30,10 +35,32 @@ public class BftCommitteeElectionCriteria extends CommitteeElectionCriteria
      * @param f            The maximum number of faulty replicas
      */
     public BftCommitteeElectionCriteria(CommitteeElectionCriteria baseCriteria, int f) {
-        super(baseCriteria.size, baseCriteria.sizeThreshold,
-            baseCriteria.randSource, baseCriteria.validity);
+        super(baseCriteria.getSize(), baseCriteria.getSizeThreshold(),
+            baseCriteria.getRandSource(), baseCriteria.getValidity());
         
         this.f = f;
     }
 
+    /**
+     * @return the f
+     */
+    public int getF() {
+        return f;
+    }
+
+    /**
+     * @param f the f to set
+     */
+    public void setF(int f) {
+        this.f = f;
+    }
+
+    /**
+     * Get the quorum size for this committee = 2 * {@link #getF()} + 1
+     * @return The size for the qurom of this committee
+     */
+    public int consensusQuorum()
+    {
+        return 2*f+1;
+    }
 }

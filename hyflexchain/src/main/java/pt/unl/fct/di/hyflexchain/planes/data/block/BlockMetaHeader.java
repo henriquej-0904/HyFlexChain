@@ -39,7 +39,7 @@ public class BlockMetaHeader
 	/**
 	 * The id of the committee assigned to the consensus of this block
 	 */
-	protected String committeeId;
+	protected int committeeId;
 
 	/**
 	 * The hash of the block where the committee was created
@@ -57,7 +57,7 @@ public class BlockMetaHeader
 	 * @param committeeBlockHash The hash of the block where the committee was created
 	 */
 	public BlockMetaHeader(String hash, String version, ConsensusMechanism consensus,
-			int difficultyTarget, HyflexchainSignature[] validators, String committeeId,
+			int difficultyTarget, HyflexchainSignature[] validators, int committeeId,
 			String committeeBlockHash) {
 		this.hash = hash;
 		this.version = version;
@@ -77,7 +77,7 @@ public class BlockMetaHeader
 	 * @param committeeBlockHash The hash of the block where the committee was created
 	 */
 	public BlockMetaHeader(ConsensusMechanism consensus,
-			int difficultyTarget, HyflexchainSignature[] validators, String committeeId,
+			int difficultyTarget, HyflexchainSignature[] validators, int committeeId,
 			String committeeBlockHash) {
 		this.version = Version.V1_0.getVersion();
 		this.consensus = consensus;
@@ -199,7 +199,7 @@ public class BlockMetaHeader
 	 * The id of the committee assigned to the consensus of this block
 	 * @return the committeeId
 	 */
-	public String getCommitteeId() {
+	public int getCommitteeId() {
 		return committeeId;
 	}
 
@@ -207,7 +207,7 @@ public class BlockMetaHeader
 	 * The id of the committee assigned to the consensus of this block
 	 * @param committeeId the committeeId to set
 	 */
-	public void setCommitteeId(String committeeId) {
+	public void setCommitteeId(int committeeId) {
 		this.committeeId = committeeId;
 	}
 
@@ -242,7 +242,7 @@ public class BlockMetaHeader
 			}
 		}
 
-		msgDigest.update(committeeId.getBytes());
+		msgDigest.update(Utils.toBytes(committeeId));
 		msgDigest.update(committeeBlockHash.getBytes());
 
 		return msgDigest;

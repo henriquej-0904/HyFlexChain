@@ -22,46 +22,88 @@ public class VerifiedBlockProcessor {
     private final DataPlane ledger;
 
     /**
-     * A map in which the key is the previous block hash
+     * A map in which the key is the committee ID and the value is a
+     * map with the previous block hash
      * of the associated block
      */
-    private final Map<String, HyFlexChainBlock> pendingBlocks;
+    private final Map<String, Map<String, HyFlexChainBlock>> pendingBlocks;
 
     /**
      * @param lvi
      * @param ledger
-     * @param pendingBlocks
+     * @param consensus
      */
     public VerifiedBlockProcessor(LedgerViewInterface lvi, DataPlane ledger,
         ConsensusMechanism consensus) {
         this.consensus = consensus;
         this.lvi = lvi;
         this.ledger = ledger;
-        this.pendingBlocks = HashMap.newHashMap(100);
+        this.pendingBlocks = HashMap.newHashMap(10);
+    }
+
+    protected Map<String, HyFlexChainBlock> getPendingBlocks(int committeeId,
+        String committeeBlockHash)
+    {
+        return this.pendingBlocks.get(committeeBlockHash + "_" + committeeId);
+    }
+
+    protected Map<String, HyFlexChainBlock> removePendingBlocks(int committeeId,
+        String committeeBlockHash)
+    {
+        return this.pendingBlocks.remove(committeeBlockHash + "_" + committeeId);
+    }
+
+    protected Map<String, HyFlexChainBlock> getOrCreatePendingBlocks(int committeeId,
+        String committeeBlockHash)
+    {
+        return this.pendingBlocks.computeIfAbsent(committeeBlockHash + "_" + committeeId,
+            (k) -> HashMap.newHashMap(20));
     }
 
     public boolean alreadyProcessed(HyFlexChainBlock block)
     {
-        return pendingBlocks.containsKey(block.header().getPrevHash()) ||
-            lvi.getBlockState(block.header().getMetaHeader().getHash(), consensus).isPresent();
+        var pendingBlocksForCommittee = getPendingBlocks(block.header().getMetaHeader().getCommitteeId(),
+            block.header().getMetaHeader().getCommitteeBlockHash());
+
+        if (pendingBlocksForCommittee == null)
+            return lvi.getBlockState(block.header().getMetaHeader().getHash(), consensus).isPresent();
+        
+        return pendingBlocksForCommittee.containsKey(block.header().getPrevHash())
+            || lvi.getBlockState(block.header().getMetaHeader().getHash(), consensus).isPresent();
     }
 
     public void processBlock(HyFlexChainBlock block)
     {
-        String hash = block.header().getMetaHeader().getHash();
-        String previousHash = block.header().getPrevHash();
+        final String hash = block.header().getMetaHeader().getHash();
+        final String previousHash = block.header().getPrevHash();
+
+        final int committeeId = block.header().getMetaHeader().getCommitteeId();
+        final String committeeBlockHash = block.header().getMetaHeader().getCommitteeBlockHash();
+        final var pendingBlocksForCommittee = getOrCreatePendingBlocks(committeeId, committeeBlockHash);
 
         // if found next block
         if (lvi.getLastBlockHash(consensus).equals(previousHash))
         {
             ledger.writeOrderedBlock(block, consensus);
-            updateLedger(hash);
+            updateLedger(pendingBlocksForCommittee, hash);
         }
         else
-            pendingBlocks.put(previousHash, block);        
+            pendingBlocksForCommittee.put(previousHash, block);
     }
 
-    private void updateLedger(String lastBlockHash)
+    public void processLastBlock(HyFlexChainBlock block)
+    {
+        processBlock(block);
+
+        final int committeeId = block.header().getMetaHeader().getCommitteeId();
+        final String committeeBlockHash = block.header().getMetaHeader().getCommitteeBlockHash();
+        final var pendingBlocksForCommittee = getPendingBlocks(committeeId, committeeBlockHash);
+
+        if (pendingBlocksForCommittee.isEmpty())
+            removePendingBlocks(committeeId, committeeBlockHash);
+    }
+
+    private void updateLedger(Map<String, HyFlexChainBlock> pendingBlocks, String lastBlockHash)
     {
         HyFlexChainBlock block;
 

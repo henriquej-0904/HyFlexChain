@@ -33,7 +33,7 @@ public class PowConsensus extends ConsensusInterface
 
 	private static final int DIFF_TARGET = 0;
 	private static final HyflexchainSignature[] VALIDATORS = new HyflexchainSignature[0];
-	private static final String COMMITTEE_ID = "";
+	private static final int COMMITTEE_ID = 0;
 	private static final String COMMITTEE_BLOCK_HASH = "";
 
 	protected static final ConsensusMechanism POW = ConsensusMechanism.PoW;
@@ -135,7 +135,7 @@ public class PowConsensus extends ConsensusInterface
 		return super.verifyMetaHeader(block) &&
 			metaHeader.getDifficultyTarget() == DIFF_TARGET &&
 			Arrays.equals(VALIDATORS, metaHeader.getValidators()) &&
-			metaHeader.getCommitteeId().equalsIgnoreCase(COMMITTEE_ID) &&
+			metaHeader.getCommitteeId() == COMMITTEE_ID &&
 			metaHeader.getCommitteeBlockHash().equalsIgnoreCase(COMMITTEE_BLOCK_HASH);
 	}
 	

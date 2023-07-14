@@ -32,23 +32,6 @@ public interface BftsmartConsensusResult extends Result<VerifiedTransactionsRepl
             PrivateKey privKey,
             SignatureAlgorithm signatureAlg) throws InvalidKeyException, SignatureException;
 
-    static BftsmartConsensusResult fromReply(byte[] reply) {
-        try {
-            ByteBuffer buff = ByteBuffer.wrap(reply);
-            boolean ok = buff.get() == 1;
-
-            if (ok)
-                return ok(VerifiedTransactionsReply.SERIALIZER.deserialize(buff));
-            else
-                return failed(
-                        BytesSerializer.primitiveArraySerializer(byte[].class)
-                                .deserialize(buff));
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Reply is not a BftsmartConsensusResult", e);
-        }
-
-    }
-
     static BftsmartConsensusResult ok(VerifiedTransactionsReply result) {
         return new OkConsensusResult(result);
     }
@@ -59,7 +42,6 @@ public interface BftsmartConsensusResult extends Result<VerifiedTransactionsRepl
 
     class OkConsensusResult extends OkResult<VerifiedTransactionsReply, byte[]>
             implements BftsmartConsensusResult {
-        private static final byte TRUE = 1;
 
         public OkConsensusResult(VerifiedTransactionsReply result) {
             super(result);
@@ -68,23 +50,17 @@ public interface BftsmartConsensusResult extends Result<VerifiedTransactionsRepl
         @Override
         public SignedReply signReply(Address address, PrivateKey privKey,
                 SignatureAlgorithm signatureAlg)
-                throws InvalidKeyException, SignatureException {
-            var serializer = VerifiedTransactionsReply.SERIALIZER;
-            ByteBuffer data = ByteBuffer.allocate(
-                    1 + serializer.serializedSize(this.getOkResult()));
-
-            data.put(TRUE);
-            data = serializer.serialize(getOkResult(), data).position(0);
-
+                throws InvalidKeyException, SignatureException
+        {
+            final var data = SERIALIZER.serialize(this);
             HyflexchainSignature sig = HyflexchainSignature.sign(address, privKey, signatureAlg, data);
             return new SignedReply(sig, data.array());
         }
     }
 
     class FailedConsensusResult extends FailedResult<VerifiedTransactionsReply, byte[]>
-            implements BftsmartConsensusResult {
-        private static final byte FALSE = 1;
-
+            implements BftsmartConsensusResult
+    {
         public FailedConsensusResult(byte[] result) {
             super(result);
         }
@@ -92,14 +68,9 @@ public interface BftsmartConsensusResult extends Result<VerifiedTransactionsRepl
         @Override
         public SignedReply signReply(Address address, PrivateKey privKey,
                 SignatureAlgorithm signatureAlg)
-                throws InvalidKeyException, SignatureException {
-            var serializer = BytesSerializer.primitiveArraySerializer(byte[].class);
-            ByteBuffer data = ByteBuffer.allocate(
-                    1 + serializer.serializedSize(this.getFailedResult()));
-
-            data.put(FALSE);
-            data = serializer.serialize(getFailedResult(), data).position(0);
-
+                throws InvalidKeyException, SignatureException
+        {
+            final var data = SERIALIZER.serialize(this);
             HyflexchainSignature sig = HyflexchainSignature.sign(address, privKey, signatureAlg, data);
             return new SignedReply(sig, data.array());
         }

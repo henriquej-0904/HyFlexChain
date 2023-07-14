@@ -1,9 +1,12 @@
 package pt.unl.fct.di.hyflexchain.planes.consensus.mechanisms.bftsmart;
 
+import java.util.function.Supplier;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusInterface;
+import pt.unl.fct.di.hyflexchain.planes.consensus.committees.bft.BftCommittee;
 import pt.unl.fct.di.hyflexchain.planes.data.block.BlockBody;
 import pt.unl.fct.di.hyflexchain.planes.txmanagement.TransactionManagement;
 import pt.unl.fct.di.hyflexchain.planes.txmanagement.txpool.TxPool;
@@ -18,14 +21,22 @@ public class BftSmartConsensusThread implements Runnable {
 
 	private final ConsensusInterface consensus;
 
+	private final Supplier<BftCommittee> activeCommittee;
+
+	private BftCommittee previousCommittee;
+
+	private boolean isInCommittee;
+
 	/**
 	 * @param consensus
 	 * @param nTxsInBlock
 	 */
-	public BftSmartConsensusThread(ConsensusInterface consensus, LedgerConfig config) {
+	public BftSmartConsensusThread(ConsensusInterface consensus, LedgerConfig config,
+		Supplier<BftCommittee> activeCommittee) {
 		this.consensus = consensus;
 		this.nTxsInBlock = config.getNumTxsInBlock();
 		this.blockCreateTime = config.getCreateBlockTime();
+		this.activeCommittee = activeCommittee;
 	}
 
 	@Override

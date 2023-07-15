@@ -4,14 +4,10 @@ import java.io.File;
 import java.util.List;
 import java.util.stream.Stream;
 
-import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.consensus.committees.CommitteeElectionCriteria.CommitteeValidity;
 import pt.unl.fct.di.hyflexchain.planes.consensus.committees.CommitteeElectionCriteria.RandSource;
 import pt.unl.fct.di.hyflexchain.planes.consensus.committees.bft.BftCommitteeElectionCriteria;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.Address;
-import pt.unl.fct.di.hyflexchain.planes.network.Host;
-import pt.unl.fct.di.hyflexchain.planes.network.directory.AddressDirectoryService;
-import pt.unl.fct.di.hyflexchain.planes.network.directory.StaticAddressDirectoryService;
 import pt.unl.fct.di.hyflexchain.util.config.LedgerConfig;
 
 /**
@@ -72,19 +68,6 @@ public class BFT_SMaRtConfig
 
         try {
             return Integer.parseInt(res);
-        } catch (Exception e) {
-            throw new Error(e.getMessage(), e);
-        }
-    }
-
-    public AddressDirectoryService<Host> getDirectoryService()
-    {
-        var res = this.config.getConfigValue(Configs.ADDRESSES_CONFIG_FILE.name);
-
-        try {
-            File file = res != null ? new File(res) :
-                new File(this.config.getConfigFolder(), "addresses.json");
-            return StaticAddressDirectoryService.fromJsonFile(ConsensusMechanism.BFT_SMaRt, file);
         } catch (Exception e) {
             throw new Error(e.getMessage(), e);
         }

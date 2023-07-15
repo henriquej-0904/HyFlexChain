@@ -2,11 +2,13 @@
 
 # Script to create all needed addresses.
 
-nReplicas=$1
+min_id=$1
+max_id=$2
+
 configFolder="./hyflexchain-config/keys"
 keystorepass="keystorepwd"
 
-rm -r $configFolder
+# rm -r $configFolder
 mkdir -p $configFolder
 
 # Create replica's keypairs & certificates
@@ -14,11 +16,12 @@ mkdir -p $configFolder
 echo -----------------------------------------------------------------------------
 echo Generating Key pairs and addresses...
 
-for (( i=0; i < $nReplicas; i++ ));
+for (( i=$min_id; i <= $max_id; i++ ));
 do
-
     replicaAlias="replica-$i"
     replicaFolder=$configFolder/$replicaAlias
+
+    rm -rf $replicaFolder
 
     echo ""
     echo $replicaAlias
@@ -30,6 +33,9 @@ do
 
     # Export certificate
     keytool -export -alias $replicaAlias -keystore $replicaFolder/keystore.pkcs12 -storepass $keystorepass -file $replicaFolder/certificate.pem
+
+    # Remove old entry
+    keytool -delete -alias $replicaAlias -keystore $configFolder/truststore.pkcs12 -storepass $keystorepass -storetype pkcs12
 
     # Copy certificate to truststore to be used by the client
     keytool -import -noprompt -alias $replicaAlias -file $replicaFolder/certificate.pem -keystore $configFolder/truststore.pkcs12 -storepass $keystorepass -storetype pkcs12

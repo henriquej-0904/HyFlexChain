@@ -24,6 +24,9 @@ import org.apache.commons.cli.ParseException;
 
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.Address;
+import pt.unl.fct.di.hyflexchain.planes.network.Host;
+import pt.unl.fct.di.hyflexchain.planes.network.directory.address.AddressDirectoryService;
+import pt.unl.fct.di.hyflexchain.planes.network.directory.address.StaticAddressToHostDirectoryService;
 import pt.unl.fct.di.hyflexchain.util.SystemVersion;
 import pt.unl.fct.di.hyflexchain.util.crypto.Crypto;
 
@@ -363,6 +366,18 @@ public class MultiLedgerConfig
 	{
 		return this.selfAddress;
 	}
+
+	public AddressDirectoryService<Host> getDirectoryService()
+    {
+        var file = new File(configFolder, "directory_service");
+		file = new File(file, "static_directory_service.json");
+
+        try {
+            return StaticAddressToHostDirectoryService.fromJsonFile(file);
+        } catch (Exception e) {
+            throw new Error(e.getMessage(), e);
+        }
+    }
 
 	
 

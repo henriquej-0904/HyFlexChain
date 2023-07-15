@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.tuweni.bytes.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +32,7 @@ import pt.unl.fct.di.hyflexchain.planes.consensus.mechanisms.bftsmart.election.S
 import pt.unl.fct.di.hyflexchain.planes.consensus.mechanisms.bftsmart.replylistener.BftSmartReplyListener;
 import pt.unl.fct.di.hyflexchain.planes.consensus.mechanisms.bftsmart.replylistener.BftsmartConsensusResult;
 import pt.unl.fct.di.hyflexchain.planes.consensus.mechanisms.bftsmart.replylistener.VerifiedTransactionsReply;
+import pt.unl.fct.di.hyflexchain.planes.consensus.mechanisms.bftsmart.submit.BftSmartConsensusThread;
 import pt.unl.fct.di.hyflexchain.planes.consensus.mechanisms.bftsmart.utils.VerifiedBlockProcessor;
 import pt.unl.fct.di.hyflexchain.planes.data.DataPlane;
 import pt.unl.fct.di.hyflexchain.planes.data.block.BlockBody;
@@ -39,6 +41,7 @@ import pt.unl.fct.di.hyflexchain.planes.data.block.BlockMetaHeader;
 import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.Address;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.InvalidAddressException;
+import pt.unl.fct.di.hyflexchain.planes.network.Host;
 import pt.unl.fct.di.hyflexchain.planes.txmanagement.TransactionManagement;
 import pt.unl.fct.di.hyflexchain.util.Utils;
 import pt.unl.fct.di.hyflexchain.util.config.MultiLedgerConfig;
@@ -93,6 +96,19 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
     public void init() {
         this.staticCommittee = this.committeeElection.performCommitteeElection(this.lvi,
             this.config.getStaticElectionCriteria());
+        
+        var directoryService = this.config.getLedgerConfig().getMultiLedgerConfig().getDirectoryService();
+        var staticCommitteeHosts = directoryService.lookup(
+            this.staticCommittee.getCommitteeAddresses().toArray(Address[]::new));
+
+        LOG.info("Static committee: {}", staticCommitteeHosts);
+
+        if (staticCommitteeHosts.size() < this.staticCommittee.size())
+            LOG.warn("Cannot get some Hosts from static committee addresses. Committee size: {}, Resolved Hosts size: {}",
+                this.staticCommittee.size(), staticCommitteeHosts.size());
+
+        final Pair<BftCommittee, Map<Address, Host>> staticCommitteePair =
+            Pair.of(this.staticCommittee, staticCommitteeHosts);
 
         var selfAddress = config.getLedgerConfig().getMultiLedgerConfig().getSelfAddress();
 
@@ -108,7 +124,7 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
 
         new Thread(
 			new BftSmartConsensusThread(this, config.getLedgerConfig(),
-                () -> this.staticCommittee),
+                () -> staticCommitteePair),
 			"BFT-SMaRt-Consensus-Thread")
 		.start();
     }

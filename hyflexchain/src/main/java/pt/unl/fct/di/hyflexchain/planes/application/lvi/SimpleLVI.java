@@ -3,7 +3,10 @@ package pt.unl.fct.di.hyflexchain.planes.application.lvi;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
 
+import pt.unl.fct.di.hyflexchain.planes.application.lvi.consensus.BftSmartLVI;
 import pt.unl.fct.di.hyflexchain.planes.application.lvi.consensus.LedgerViewConsensusInterface;
 import pt.unl.fct.di.hyflexchain.planes.application.lvi.consensus.PowLVI;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
@@ -14,6 +17,7 @@ import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
 import pt.unl.fct.di.hyflexchain.planes.data.ledger.LedgerState;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.TransactionState;
+import pt.unl.fct.di.hyflexchain.util.config.MultiLedgerConfig;
 
 public class SimpleLVI implements LedgerViewInterface {
 
@@ -42,10 +46,29 @@ public class SimpleLVI implements LedgerViewInterface {
 	 * 
 	 */
 	private SimpleLVI() {
-		this.lvis = new EnumMap<>(ConsensusMechanism.class);
-		this.lvis.put(ConsensusMechanism.PoW, new PowLVI());
+		
+		this.lvis = MultiLedgerConfig.getInstance().getActiveConsensusMechanisms()
+			.stream().collect(Collectors.toMap(
+				UnaryOperator.identity(),
+				this::initLVI,
+				(x, y) -> x,
+				() -> new EnumMap<>(ConsensusMechanism.class)
+				)
+		);
 		
 		this.data = DataPlane.getInstance();
+	}
+
+	protected LedgerViewConsensusInterface initLVI(ConsensusMechanism consensus)
+	{
+		switch (consensus) {
+			case PoW:
+				return new PowLVI();
+			case BFT_SMaRt:
+				return new BftSmartLVI();
+		}
+
+		return null;
 	}
 
 	@Override

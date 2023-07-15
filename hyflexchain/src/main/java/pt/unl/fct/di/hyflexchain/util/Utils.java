@@ -142,5 +142,10 @@ public class Utils
     {
         return toHex(data, data.length);
     }
+
+    public static Error toError(Throwable t)
+    {
+        return new Error(t.getMessage(), t);
+    }
 }
 

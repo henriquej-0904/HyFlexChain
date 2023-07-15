@@ -3,25 +3,102 @@ package pt.unl.fct.di.hyflexchain.planes.consensus.committees;
 /**
  * Represents the criteria used to elect a specific
  * committee for a consensus mechanism.
- * 
- * @param size Max size of the committee
- * @param sizeThreshold The min number of active participants
- * to be able to execute the committee functions
- * @param randSource The type of randomness source used to elect a committee
- * @param validity An object to verify if a committee is still valid to be used.
  */
-public record CommitteeElectionCriteria(
-	int size,
-	int sizeThreshold,
-	RandSource randSource,
-	CommitteeValidity validity
-) {
+public class CommitteeElectionCriteria
+{
+	protected int size;
+
+	protected int sizeThreshold;
+
+	protected RandSource randSource;
+
+	protected CommitteeValidity validity;
+
+	public CommitteeElectionCriteria()
+	{
+
+	}
+
+	/**
+	 * @param size          Max size of the committee
+	 * @param sizeThreshold The min number of active participants
+	 *                      to be able to execute the committee functions
+	 * @param randSource    The type of randomness source used to elect a committee
+	 * @param validity      An object to verify if a committee is still valid to be
+	 *                      used.
+	 */
+	public CommitteeElectionCriteria(int size, int sizeThreshold, RandSource randSource,
+		CommitteeValidity validity) {
+		this.size = size;
+		this.sizeThreshold = sizeThreshold;
+		this.randSource = randSource;
+		this.validity = validity;
+	}
+
 	
+
+	/**
+	 * @return the size
+	 */
+	public int getSize() {
+		return size;
+	}
+
+	/**
+	 * @param size the size to set
+	 */
+	public void setSize(int size) {
+		this.size = size;
+	}
+
+	/**
+	 * @return the sizeThreshold
+	 */
+	public int getSizeThreshold() {
+		return sizeThreshold;
+	}
+
+	/**
+	 * @param sizeThreshold the sizeThreshold to set
+	 */
+	public void setSizeThreshold(int sizeThreshold) {
+		this.sizeThreshold = sizeThreshold;
+	}
+
+	/**
+	 * @return the randSource
+	 */
+	public RandSource getRandSource() {
+		return randSource;
+	}
+
+	/**
+	 * @param randSource the randSource to set
+	 */
+	public void setRandSource(RandSource randSource) {
+		this.randSource = randSource;
+	}
+
+	/**
+	 * @return the validity
+	 */
+	public CommitteeValidity getValidity() {
+		return validity;
+	}
+
+	/**
+	 * @param validity the validity to set
+	 */
+	public void setValidity(CommitteeValidity validity) {
+		this.validity = validity;
+	}
+
+
+
 	/**
 	 * The type of randomness source used to elect a committee.
 	 */
-	public static enum RandSource
-	{
+	public static enum RandSource {
 		/**
 		 * Randomness based on a local approach where each node
 		 * computes a deterministic function to obtain a random seed.
@@ -36,6 +113,21 @@ public record CommitteeElectionCriteria(
 		DRAND
 	}
 
-	
+	/**
+	 * The validity of a committee measured in the max number of blocks
+	 * it can create.
+	 * 
+	 * @param blocks The max number of blocks a committee can create
+	 */
+	public static record CommitteeValidity(int blocks) {
+
+		public static final CommitteeValidity INFINITE_VALIDITY =
+			new CommitteeValidity(-1);
+
+		public boolean infiniteValidity()
+		{
+			return blocks == -1;
+		}
+	}
 
 }

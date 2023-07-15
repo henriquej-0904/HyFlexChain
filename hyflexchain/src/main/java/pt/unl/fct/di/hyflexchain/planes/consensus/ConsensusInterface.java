@@ -1,6 +1,5 @@
 package pt.unl.fct.di.hyflexchain.planes.consensus;
 
-import java.util.LinkedHashMap;
 import java.util.function.Predicate;
 
 import org.slf4j.Logger;
@@ -10,10 +9,7 @@ import pt.unl.fct.di.hyflexchain.planes.application.lvi.LedgerViewInterface;
 import pt.unl.fct.di.hyflexchain.planes.application.ti.InvalidTransactionException;
 import pt.unl.fct.di.hyflexchain.planes.application.ti.TransactionInterface;
 import pt.unl.fct.di.hyflexchain.planes.data.block.BlockBody;
-import pt.unl.fct.di.hyflexchain.planes.data.block.BlockHeader;
-import pt.unl.fct.di.hyflexchain.planes.data.block.BlockMetaHeader;
 import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
-import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.TransactionState;
 import pt.unl.fct.di.hyflexchain.planes.execution.ExecutionPlane;
 import pt.unl.fct.di.hyflexchain.planes.execution.contracts.InvalidSmartContractException;
@@ -68,7 +64,31 @@ public abstract class ConsensusInterface
 	 * consensus implementation.
 	 * @param block The block to order.
 	 */
-	public abstract void orderBlock(HyFlexChainBlock block);
+	// public abstract void orderBlock(HyFlexChainBlock block);
+
+	/**
+	 * Order a block body (set of transactions) according to this specific
+	 * consensus implementation.
+	 * @param blockBody The block body to order.
+	 */
+	public abstract void orderTxs(BlockBody blockBody);
+
+	/**
+	 * Create a block for this consensus mechanism ready
+	 * to be proposed for ordering.
+	 * @param body The body of the block which includes the transactions.
+	 * @return A new created block with the specified block body
+	 */
+	// protected abstract HyFlexChainBlock createBlock(BlockBody body);
+
+	/**
+	 * Create a block for this consensus mechanism ready
+	 * to be proposed for ordering.
+	 * @param previous The previous block
+	 * @param body The body of the block which includes the transactions.
+	 * @return A new created block with the specified block body
+	 */
+	// protected abstract HyFlexChainBlock createBlock(String previous, BlockBody body);
 
 	/**
 	 * Create a block for this consensus mechanism ready
@@ -76,7 +96,10 @@ public abstract class ConsensusInterface
 	 * @param txs The list of transactions that will be included in the created block.
 	 * @return A new created block with the specified list of transactions.
 	 */
-	protected abstract HyFlexChainBlock createBlock(LinkedHashMap<String, HyFlexChainTransaction> txs);
+	// protected HyFlexChainBlock createBlock(LinkedHashMap<String, HyFlexChainTransaction> txs)
+	// {
+	// 	return createBlock(BlockBody.from(txs));
+	// }
 
 	/**
 	 * Verify a block when for integrity and all necessary
@@ -86,19 +109,13 @@ public abstract class ConsensusInterface
 	 */
 	protected boolean verifyBlock(HyFlexChainBlock block)
 	{
-		if (!block.verifyBlock())
-			return false;
-
-		var header = block.header();
-		var metaHeader = header.getMetaHeader();
-
-		if (! verifyMetaHeader(metaHeader))
+		if (! verifyMetaHeader(block))
 		{
 			LOG.info("Invalid block meta header");
 			return false;
 		}
 
-		if (! verifyHeader(header, block.body()))
+		if (! verifyHeader(block))
 		{
 			LOG.info("Invalid block header");
 			return false;
@@ -107,13 +124,21 @@ public abstract class ConsensusInterface
 		return verifyBody(block.body());
 	}
 
-	protected boolean verifyMetaHeader(BlockMetaHeader metaHeader)
+	protected boolean verifyMetaHeader(HyFlexChainBlock block)
 	{
-		return metaHeader.getConsensus() == this.consensus;
+		if (!block.verifyHash())
+		{
+			LOG.info("Block invalid hash.");
+			return false;
+		}
+
+		return block.header().getMetaHeader().getConsensus() == this.consensus;
 	}
 
-	protected boolean verifyHeader(BlockHeader header, BlockBody body)
+	protected boolean verifyHeader(HyFlexChainBlock block)
 	{
+		var header = block.header();
+		var body = block.body();
 		var lvi = LedgerViewInterface.getInstance();
 		
 		if (! header.getPrevHash().equalsIgnoreCase(lvi.getLastBlockHash(this.consensus)))
@@ -121,12 +146,6 @@ public abstract class ConsensusInterface
 			LOG.info("Invalid block header: prev hash");
 			return false;
 		}
-
-		/* if ( header.getNonce() != lvi.getBlockchainSize(POW) + 1)
-		{
-			LOG.info("Invalid block header: invalid nonce");
-			return false;
-		} */
 
 		if ( ! header.getMerkleRoot().equalsIgnoreCase(body.getMerkleTree().getRoot().hash()))
 		{
@@ -139,6 +158,14 @@ public abstract class ConsensusInterface
 
 	protected boolean verifyBody(BlockBody body)
 	{
+		if (! body.getMerkleTree().verifyTree(
+			body.findTransactions().keySet()
+		))
+		{
+			LOG.info("Invalid Block Merkle tree.");
+			return false;
+		}
+
 		return this.verifyBlockBodyPred.test(body);
 	}
 
@@ -146,7 +173,7 @@ public abstract class ConsensusInterface
 	{
 		var lvi = LedgerViewInterface.getInstance();
 
-		return body.getTransactions().values().stream()
+		return body.findTransactions().values().stream()
 			.allMatch((tx) -> {
 				if (lvi.getTransactionState(tx.getHash(), this.consensus) == TransactionState.FINALIZED)
 				{
@@ -165,7 +192,7 @@ public abstract class ConsensusInterface
 		var txmanagement = TransactionManagement.getInstance();
 		var execution = ExecutionPlane.getInstance();
 
-		return body.getTransactions().values().stream()
+		return body.findTransactions().values().stream()
 			.allMatch((tx) -> {
 				if (lvi.getTransactionState(tx.getHash(), this.consensus) == TransactionState.FINALIZED)
 				{

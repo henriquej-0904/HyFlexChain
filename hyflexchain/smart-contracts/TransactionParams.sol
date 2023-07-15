@@ -21,7 +21,7 @@
             string[] memory outputTxsAddress,
             int64 time
         ) public pure returns (string memory) {
-            // options for consensus: pow, pbft, pos, poet
+            // options for consensus: pow, bft_smart, pos, poet
             string memory consensus = "\"consensus\": \"pow\"";
             string memory batchMetric = "\"batchMetric\": 10";
             string memory signatureType = "\"signatureType\": \"SHA256withECDSA-secp521r1\"";

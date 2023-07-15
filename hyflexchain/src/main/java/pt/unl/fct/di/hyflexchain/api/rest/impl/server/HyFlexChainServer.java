@@ -32,9 +32,10 @@ public class HyFlexChainServer
 			// int replicaId = Integer.parseInt(args[0]);
 			int port = Integer.parseInt(args[1]);
 
-			HyFlexChainResource.setHyflexchainInterface(
-				new ApplicationInterface(new File(args[2]),
-					Arrays.copyOfRange(args, MIN_ARGS, args.length, String[].class)));
+			ApplicationInterface app = new ApplicationInterface(new File(args[2]),
+				Arrays.copyOfRange(args, MIN_ARGS, args.length, String[].class));
+			
+			HyFlexChainResource.setHyflexchainInterface(app);
             
 			// URI uri = new URI(String.format("https://%s:%d/api/rest", ip, port));
 			URI uri = new URI(String.format("http://%s:%d/api/rest", "0.0.0.0", port));
@@ -45,7 +46,10 @@ public class HyFlexChainServer
 			// SSLContext sslContext = ServerConfig.getSSLContext();
 			JdkHttpServerFactory.createHttpServer(uri, config);
 
+			System.out.println("\n\n################################################");
 			System.out.println("HyFlexChain Server is running on " + uri.toString());
+			System.out.println("HyFlexChain address: " + app.getConfig().getSelfAddress().address());
+			System.out.println("################################################\n");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

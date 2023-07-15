@@ -1,7 +1,6 @@
 package pt.unl.fct.di.hyflexchain.planes.consensus.mechanisms.pow;
 
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -13,7 +12,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import applicationInterface.ApplicationInterface;
 import pt.unl.fct.di.hyflexchain.planes.application.lvi.LedgerViewInterface;
-import pt.unl.fct.di.hyflexchain.planes.application.ti.InvalidTransactionException;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusInterface;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.data.DataPlane;
@@ -21,10 +19,10 @@ import pt.unl.fct.di.hyflexchain.planes.data.block.BlockBody;
 import pt.unl.fct.di.hyflexchain.planes.data.block.BlockHeader;
 import pt.unl.fct.di.hyflexchain.planes.data.block.BlockMetaHeader;
 import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
-import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
 import pt.unl.fct.di.hyflexchain.planes.txmanagement.TransactionManagement;
 import pt.unl.fct.di.hyflexchain.util.Utils;
 import pt.unl.fct.di.hyflexchain.util.config.MultiLedgerConfig;
+import pt.unl.fct.di.hyflexchain.util.crypto.HyflexchainSignature;
 
 public class PowConsensus extends ConsensusInterface
 {
@@ -34,8 +32,8 @@ public class PowConsensus extends ConsensusInterface
 	private static final byte[] FALSE = new byte[] {0};
 
 	private static final int DIFF_TARGET = 0;
-	private static final String[] VALIDATORS = new String[0];
-	private static final String COMMITTEE_ID = "";
+	private static final HyflexchainSignature[] VALIDATORS = new HyflexchainSignature[0];
+	private static final int COMMITTEE_ID = 0;
 	private static final String COMMITTEE_BLOCK_HASH = "";
 
 	protected static final ConsensusMechanism POW = ConsensusMechanism.PoW;
@@ -60,7 +58,7 @@ public class PowConsensus extends ConsensusInterface
 		.start();
 	}
 
-	@Override
+	/* @Override
 	public void orderBlock(HyFlexChainBlock block)
 	{
 		LOG.info("Order block: " + block.header().getMetaHeader().getHash());
@@ -78,12 +76,36 @@ public class PowConsensus extends ConsensusInterface
 							(tx) -> tx, (tx) -> res)
 						);
 
-					try {
-						TransactionManagement.getInstance().getTxPool(POW)
-							.removePendingTxsAndNotify(mapTxRes);
-					} catch (InvalidTransactionException e) {
-						LOG.info(e.getMessage());
-					}
+					TransactionManagement.getInstance().getTxPool(POW)
+						.removePendingTxsAndNotify(mapTxRes);
+
+					// LOG.info("blockmess reply: {}", reply);
+			});
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+	} */
+
+	@Override
+	public void orderTxs(BlockBody txs)
+	{
+		LOG.info("Order block body -> merkle tree: " + txs.getMerkleTree().getRoot().hash());
+
+		try {
+			byte[] requestBytes = Utils.json.writeValueAsBytes(txs);
+			blockmess.invokeAsyncOperation(requestBytes,
+			(reply) -> {
+
+					boolean res = Arrays.equals(TRUE, reply.getLeft());
+
+					Map<String, Boolean> mapTxRes =
+						txs.findTransactions().keySet().stream()
+						.collect(Collectors.toUnmodifiableMap(
+							(tx) -> tx, (tx) -> res)
+						);
+
+					TransactionManagement.getInstance().getTxPool(POW)
+						.removePendingTxsAndNotify(mapTxRes);
 
 					// LOG.info("blockmess reply: {}", reply);
 			});
@@ -92,9 +114,7 @@ public class PowConsensus extends ConsensusInterface
 		}
 	}
 
-	@Override
-	public HyFlexChainBlock createBlock(LinkedHashMap<String, HyFlexChainTransaction> txs) {
-		BlockBody body = BlockBody.from(txs);
+	public HyFlexChainBlock createBlock(BlockBody body) {
 		BlockMetaHeader metaHeader = new BlockMetaHeader(ConsensusMechanism.PoW, DIFF_TARGET, VALIDATORS,
 				COMMITTEE_ID, COMMITTEE_BLOCK_HASH);
 
@@ -109,12 +129,13 @@ public class PowConsensus extends ConsensusInterface
 	}
 
 	@Override
-	protected boolean verifyMetaHeader(BlockMetaHeader metaHeader)
+	protected boolean verifyMetaHeader(HyFlexChainBlock block)
 	{
-		return super.verifyMetaHeader(metaHeader) &&
+		var metaHeader = block.header().getMetaHeader();
+		return super.verifyMetaHeader(block) &&
 			metaHeader.getDifficultyTarget() == DIFF_TARGET &&
 			Arrays.equals(VALIDATORS, metaHeader.getValidators()) &&
-			metaHeader.getCommitteeId().equalsIgnoreCase(COMMITTEE_ID) &&
+			metaHeader.getCommitteeId() == COMMITTEE_ID &&
 			metaHeader.getCommitteeBlockHash().equalsIgnoreCase(COMMITTEE_BLOCK_HASH);
 	}
 	
@@ -169,7 +190,7 @@ public class PowConsensus extends ConsensusInterface
             return res;
         }
 
-        @Override
+        /* @Override
         public byte[] processOperation(byte[] operation) {
 
 			// LOG.info("Blockmess processOperation");
@@ -185,6 +206,36 @@ public class PowConsensus extends ConsensusInterface
 				}
 
 				// process new valid block
+				DataPlane.getInstance().writeOrderedBlock(block, POW);
+    
+				LOG.info("Appended valid block with size=" + operation.length + " & hash: " +
+					block.header().getMetaHeader().getHash());
+
+				return TRUE;
+                
+            } catch (Exception e) {
+                Utils.logError(e, LOG);
+                return null;
+            }
+        } */
+
+		@Override
+        public byte[] processOperation(byte[] operation) {
+
+			// LOG.info("Blockmess processOperation");
+
+            try {
+    
+				BlockBody blockBody = Utils.json.readValue(operation, BlockBody.class);
+				
+				if (!verifyBody(blockBody))
+				{
+					LOG.info("Invalid block body -> merkle tree: " + blockBody.getMerkleTree().getRoot().hash());
+					return FALSE;
+				}
+
+				// process new valid block
+				var block = createBlock(blockBody);
 				DataPlane.getInstance().writeOrderedBlock(block, POW);
     
 				LOG.info("Appended valid block with size=" + operation.length + " & hash: " +

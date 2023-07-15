@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 
@@ -231,6 +232,49 @@ public class TxPool
 		}
 	}
 
+	/**
+	 * Get a list of n transactions.
+	 * The map is sorted by the insertion order of transactions.
+	 * This method waits for the specified number of txs to be available
+	 * or when the specified time expires with at least 1 transaction.
+	 * @param n The minimum number of transactions
+	 * @param millis The maximum time to wait in ms
+	 * @return A list of transactions.
+	 */
+	public List<HyFlexChainTransaction> getAllPendingTxs()
+	{
+		while (true) {
+			while (this.pending.isEmpty())
+			{
+				// wait for min number of txs in tx pool
+		
+				try {
+					Thread.sleep(WAIT_MILLIS);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+
+			this.lock.lock();
+
+			if (this.pending.isEmpty())
+			{
+				this.lock.unlock();
+				continue;
+			}
+
+			var list = this.pending.values().stream()
+				.collect(Collectors.toUnmodifiableList());
+
+			this.waitingForFinalization.putAll(this.pending);
+			this.pending.clear();
+
+			this.lock.unlock();
+
+			return list;
+		}
+	}
+
 	public Optional<HyFlexChainTransaction> getPendingTx(String txHash)
 	{
 		return Optional.ofNullable(this.pending.get(txHash));
@@ -275,6 +319,40 @@ public class TxPool
 			{
 				tx.notifyAll();
 			}
+		}
+	}
+
+	/**
+	 * Remove the specified pending transaction
+	 * and notify all threads that are waiting.
+	 * @param txHash The hash of the transaction
+	 * @param result The result of the transaction:
+	 * true if successfull.
+	 */
+	public void removePendingTxAndNotify(String txHash, boolean result)
+	{
+		// remove tx
+
+		this.lock.lock();
+
+		var tx1 = this.pending.remove(txHash);
+		var tx2 = this.waitingForFinalization.remove(txHash);
+
+		this.lock.unlock();
+
+		// notify waiting threads
+		notifyTx(tx1);
+		notifyTx(tx2);
+	}
+
+	protected void notifyTx(HyFlexChainTransaction tx)
+	{
+		if (tx == null)
+			return;
+
+		synchronized(tx)
+		{
+			tx.notifyAll();
 		}
 	}
 }

@@ -4,8 +4,8 @@
 
 replicaId=$1
 
-blockmess_port=`expr 10000 + $replicaId`
-blockmess_wrapper_port=`expr 18000 + $replicaId`
+blockmess_port=`expr 11000 + $replicaId`
+blockmess_wrapper_port=`expr 12000 + $replicaId`
 
 network_name=blockmess_wrapper
 

@@ -14,8 +14,9 @@ import pt.unl.fct.di.hyflexchain.planes.data.transaction.Address;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.TxInput;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.UTXO;
-import pt.unl.fct.di.hyflexchain.util.Crypto;
 import pt.unl.fct.di.hyflexchain.util.Utils;
+import pt.unl.fct.di.hyflexchain.util.crypto.Crypto;
+import pt.unl.fct.di.hyflexchain.util.crypto.HyflexchainSignature;
 
 /**
  * Represents a block of transactions with all necessary metadata.
@@ -56,8 +57,8 @@ public record HyFlexChainBlock(
 		BlockBody body = BlockBody.from(txs);
 
 		BlockMetaHeader metaHeader =
-			new BlockMetaHeader(consensus, 0, new String[0],
-			"", "");
+			new BlockMetaHeader(consensus, 0, new HyflexchainSignature[0],
+			0, "");
 		BlockHeader header = BlockHeader.create(metaHeader, "genesis block",
 			body.getMerkleTree().getRoot().hash(), 0);
 
@@ -110,7 +111,7 @@ public record HyFlexChainBlock(
 		}
 
 		if (! body().getMerkleTree().verifyTree(
-			body().getTransactions().keySet()
+			body().findTransactions().keySet()
 		))
 		{
 			LOG.info("Block Merkle tree.");
@@ -119,4 +120,24 @@ public record HyFlexChainBlock(
 
 		return true;
 	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+
+		if (!(obj instanceof HyFlexChainBlock))
+			return false;
+
+		return this.header.getMetaHeader().getHash()
+			.equalsIgnoreCase(((HyFlexChainBlock)obj).header.getMetaHeader().getHash());
+	}
+
+	@Override
+	public int hashCode() {
+		return this.header.getMetaHeader().getHash().hashCode();
+	}
+
+	
 }

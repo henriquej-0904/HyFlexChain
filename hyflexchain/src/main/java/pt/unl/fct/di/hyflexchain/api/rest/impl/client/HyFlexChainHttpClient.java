@@ -4,6 +4,9 @@ import java.io.Closeable;
 import java.net.URI;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+
+import javax.net.ssl.SSLContext;
+
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Entity;
@@ -27,6 +30,14 @@ public class HyFlexChainHttpClient implements Closeable {
     public HyFlexChainHttpClient()
     {
         this.client = getClientBuilder().build();
+    }
+
+    public HyFlexChainHttpClient(SSLContext sslContext)
+    {
+        this.client = getClientBuilder()
+            .sslContext(sslContext)
+            .hostnameVerifier((arg0, arg1) -> true)
+            .build();
     }
 
     /* public LedgerClient(String replicaId, URI endpoint, SecureRandom random, SSLContext sslContext) throws KeyStoreException

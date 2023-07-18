@@ -363,10 +363,16 @@ public class MultiLedgerConfig
 		}
 	}
 
-	public SSLContext getSSLContext()
+	public SSLContext getSSLContextServer()
 	{
 		String password = getConfigValueOrThrowError(GENERAL_CONFIG.KEYSTORE_PASS);
 		return Crypto.getSSLContext(this.keystore, this.truststore, password);
+	}
+
+	public SSLContext getSSLContextClient()
+	{
+		String password = getConfigValueOrThrowError(GENERAL_CONFIG.KEYSTORE_PASS);
+		return Crypto.getSSLContext(null, this.truststore, password);
 	}
 
 	public KeyStore getKeyStore()

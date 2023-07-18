@@ -59,7 +59,7 @@ do
     # keytool -export -alias $replicaAlias -keystore $replicaFolder/keystore.pkcs12 -storepass $keystorepass -file $replicaFolder/certificate.pem
 
     # Remove old entry
-    # keytool -delete -alias $replicaAlias -keystore $configFolder/truststore.pkcs12 -storepass $keystorepass -storetype pkcs12
+    keytool -delete -alias $replicaAlias -keystore $truststore_all -storepass $keystorepass -storetype pkcs12
 
     # Copy certificate to truststore to be used by the client
     keytool -import -noprompt -alias $replicaAlias -file $replicaFolder/certificate.pem -keystore $truststore_all -storepass $keystorepass -storetype pkcs12
@@ -69,3 +69,8 @@ done
 java -cp target/hyflexchain-jar-with-dependencies.jar pt.unl.fct.di.hyflexchain.util.crypto.GenerateAddress $truststore_all $keystorepass PKCS12 > $configFolder/addresses.json
 
 echo "Created configs with success"
+
+cp $hyflexchain_root_cert ../caliper/caliper-hyflexchain/crypto/
+echo "Copied hyflexchain_root_cert to caliper crypto config with success"
+
+

@@ -18,4 +18,9 @@ public record Host(String host, int port) {
         return URI.create("http://" + host + ":" + port);
     }
 
+    public URI httpsEndpoint()
+    {
+        return URI.create("https://" + host + ":" + port);
+    }
+
 }

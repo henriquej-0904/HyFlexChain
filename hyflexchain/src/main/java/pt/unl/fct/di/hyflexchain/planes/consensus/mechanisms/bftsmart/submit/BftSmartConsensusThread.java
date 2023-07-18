@@ -49,7 +49,7 @@ public class BftSmartConsensusThread implements Runnable {
 	public BftSmartConsensusThread(ConsensusInterface consensus, LedgerConfig config,
 		Supplier<Pair<BftCommittee, Map<Address, Host>>> activeCommittee) {
 		this.rand = new Random(System.currentTimeMillis());
-		this.hyflexchainClient = new HyFlexChainHttpClient();
+		this.hyflexchainClient = new HyFlexChainHttpClient(config.getMultiLedgerConfig().getSSLContextClient());
 		this.selfAddress = config.getMultiLedgerConfig().getSelfAddress();
 		this.consensus = consensus;
 		this.nTxsInBlock = config.getNumTxsInBlock();
@@ -99,7 +99,7 @@ public class BftSmartConsensusThread implements Runnable {
 				}
 				else
 				{
-					URI redirect = getRandomCommitteeMember().httpEndpoint();
+					URI redirect = getRandomCommitteeMember().httpsEndpoint();
 
 					// redirect transactions to committee
 					var txs = txPool.getAllPendingTxs();

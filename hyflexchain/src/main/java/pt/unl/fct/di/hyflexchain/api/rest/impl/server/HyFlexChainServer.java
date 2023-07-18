@@ -4,6 +4,8 @@ import java.io.File;
 import java.net.URI;
 import java.util.Arrays;
 
+import javax.net.ssl.SSLContext;
+
 import org.glassfish.jersey.jdkhttp.JdkHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 
@@ -37,14 +39,14 @@ public class HyFlexChainServer
 			
 			HyFlexChainResource.setHyflexchainInterface(app);
             
-			// URI uri = new URI(String.format("https://%s:%d/api/rest", ip, port));
-			URI uri = new URI(String.format("http://%s:%d/api/rest", "0.0.0.0", port));
+			URI uri = new URI(String.format("https://%s:%d/api/rest", "0.0.0.0", port));
+			// URI uri = new URI(String.format("http://%s:%d/api/rest", "0.0.0.0", port));
 
 			ResourceConfig config = new ResourceConfig();
 			config.register(HyFlexChainResource.class);
             
-			// SSLContext sslContext = ServerConfig.getSSLContext();
-			JdkHttpServerFactory.createHttpServer(uri, config);
+			SSLContext sslContext = app.getConfig().getSSLContextServer();
+			JdkHttpServerFactory.createHttpServer(uri, config, sslContext);
 
 			System.out.println("\n\n################################################");
 			System.out.println("HyFlexChain Server is running on " + uri.toString());

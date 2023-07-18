@@ -15,6 +15,8 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.net.ssl.SSLContext;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -173,6 +175,7 @@ public class MultiLedgerConfig
 
 	protected EnumMap<ConsensusMechanism, LedgerConfig> ledgerConfigs;
 
+	protected KeyStore keystore, truststore;
 	protected KeyPair selfKey;
 	protected Address selfAddress;
 
@@ -205,8 +208,7 @@ public class MultiLedgerConfig
 				)
 			);
 
-		this.selfKey = getSelfKeyPairFromKeystore();
-		this.selfAddress = Address.fromPubKey(this.selfKey.getPublic());
+		initCryptoConfig();
 	}
 
 	/**
@@ -338,23 +340,43 @@ public class MultiLedgerConfig
 		return EnumSet.copyOf(this.ledgerConfigs.keySet());
 	}
 
-	private KeyPair getSelfKeyPairFromKeystore()
+	private void initCryptoConfig()
 	{
+		File truststoreFile = new File(getConfigValueOrThrowError(GENERAL_CONFIG.TRUSTSTORE));
 		File keystoreFile = new File(getConfigValueOrThrowError(GENERAL_CONFIG.KEYSTORE));
+
 		String type = getConfigValueOrThrowError(GENERAL_CONFIG.KEYSTORE_TYPE);
         String password = getConfigValueOrThrowError(GENERAL_CONFIG.KEYSTORE_PASS);
         String alias = getConfigValueOrThrowError(GENERAL_CONFIG.KEYSTORE_ALIAS);
 
-        KeyStore ks = Crypto.getKeyStore(keystoreFile, password, type);
+        this.keystore = Crypto.getKeyStore(keystoreFile, password, type);
+		this.truststore = Crypto.getKeyStore(truststoreFile, password, type);
 
 		try {
-			PublicKey pubKey = ks.getCertificate(alias).getPublicKey();
-			PrivateKey privKey = (PrivateKey) ks.getKey(alias, password.toCharArray());
+			PublicKey pubKey = keystore.getCertificate(alias).getPublicKey();
+			PrivateKey privKey = (PrivateKey) keystore.getKey(alias, password.toCharArray());
 
-			return new KeyPair(pubKey, privKey);
+			this.selfKey = new KeyPair(pubKey, privKey);
+			this.selfAddress = Address.fromPubKey(this.selfKey.getPublic());
 		} catch (Exception e) {
 			throw new Error(e.getMessage(), e);
 		}
+	}
+
+	public SSLContext getSSLContext()
+	{
+		String password = getConfigValueOrThrowError(GENERAL_CONFIG.KEYSTORE_PASS);
+		return Crypto.getSSLContext(this.keystore, this.truststore, password);
+	}
+
+	public KeyStore getKeyStore()
+	{
+		return this.keystore;
+	}
+
+	public KeyStore getTrustStore()
+	{
+		return this.truststore;
 	}
 
 	public KeyPair getSelfKeyPair()
@@ -400,7 +422,9 @@ public class MultiLedgerConfig
 		KEYSTORE,
 		KEYSTORE_TYPE,
 		KEYSTORE_ALIAS,
-		KEYSTORE_PASS
+		KEYSTORE_PASS,
+
+		TRUSTSTORE
 	}
 
 

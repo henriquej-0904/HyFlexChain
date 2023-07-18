@@ -10,6 +10,9 @@ const Context = require("./Context");
 const WorkerArgs = require("./WorkerArgs");
 
 const axios = require('axios').default;
+const https = require('https');
+
+const fs = require('fs');
 
 const Logger = CaliperUtils.getLogger('HyFlexChainConnector');
 
@@ -26,7 +29,7 @@ class HyFlexChainConnector extends ConnectorBase
         super(workerIndex, "hyflexchain");
 
         let configPath = CaliperUtils.resolvePath(ConfigUtil.get(ConfigUtil.keys.NetworkConfig));
-        let hyflexchainConfig = require(configPath).blockmess;
+        let hyflexchainConfig = require(configPath).hyflexchain;
 
         // throws on configuration error
         this.checkConfig(workerIndex, hyflexchainConfig);
@@ -62,11 +65,11 @@ class HyFlexChainConnector extends ConnectorBase
             );
         }
 
-        /* if (!blockmessConfig.blockmess_config_folder) {
+        if (! hyflexchainConfig.truststore_ca) {
             throw new Error(
-                'No Blockmess config folder was given. Please check your network configuration. '
+                'No truststore CA given to securely connect to HyFlexChain nodes.'
             );
-        } */
+        }
     }
 
     async init(workerInit) {
@@ -127,10 +130,16 @@ class HyFlexChainConnector extends ConnectorBase
 
         // connect to replica
 
+        const httpsAgent = new https.Agent({
+            rejectUnauthorized: false, // (NOTE: this will disable client verification)
+            ca : fs.readFileSync(this.hyflexchainConfig.truststore_ca)
+        })
+
         this.httpClient = axios.create(
             {
                 baseURL: context.getUrl(),
                 timeout: this.hyflexchainConfig.connection_timeout,
+                httpsAgent : httpsAgent
                 //headers: {'X-Custom-Header': 'foobar'}
             }
         );

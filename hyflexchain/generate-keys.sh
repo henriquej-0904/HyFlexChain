@@ -71,6 +71,7 @@ java -cp target/hyflexchain-jar-with-dependencies.jar pt.unl.fct.di.hyflexchain.
 echo "Created configs with success"
 
 cp $hyflexchain_root_cert ../caliper/caliper-hyflexchain/crypto/
-echo "Copied hyflexchain_root_cert to caliper crypto config with success"
+cp $configFolder/addresses.json ../caliper/caliper-hyflexchain/crypto/
+echo "Copied crypto config to caliper config success"
 
 

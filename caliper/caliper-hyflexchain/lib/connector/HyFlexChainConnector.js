@@ -13,6 +13,7 @@ const axios = require('axios').default;
 const https = require('https');
 
 const fs = require('fs');
+const path = require('path');
 
 const Logger = CaliperUtils.getLogger('HyFlexChainConnector');
 
@@ -70,6 +71,12 @@ class HyFlexChainConnector extends ConnectorBase
                 'No truststore CA given to securely connect to HyFlexChain nodes.'
             );
         }
+        
+        if (! hyflexchainConfig.replica_addresses) {
+            throw new Error(
+                'No replicas addresses given to serve as destination in transactions.'
+            );
+        }
     }
 
     async init(workerInit) {
@@ -95,12 +102,17 @@ class HyFlexChainConnector extends ConnectorBase
             keyPairs[i] = this.cryptoUtils.genKeyPairEC();
         }
 
-        let encodedKeyPairs = keyPairs.map(
+        const encodedWorkersKeys = keyPairs.map(
             keyPair => this.cryptoUtils.encodeKeyPair(keyPair)
         );
 
-        let encodedPublicKeys = encodedKeyPairs.map(
-            pair => pair[0]
+		const replica_addresses_file_path =
+			path.resolve(this.hyflexchainConfig.replica_addresses);
+
+        Logger.error("addresses.json path: " + replica_addresses_file_path);
+		
+        const destReplicasAddresses = Object.keys(
+            require(replica_addresses_file_path)
         );
 
         let workersArgs = [];
@@ -108,8 +120,8 @@ class HyFlexChainConnector extends ConnectorBase
         for (let i = 0 ; i < number ; i++) {
             workersArgs[i] = new WorkerArgs(
                 this.hyflexchainConfig.url[i],
-                encodedKeyPairs[i],
-                encodedPublicKeys
+                encodedWorkersKeys[i],
+                destReplicasAddresses
             );
         }
 
@@ -117,11 +129,11 @@ class HyFlexChainConnector extends ConnectorBase
     }
 
     /**
-     * Return the Blockmess context associated with the given callback module name.
+     * Return the Worker context associated with the given callback module name.
      * Creates a client instance to the specified replica.
      * @param {Number} roundIndex The zero-based round index of the test.
      * @param {object} args worker arguments.
-     * @return {Context} The assembled Blockmess context.
+     * @return {Context} The assembled Worker context.
      * @async
      */
     async getContext(roundIndex, args) {

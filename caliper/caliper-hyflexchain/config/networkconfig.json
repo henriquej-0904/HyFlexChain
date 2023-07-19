@@ -11,6 +11,7 @@
             "https://localhost:18003/api/rest"
         ],
         "connection_timeout" : "60000",
-        "truststore_ca" : "./crypto/hyflexchain_root_cert.pem"
+        "truststore_ca" : "./crypto/hyflexchain_root_cert.pem",
+        "replica_addresses" : "./crypto/addresses.json"
     }
 }

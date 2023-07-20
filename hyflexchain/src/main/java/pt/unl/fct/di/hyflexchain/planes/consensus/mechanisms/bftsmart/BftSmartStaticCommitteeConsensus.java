@@ -94,8 +94,9 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
 
     @Override
     public void init() {
-        this.staticCommittee = this.committeeElection.performCommitteeElection(this.lvi,
-            this.config.getStaticElectionCriteria());
+        this.staticCommittee = this.committeeElection
+        .performCommitteeElection(this.config.getStaticElectionCriteria())
+        .get();
         
         var directoryService = this.config.getLedgerConfig().getMultiLedgerConfig().getDirectoryService();
         var staticCommitteeHosts = directoryService.lookup(

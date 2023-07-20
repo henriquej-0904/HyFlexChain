@@ -96,6 +96,21 @@ public class BFT_SMaRtConfig
             .toList();
     }
 
+    public boolean dynamicCommittees()
+    {
+        return this.config.getConfigBooleanValueOrThrowError(Configs.COMMITTEE_DYNAMIC.name);
+    }
+
+    public int getCommitteeElectionParamRecipientNodesOfLastFinalizedBlocks()
+    {
+        return this.config.getConfigIntValueOrThrowError(Configs.COMMITTEE_ELECTION_RECIPIENT_NODES_LAST_N_FINALIZED_BLOCKS.name);
+    }
+
+    public int getCommitteeElectionParamPreviousCommittees()
+    {
+        return this.config.getConfigIntValueOrThrowError(Configs.COMMITTEE_ELECTION_PREVIOUS_N_COMMITTEES.name);
+    }
+
 
     protected Error configError(String property)
     {
@@ -118,6 +133,7 @@ public class BFT_SMaRtConfig
          */
         ADDRESSES_CONFIG_FILE ("ADDRESSES_CONFIG_FILE"),
 
+        COMMITTEE_DYNAMIC("COMMITTEE_DYNAMIC"),
 
         COMMITTEE_N ("COMMITTEE_N"),
 
@@ -127,7 +143,9 @@ public class BFT_SMaRtConfig
 
         COMMITTEE_VALIDITY_N_BLOCKS("COMMITTEE_VALIDITY_N_BLOCKS"),
 
+        COMMITTEE_ELECTION_RECIPIENT_NODES_LAST_N_FINALIZED_BLOCKS("COMMITTEE_ELECTION_RECIPIENT_NODES_LAST_N_FINALIZED_BLOCKS"),
 
+        COMMITTEE_ELECTION_PREVIOUS_N_COMMITTEES ("COMMITTEE_ELECTION_PREVIOUS_N_COMMITTEES"),
 
         /**
          * A list of HyFlexChain addresses (';' separated) that belong to the static

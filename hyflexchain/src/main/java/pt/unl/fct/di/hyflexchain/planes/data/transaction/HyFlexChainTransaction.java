@@ -166,6 +166,25 @@ public class HyFlexChainTransaction {
 		return this.hash.equalsIgnoreCase(hash());
 	}
 
+	public Address[] recipientAddresses()
+	{
+		int outputTxsLength = this.outputTxs.length;
+		if (outputTxsLength == 0)
+			return new Address[0];
+
+		if (outputTxsLength == 1)
+			return new Address[] {this.outputTxs[0].recipient()};
+
+		Address[] res = this.outputTxs[outputTxsLength - 1].recipient().equals(this.sender)
+			? new Address[outputTxsLength - 1]
+			: new Address[outputTxsLength];
+
+		for (int i = 0; i < res.length; i++)
+			res[i] = this.outputTxs[i].recipient();
+
+		return res;
+	}
+
 	/**
 	 * @return the version
 	 */

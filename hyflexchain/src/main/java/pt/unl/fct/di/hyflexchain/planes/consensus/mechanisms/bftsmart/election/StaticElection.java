@@ -1,8 +1,8 @@
 package pt.unl.fct.di.hyflexchain.planes.consensus.mechanisms.bftsmart.election;
 
 import java.util.LinkedHashSet;
+import java.util.Optional;
 
-import pt.unl.fct.di.hyflexchain.planes.application.lvi.LedgerViewInterface;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.consensus.committees.bft.BftCommittee;
 import pt.unl.fct.di.hyflexchain.planes.consensus.committees.bft.BftCommitteeElectionCriteria;
@@ -32,9 +32,15 @@ public final class StaticElection implements SybilResistantBftCommitteeElection
     }
 
     @Override
-    public BftCommittee performCommitteeElection(LedgerViewInterface lvi, BftCommitteeElectionCriteria criteria) {
-        return new BftCommittee(CONSENSUS_MECHANISM, criteria,
-            new LinkedHashSet<>(this.config.getStaticCommitteeAddresses()));
+    public Optional<BftCommittee> performCommitteeElection(BftCommitteeElectionCriteria criteria) {
+        return Optional.of(new BftCommittee(CONSENSUS_MECHANISM, criteria,
+            new LinkedHashSet<>(this.config.getStaticCommitteeAddresses()))
+        );
+    }
+
+    @Override
+    public Optional<BftCommittee[]> performCommitteeElections(BftCommitteeElectionCriteria criteria, int n) {
+        throw new UnsupportedOperationException("Unimplemented method 'performCommitteeElections'");
     }
     
 }

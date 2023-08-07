@@ -45,7 +45,7 @@ class CreateTransactionWithoutScWorkload extends WorkloadModuleBase {
 
         const inputTxs = [HyFlexChainTransaction.createInputTx(this.getRandDestAddress(), "some hash", 0)];
         const outputTxs = [HyFlexChainTransaction.createOutputTx(destAddress, val)];
-        const tx = new HyFlexChainTransaction(originPubKey, inputTxs, outputTxs);
+        const tx = new HyFlexChainTransaction(HyFlexChainTransaction.TRANSFER, originPubKey, inputTxs, outputTxs);
         tx.nonce = this.txIndex;
 
         this.txIndex++;

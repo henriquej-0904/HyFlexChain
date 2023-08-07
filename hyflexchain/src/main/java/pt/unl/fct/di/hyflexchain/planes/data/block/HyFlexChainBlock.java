@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.Address;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
+import pt.unl.fct.di.hyflexchain.planes.data.transaction.TransactionType;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.TxInput;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.UTXO;
 import pt.unl.fct.di.hyflexchain.util.Utils;
@@ -41,6 +42,7 @@ public record HyFlexChainBlock(
 
 		HyFlexChainTransaction tx = new HyFlexChainTransaction();
 		tx.setVersion(HyFlexChainTransaction.Version.V1_0.toString());
+		tx.setTransactionType(TransactionType.TRANSFER);
 		tx.setSender(new Address("genesis address"));
 		tx.setSignatureType("genesis signature alg");
 		tx.setNonce(0);

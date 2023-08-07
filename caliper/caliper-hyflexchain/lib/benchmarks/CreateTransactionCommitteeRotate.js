@@ -27,7 +27,7 @@ const Buffer = require('buffer').Buffer;
 /**
  * Workload module for the benchmark round.
  */
-class CreateTransactionBftsmartWorkload extends WorkloadModuleBase {
+class CreateTransactionCommitteeRotate extends WorkloadModuleBase {
 
     /**
      * Initializes the workload module instance.
@@ -46,29 +46,14 @@ class CreateTransactionBftsmartWorkload extends WorkloadModuleBase {
      */
     async submitTransaction() {
         const originPubKey = "0x01" + this.sutContext.encodedPublicKey;
-        const destAddress = this.getRandDestAddress();
-        const val = Util.getRandomInt32();
-
-        const inputTxs = [HyFlexChainTransaction.createInputTx(this.getRandDestAddress(), "some hash", 0)];
-        const outputTxs = [HyFlexChainTransaction.createOutputTx(destAddress, val)];
-        const tx = new HyFlexChainTransaction(HyFlexChainTransaction.TRANSFER, originPubKey, inputTxs, outputTxs);
+        
+        const tx = new HyFlexChainTransaction(HyFlexChainTransaction.TRANSFER, originPubKey, [], []);
         tx.nonce = this.txIndex;
-        tx.data = this.contractData;
 
         this.txIndex++;
+        tx.data = this.contractData;
 
         return this.sutAdapter.sendRequests(tx);
-    }
-
-    /**
-     * Get a rand replica address from the array of destination addresses
-     * @return {string} random replica address
-     */
-    getRandDestAddress()
-    {
-        const destAddresses = this.sutContext.destAddresses;
-        const i = Util.getRandomInt(0, destAddresses.length);
-        return destAddresses[i];
     }
 }
 
@@ -77,7 +62,7 @@ class CreateTransactionBftsmartWorkload extends WorkloadModuleBase {
  * @return {WorkloadModuleInterface}
  */
 function createWorkloadModule() {
-    return new CreateTransactionBftsmartWorkload();
+    return new CreateTransactionCommitteeRotate();
 }
 
 module.exports.createWorkloadModule = createWorkloadModule;

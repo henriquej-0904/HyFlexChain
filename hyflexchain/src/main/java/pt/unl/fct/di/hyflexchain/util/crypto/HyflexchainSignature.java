@@ -12,6 +12,10 @@ import pt.unl.fct.di.hyflexchain.util.serializers.BytesSerializer;
 
 /**
  * Represents a signature.
+ * 
+ * @param address The address of the node that signed
+ * @param signatureAlg The signature algorithm used to sign
+ * @param signature The signature result
  */
 public record HyflexchainSignature(
     Address address,

@@ -29,6 +29,11 @@ public class HyFlexChainTransaction {
 	protected String hash;
 
 	/**
+	 * The type of this transaction
+	 */
+	protected TransactionType transactionType;
+
+	/**
 	 * The address of the sender, that will be signing the transaction.
 	 */
 	protected Address sender;
@@ -120,6 +125,7 @@ public class HyFlexChainTransaction {
         signature.initVerify(key);
         
         signature.update(this.version.getBytes());
+		signature.update(this.transactionType.name().getBytes());
 		signature.update(this.sender.address().getBytes());
 		signature.update(Utils.toBytes(this.nonce));
 
@@ -146,6 +152,7 @@ public class HyFlexChainTransaction {
 		var msgDigest = Crypto.getSha256Digest();
         
         msgDigest.update(this.version.getBytes());
+		msgDigest.update(this.transactionType.name().getBytes());
 		msgDigest.update(this.sender.address().getBytes());
 		msgDigest.update(this.signatureType.getBytes());
 		msgDigest.update(this.signature.getBytes());
@@ -211,6 +218,20 @@ public class HyFlexChainTransaction {
 	 */
 	public void setHash(String hash) {
 		this.hash = hash;
+	}
+
+	/**
+	 * @return the transactionType
+	 */
+	public TransactionType getTransactionType() {
+		return transactionType;
+	}
+
+	/**
+	 * @param transactionType the transactionType to set
+	 */
+	public void setTransactionType(TransactionType transactionType) {
+		this.transactionType = transactionType;
 	}
 
 	/**

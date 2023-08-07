@@ -30,8 +30,6 @@ public class InMemoryLedger implements ConsensusSpecificLedger
 
 	protected final List<Committee> committees;
 
-	protected Committee activeCommittee;
-
 	/**
 	 * The blockchain: a map that preserves insertion order
 	 * and for each key (Block Id) corresponds a Block.
@@ -62,7 +60,7 @@ public class InMemoryLedger implements ConsensusSpecificLedger
 	}
 
 	@Override
-	public final void writeOrderedBlock(HyFlexChainBlock block)
+	public void writeOrderedBlock(HyFlexChainBlock block)
 	{
 		this.blockchain.put(block.header().getMetaHeader().getHash(), block);
 		this.uponNewBlock.forEach((consumer) -> consumer.accept(block));
@@ -71,11 +69,6 @@ public class InMemoryLedger implements ConsensusSpecificLedger
 	@Override
 	public final ConsensusMechanism getConsensusMechanism() {
 		return this.consensus;
-	}
-
-	@Override
-	public final Committee getActiveCommittee() {
-		return this.activeCommittee;
 	}
 
 	@Override

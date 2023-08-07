@@ -25,7 +25,7 @@ public class BlockHeader
 	protected String prevHash;
 
 	/**
-	 * A hash of the root of the merkle tree of this block’s transactions
+	 * A hash of the root of the merkle tree of this block's transactions
 	 */
 	protected String merkleRoot;
 

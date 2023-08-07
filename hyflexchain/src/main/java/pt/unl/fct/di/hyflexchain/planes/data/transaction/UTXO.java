@@ -9,7 +9,7 @@ import pt.unl.fct.di.hyflexchain.util.Utils;
 /**
  * Represents an Unspent Transaction Output
  * 
- * @param sender The address of the receiving account
+ * @param recipient The address of the receiving account
  * @param value The value to transfer
  */
 public record UTXO(Address recipient, long value)

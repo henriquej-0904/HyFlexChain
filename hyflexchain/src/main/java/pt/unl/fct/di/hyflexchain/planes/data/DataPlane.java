@@ -189,13 +189,6 @@ public interface DataPlane {
 	// UTXOset getLedgerViewUTXOset(ConsensusMechanism consensus);
 
 	/**
-	 * Get the currently active committee.
-	 * @param consensus The consensus mechanism of the committee
-	 * @return The currently active committee.
-	 */
-	Committee getActiveCommittee(ConsensusMechanism consensus);
-
-	/**
 	 * Get a ledger view of previous committees.
 	 * 
 	 * @param lastN The previous N committees

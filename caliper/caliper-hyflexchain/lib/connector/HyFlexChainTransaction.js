@@ -12,16 +12,46 @@ const Buffer = require('buffer').Buffer;
  */
 class HyFlexChainTransaction
 {
+	static TRANSFER = "TRANSFER";
+
+	/**
+	 * Contract deployment transactions: a transaction that creates
+	 * and installs a smart contract on the chain. After being installed
+	 * it can be referenced in future transactions for execution.
+	 */
+	static CONTRACT_CREATE = "CONTRACT_CREATE";
+
+	/**
+	 * Revoke a contract previously installed on the chain.
+	 * After this transaction is approved/executed it is no longer
+	 * possible to reference and execute the revoked smart contract.
+	 */
+	static CONTRACT_REVOKE = "CONTRACT_REVOKE";
+
+	/**
+	 * An internal type used by HyFlexChain nodes to propose
+	 * committees for the future.
+	 */
+	static COMMITTEE_ELECTION = "COMMITTEE_ELECTION";
+
+	/**
+	 * An internal type used by HyFlexChain nodes to rotate
+	 * the currently executing committee.
+	 */
+	static COMMITTEE_ROTATION = "COMMITTEE_ROTATION";
+
 	/**
 	 * Create a new transaction
+	 * @param {string} txType
 	 * @param {string} origin 
 	 * @param {object[]} inputTxs 
 	 * @param {object[]} outputTxs 
 	 */
-	constructor(origin, inputTxs, outputTxs)
+	constructor(txType, origin, inputTxs, outputTxs)
 	{
 		this.version = "V1_0";
 		this.hash = undefined;
+		this.transactionType = txType;
 		this.sender = {address : origin};
 		this.signatureType = "SHA256withECDSA";
 		this.signature = undefined;
@@ -42,6 +72,7 @@ class HyFlexChainTransaction
 		let sig = cryptoUtils.getSigInstance();
 
 		sig.update(Buffer.from(this.version, "utf-8"));
+		sig.update(Buffer.from(this.transactionType, "utf-8"));
 		sig.update(Buffer.from(this.sender.address, "utf-8"));
 
 		let buff = Buffer.alloc(8);
@@ -82,6 +113,7 @@ class HyFlexChainTransaction
 		let hash = cryptoUtils.getHashInstance();
 
 		hash.update(Buffer.from(this.version, "utf-8"));
+		hash.update(Buffer.from(this.transactionType, "utf-8"));
 		hash.update(Buffer.from(this.sender.address, "utf-8"));
 		hash.update(Buffer.from(this.signatureType, "utf-8"));
 		hash.update(Buffer.from(this.signature, "utf-8"));

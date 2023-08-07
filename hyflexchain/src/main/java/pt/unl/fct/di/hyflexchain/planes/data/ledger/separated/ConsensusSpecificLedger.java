@@ -137,12 +137,6 @@ public interface ConsensusSpecificLedger
 	// UTXOset getLedgerViewUTXOset();
 
 	/**
-	 * Get the currently active committee.
-	 * @return The currently active committee.
-	 */
-	Committee getActiveCommittee();
-
-	/**
 	 * Get a ledger view of previous committees.
 	 * 
 	 * @param lastN The previous N committees

@@ -126,11 +126,6 @@ public class SeparatedMultiConsensusLedger implements DataPlane
 	}
 
 	@Override
-	public Committee getActiveCommittee(ConsensusMechanism consensus) {
-		return getLedgerInstance(consensus).getActiveCommittee();
-	}
-
-	@Override
 	public List<Committee> getLedgerViewPreviousCommittees(int lastN, ConsensusMechanism consensus) {
 		return getLedgerInstance(consensus).getLedgerViewPreviousCommittees(lastN);
 	}

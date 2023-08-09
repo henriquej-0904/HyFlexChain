@@ -3,11 +3,12 @@ package pt.unl.fct.di.hyflexchain.planes.data;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import pt.unl.fct.di.hyflexchain.planes.application.lvi.BlockFilter;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
-import pt.unl.fct.di.hyflexchain.planes.consensus.committees.Committee;
+import pt.unl.fct.di.hyflexchain.planes.consensus.committees.bft.BftCommittee;
 import pt.unl.fct.di.hyflexchain.planes.data.block.BlockState;
 import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
 import pt.unl.fct.di.hyflexchain.planes.data.ledger.LedgerState;
@@ -189,19 +190,26 @@ public interface DataPlane {
 	// UTXOset getLedgerViewUTXOset(ConsensusMechanism consensus);
 
 	/**
-	 * Get a ledger view of previous committees.
-	 * 
-	 * @param lastN The previous N committees
-	 * @param consensus The consensus mechanism
-	 * @return Previous Committees.
-	 */
-	List<Committee> getLedgerViewPreviousCommittees(int lastN, ConsensusMechanism consensus);
-
-	/**
 	 * Call the specified action upon a new block is appended
 	 * to the chain.
 	 * @param action The action to call
 	 * @param consensus The consensus mechanism
 	 */
 	public void uponNewBlock(Consumer<HyFlexChainBlock> action, ConsensusMechanism consensus);
+
+	//////////////////////////////////////////// COMMITTEES ////////////////////////////////////////////
+
+	/**
+	 * Write an ordered block with a committee to the Ledger.
+	 * @param block The ordered block
+	 * @param committee The committee in the block.
+	 */
+	void writeOrderedBftCommitteeBlock(HyFlexChainBlock block, BftCommittee committee);
+
+	/**
+	 * Call the specified action upon a new block with a bft committee is appended
+	 * to the chain.
+	 * @param action The action to call
+	 */
+	public void uponNewBftCommitteeBlock(BiConsumer<HyFlexChainBlock, BftCommittee> action);
 }

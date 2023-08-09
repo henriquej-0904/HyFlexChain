@@ -102,6 +102,8 @@ public interface ConsensusSpecificLedger
 	 */
 	Optional<HyFlexChainBlock> getBlock(String id);
 
+	HyFlexChainBlock getLastBlock();
+
 	/**
 	 * Get the state of a block.
 	 * @param id The id of the block
@@ -142,7 +144,7 @@ public interface ConsensusSpecificLedger
 	 * @param lastN The previous N committees
 	 * @return Previous Committees.
 	 */
-	List<Committee> getLedgerViewPreviousCommittees(int lastN);
+	// List<Committee> getLedgerViewPreviousCommittees(int lastN);
 
 	/**
 	 * Call the specified action upon a new block is appended
@@ -150,4 +152,20 @@ public interface ConsensusSpecificLedger
 	 * @param action The action to call
 	 */
 	public void uponNewBlock(Consumer<HyFlexChainBlock> action);
+
+	//////////////////////////////////////////// COMMITTEES ////////////////////////////////////////////
+
+	/**
+	 * Write an ordered block with a committee to the Ledger.
+	 * @param block The ordered block
+	 * @param committee The committee in the block.
+	 */
+	void writeOrderedCommitteeBlock(HyFlexChainBlock block, Committee committee);
+
+	/**
+	 * Call the specified action upon a new block with a committee is appended
+	 * to the chain.
+	 * @param action The action to call
+	 */
+	public void uponNewCommitteeBlock(Consumer<HyFlexChainBlock> action);
 }

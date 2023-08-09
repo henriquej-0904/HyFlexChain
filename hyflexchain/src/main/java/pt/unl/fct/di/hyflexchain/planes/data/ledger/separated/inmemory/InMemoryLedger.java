@@ -1,7 +1,6 @@
 package pt.unl.fct.di.hyflexchain.planes.data.ledger.separated.inmemory;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -28,13 +27,12 @@ public class InMemoryLedger implements ConsensusSpecificLedger
 	 */
 	protected final ConsensusMechanism consensus;
 
-	protected final List<Committee> committees;
-
 	/**
 	 * The blockchain: a map that preserves insertion order
 	 * and for each key (Block Id) corresponds a Block.
 	 */
 	protected final InMemoryBlockchain blockchain;
+	// protected final OrderedMap<String, HyFlexChainBlock> blockchain;
 
 	protected final List<Consumer<HyFlexChainBlock>> uponNewBlock;
 
@@ -46,8 +44,21 @@ public class InMemoryLedger implements ConsensusSpecificLedger
 	 */
 	public InMemoryLedger(ConsensusMechanism consensus) {
 		this.consensus = consensus;
-		this.committees = new LinkedList<>();
+		// this.blockchain = new LinkedMap<>(expectedBlockchainSize);
 		this.blockchain = new InMemoryBlockchain();
+		this.uponNewBlock = new ArrayList<>(10);
+	}
+
+	/**
+	 * Create a new instance of the ledger for a specific consensus
+	 * mechanism
+	 * @param consensus The consensus mechanism used by this ledger.
+	 * @param expectedSize The expected size of the blockchain.
+	 */
+	public InMemoryLedger(ConsensusMechanism consensus, int expectedBlockchainSize) {
+		this.consensus = consensus;
+		// this.blockchain = new LinkedMap<>(expectedBlockchainSize);
+		this.blockchain = new InMemoryBlockchain(expectedBlockchainSize);
 		this.uponNewBlock = new ArrayList<>(10);
 	}
 
@@ -60,7 +71,7 @@ public class InMemoryLedger implements ConsensusSpecificLedger
 	}
 
 	@Override
-	public void writeOrderedBlock(HyFlexChainBlock block)
+	public synchronized void writeOrderedBlock(HyFlexChainBlock block)
 	{
 		this.blockchain.put(block.header().getMetaHeader().getHash(), block);
 		this.uponNewBlock.forEach((consumer) -> consumer.accept(block));
@@ -72,17 +83,23 @@ public class InMemoryLedger implements ConsensusSpecificLedger
 	}
 
 	@Override
-	public Optional<HyFlexChainBlock> getBlock(String id) {
+	public synchronized Optional<HyFlexChainBlock> getBlock(String id) {
 		return Optional.ofNullable(this.blockchain.get(id));
 	}
 
 	@Override
-	public Optional<BlockState> getBlockState(String id) {
+	public synchronized HyFlexChainBlock getLastBlock() {
+		return this.blockchain.valuesList().listIterator(this.blockchain.size())
+			.previous();
+	}
+
+	@Override
+	public synchronized Optional<BlockState> getBlockState(String id) {
 		return getBlock(id).map((block) -> BlockState.FINALIZED);
 	}
 
 	@Override
-	public List<HyFlexChainBlock> getBlocks(BlockFilter filter)
+	public synchronized List<HyFlexChainBlock> getBlocks(BlockFilter filter)
 	{
 		//TODO: Check block filter
 
@@ -103,12 +120,7 @@ public class InMemoryLedger implements ConsensusSpecificLedger
 
 	protected List<HyFlexChainBlock> getLastBlocks(int n)
 	{
-		return UtilLists.subListLastElems(this.blockchain.valuesList(), n);
-	}
-
-	@Override
-	public List<Committee> getLedgerViewPreviousCommittees(int lastN) {
-		return UtilLists.subListLastElems(this.committees, lastN);
+		return List.copyOf(UtilLists.subListLastElems(this.blockchain.valuesList(), n));
 	}
 
 	@Override
@@ -128,5 +140,17 @@ public class InMemoryLedger implements ConsensusSpecificLedger
 	@Override
 	public int blockchainSize() {
 		return this.blockchain.size();
+	}
+
+	@Override
+	public void writeOrderedCommitteeBlock(HyFlexChainBlock block, Committee committee) {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'writeOrderedCommitteeBlock'");
+	}
+
+	@Override
+	public void uponNewCommitteeBlock(Consumer<HyFlexChainBlock> action) {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'uponNewCommitteeBlock'");
 	}
 }

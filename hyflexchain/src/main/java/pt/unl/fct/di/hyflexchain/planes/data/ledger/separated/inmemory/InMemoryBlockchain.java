@@ -14,9 +14,14 @@ public class InMemoryBlockchain extends InsertionOrderedMap<String, HyFlexChainB
 	/**
 	 * 
 	 */
-	protected InMemoryBlockchain()
+	public InMemoryBlockchain()
 	{
 		super(BLOCKCHAIN_INIT_SIZE);
+	}
+
+	public InMemoryBlockchain(int expectedSize)
+	{
+		super(expectedSize);
 	}
 	
 }

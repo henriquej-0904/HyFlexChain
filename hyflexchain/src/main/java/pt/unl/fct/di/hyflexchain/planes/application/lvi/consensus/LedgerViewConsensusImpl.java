@@ -5,10 +5,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Map.Entry;
 
 import pt.unl.fct.di.hyflexchain.planes.application.lvi.BlockFilter;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.consensus.committees.Committee;
+import pt.unl.fct.di.hyflexchain.planes.consensus.committees.CommitteeId;
 import pt.unl.fct.di.hyflexchain.planes.data.DataPlane;
 import pt.unl.fct.di.hyflexchain.planes.data.block.BlockState;
 import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
@@ -96,23 +98,30 @@ public class LedgerViewConsensusImpl implements LedgerViewConsensusInterface {
 		return this.data.getLedger(consensus);
 	}
 
-	@Override
-	public Committee getActiveCommittee() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'getActiveCommittee'");
-	}
-
-	@Override
-	public List<Committee> getLedgerViewPreviousCommittees(int lastN) {
-		return this.data.getLedgerViewPreviousCommittees(lastN, consensus);
-	}
-
 	protected TxPool getTxPool()
 	{
 		if (this.txPool == null)
 			this.txPool = TransactionManagement.getInstance().getTxPool(consensus);
 
 		return this.txPool;
+	}
+
+	@Override
+	public Entry<CommitteeId, ? extends Committee> getActiveCommittee() {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'getActiveCommittee'");
+	}
+
+	@Override
+	public List<? extends Committee> getLedgerViewPreviousCommittees(int lastN) {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'getLedgerViewPreviousCommittees'");
+	}
+
+	@Override
+	public Optional<Entry<CommitteeId, ? extends Committee>> getNextCommittee() {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'getNextCommittee'");
 	}
 	
 }

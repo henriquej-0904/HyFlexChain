@@ -33,7 +33,7 @@ public interface SybilResistantCommitteeElection
 	 * @param n The number of committees to elect
 	 * @return The elected committees.
 	 */
-	Optional<T[]> performCommitteeElections(Criteria criteria, int n);
+	// Optional<T[]> performCommitteeElections(Criteria criteria, int n);
 
 
 	/**

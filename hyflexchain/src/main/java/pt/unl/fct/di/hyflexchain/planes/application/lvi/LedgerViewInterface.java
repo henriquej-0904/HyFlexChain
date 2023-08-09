@@ -2,9 +2,13 @@ package pt.unl.fct.di.hyflexchain.planes.application.lvi;
 
 import java.util.EnumMap;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Optional;
+
+import pt.unl.fct.di.hyflexchain.planes.application.lvi.consensus.LedgerViewConsensusInterface;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.consensus.committees.Committee;
+import pt.unl.fct.di.hyflexchain.planes.consensus.committees.CommitteeId;
 import pt.unl.fct.di.hyflexchain.planes.data.block.BlockState;
 import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
 import pt.unl.fct.di.hyflexchain.planes.data.ledger.LedgerState;
@@ -22,6 +26,8 @@ public interface LedgerViewInterface {
 	{
 		return SimpleLVI.getInstance();
 	}
+
+	LedgerViewConsensusInterface getLVI(ConsensusMechanism consensus);
 
 	//#region Transactions
 
@@ -155,15 +161,22 @@ public interface LedgerViewInterface {
 	 * @param consensus The consensus mechanism of the committee
 	 * @return The currently active committee.
 	 */
-	Committee getActiveCommittee(ConsensusMechanism consensus);
+	Entry<CommitteeId, ? extends Committee> getActiveCommittee(ConsensusMechanism consensus);
 
 	/**
-	 * Get a ledger view of previous committees.
+	 * Get a ledger view of previous defined committees.
 	 * 
 	 * @param lastN The previous N committees
 	 * @param consensus The consensus mechanism
 	 * @return Previous Committees.
 	 */
-	List<Committee> getLedgerViewPreviousCommittees(int lastN, ConsensusMechanism consensus);
+	List<? extends Committee> getLedgerViewPreviousCommittees(int lastN, ConsensusMechanism consensus);
+
+	/**
+	 * Get the next committee after the currently active one.
+	 * @param consensus
+	 * @return
+	 */
+	Optional<Entry<CommitteeId, ? extends Committee>> getNextCommittee(ConsensusMechanism consensus);
 
 }

@@ -5,12 +5,13 @@ import java.util.Map;
 import java.util.Random;
 import java.util.function.Supplier;
 
-import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pt.unl.fct.di.hyflexchain.api.rest.impl.client.HyFlexChainHttpClient;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusInterface;
+import pt.unl.fct.di.hyflexchain.planes.consensus.committees.CommitteeId;
 import pt.unl.fct.di.hyflexchain.planes.consensus.committees.bft.BftCommittee;
 import pt.unl.fct.di.hyflexchain.planes.data.block.BlockBody;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.Address;
@@ -34,7 +35,7 @@ public class BftSmartConsensusThread implements Runnable {
 
 	private final ConsensusInterface consensus;
 
-	private final Supplier<Pair<BftCommittee, Map<Address, Host>>> activeCommittee;
+	private final Supplier<Triple<CommitteeId, BftCommittee, Map<Address, Host>>> activeCommittee;
 
 	private BftCommittee committee;
 
@@ -47,7 +48,7 @@ public class BftSmartConsensusThread implements Runnable {
 	 * @param nTxsInBlock
 	 */
 	public BftSmartConsensusThread(ConsensusInterface consensus, LedgerConfig config,
-		Supplier<Pair<BftCommittee, Map<Address, Host>>> activeCommittee) {
+		Supplier<Triple<CommitteeId, BftCommittee, Map<Address, Host>>> activeCommittee) {
 		this.rand = new Random(System.currentTimeMillis());
 		this.hyflexchainClient = new HyFlexChainHttpClient(config.getMultiLedgerConfig().getSSLContextClient());
 		this.selfAddress = config.getMultiLedgerConfig().getSelfAddress();
@@ -59,13 +60,13 @@ public class BftSmartConsensusThread implements Runnable {
 
 	protected void updateCommittee()
 	{
-		var currentCommitteePair = this.activeCommittee.get();
-		var currentCommittee = currentCommitteePair.getLeft();
+		var newCommittee = this.activeCommittee.get();
+		var currentCommittee = newCommittee.getMiddle();
 		if (currentCommittee != this.committee)
 		{
 			this.committee = currentCommittee;
-			this.committeeMembers = currentCommitteePair.getRight().values().toArray(Host[]::new);
-			this.isInCommittee = currentCommittee.getCommitteeAddresses().contains(this.selfAddress);
+			this.committeeMembers = newCommittee.getRight().values().toArray(Host[]::new);
+			this.isInCommittee = currentCommittee.getCommittee().contains(this.selfAddress);
 		}
 	}
 

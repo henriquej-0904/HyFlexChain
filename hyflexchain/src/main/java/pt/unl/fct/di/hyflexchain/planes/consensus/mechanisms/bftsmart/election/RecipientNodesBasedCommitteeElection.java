@@ -1,12 +1,10 @@
 package pt.unl.fct.di.hyflexchain.planes.consensus.mechanisms.bftsmart.election;
 
-import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Queue;
 import java.util.Set;
 import java.util.function.IntFunction;
 import java.util.stream.Collectors;
@@ -14,8 +12,8 @@ import java.util.stream.Stream;
 
 import pt.unl.fct.di.hyflexchain.planes.application.lvi.BlockFilter;
 import pt.unl.fct.di.hyflexchain.planes.application.lvi.LedgerViewInterface;
+import pt.unl.fct.di.hyflexchain.planes.application.lvi.consensus.BftSmartLVI;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
-import pt.unl.fct.di.hyflexchain.planes.consensus.committees.Committee;
 import pt.unl.fct.di.hyflexchain.planes.consensus.committees.bft.BftCommittee;
 import pt.unl.fct.di.hyflexchain.planes.consensus.committees.bft.BftCommitteeElectionCriteria;
 import pt.unl.fct.di.hyflexchain.planes.consensus.committees.bft.SybilResistantBftCommitteeElection;
@@ -45,7 +43,7 @@ public class RecipientNodesBasedCommitteeElection implements SybilResistantBftCo
     /**
      * Get the last N previous committees.
      */
-    private final IntFunction<List<Committee>> getPreviousCommittees;
+    private final IntFunction<List<BftCommittee>> getPreviousCommittees;
 
     private final int lastBlocks;
 
@@ -57,14 +55,15 @@ public class RecipientNodesBasedCommitteeElection implements SybilResistantBftCo
     public RecipientNodesBasedCommitteeElection(LedgerViewInterface lvi, BFT_SMaRtConfig config) {
         this.config = config;
 
+        BftSmartLVI lviBftSmart = (BftSmartLVI) lvi.getLVI(CONSENSUS_MECHANISM);
+
         this.lastBlocks = this.config.getCommitteeElectionParamRecipientNodesOfLastFinalizedBlocks();
-        this.getLastFinalizedBlocks = (nBlocks) -> lvi.getBlocks(
-            BlockFilter.fromFilter(BlockFilter.Type.LAST_N, nBlocks),
-            CONSENSUS_MECHANISM
-        );
+
+        this.getLastFinalizedBlocks = (nBlocks) -> lviBftSmart.getBlocks(
+            BlockFilter.fromFilter(BlockFilter.Type.LAST_N, nBlocks));
 
         this.nPreviousCommittees = this.config.getCommitteeElectionParamPreviousCommittees();
-        this.getPreviousCommittees = (n) -> lvi.getLedgerViewPreviousCommittees(n, CONSENSUS_MECHANISM);
+        this.getPreviousCommittees = (n) -> lviBftSmart.getLedgerViewPreviousCommittees(n);
     }
 
     @Override
@@ -83,7 +82,7 @@ public class RecipientNodesBasedCommitteeElection implements SybilResistantBftCo
         );
     }
 
-    @Override
+    /* @Override
     public Optional<BftCommittee[]> performCommitteeElections(BftCommitteeElectionCriteria criteria, int n)
     {
         if (n <= 0)
@@ -135,7 +134,7 @@ public class RecipientNodesBasedCommitteeElection implements SybilResistantBftCo
         }
 
         return Optional.of(committees);
-    }
+    } */
 
 
     protected Optional<BftCommittee> performCommitteeElection(BftCommitteeElectionCriteria criteria,
@@ -162,10 +161,10 @@ public class RecipientNodesBasedCommitteeElection implements SybilResistantBftCo
             .collect(Collectors.toSet());
     }
 
-    protected Set<Address> getNodesPreviousCommittees(Collection<Committee> previousCommittees)
+    protected Set<Address> getNodesPreviousCommittees(Collection<BftCommittee> previousCommittees)
     {
         return previousCommittees.stream()
-            .flatMap(c -> c.getCommitteeAddresses().stream())
+            .flatMap(c -> c.getCommittee().stream())
             .collect(Collectors.toSet());
     }
 

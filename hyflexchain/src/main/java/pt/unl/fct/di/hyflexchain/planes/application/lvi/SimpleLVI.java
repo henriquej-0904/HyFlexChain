@@ -2,6 +2,7 @@ package pt.unl.fct.di.hyflexchain.planes.application.lvi;
 
 import java.util.EnumMap;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
@@ -11,6 +12,7 @@ import pt.unl.fct.di.hyflexchain.planes.application.lvi.consensus.LedgerViewCons
 import pt.unl.fct.di.hyflexchain.planes.application.lvi.consensus.PowLVI;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.consensus.committees.Committee;
+import pt.unl.fct.di.hyflexchain.planes.consensus.committees.CommitteeId;
 import pt.unl.fct.di.hyflexchain.planes.data.DataPlane;
 import pt.unl.fct.di.hyflexchain.planes.data.block.BlockState;
 import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
@@ -117,16 +119,21 @@ public class SimpleLVI implements LedgerViewInterface {
 	}
 
 	@Override
-	public Committee getActiveCommittee(ConsensusMechanism consensus) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'getActiveCommittee'");
+	public Entry<CommitteeId, ? extends Committee> getActiveCommittee(ConsensusMechanism consensus) {
+		return getLVI(consensus).getActiveCommittee();
 	}
 
 	@Override
-	public List<Committee> getLedgerViewPreviousCommittees(int lastN, ConsensusMechanism consensus) {
-		return data.getLedgerViewPreviousCommittees(lastN, consensus);
+	public List<? extends Committee> getLedgerViewPreviousCommittees(int lastN, ConsensusMechanism consensus) {
+		return getLVI(consensus).getLedgerViewPreviousCommittees(lastN);
 	}
 
+	@Override
+	public Optional<Entry<CommitteeId, ? extends Committee>> getNextCommittee(ConsensusMechanism consensus) {
+		return getLVI(consensus).getNextCommittee();
+	}
+
+	@Override
 	public LedgerViewConsensusInterface getLVI(ConsensusMechanism consensus)
 	{
 		var lvi = this.lvis.get(consensus);

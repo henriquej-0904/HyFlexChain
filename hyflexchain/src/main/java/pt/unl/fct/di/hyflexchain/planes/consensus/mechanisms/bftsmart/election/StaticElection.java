@@ -38,9 +38,9 @@ public final class StaticElection implements SybilResistantBftCommitteeElection
         );
     }
 
-    @Override
+    /* @Override
     public Optional<BftCommittee[]> performCommitteeElections(BftCommitteeElectionCriteria criteria, int n) {
         throw new UnsupportedOperationException("Unimplemented method 'performCommitteeElections'");
-    }
+    } */
     
 }

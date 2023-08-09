@@ -3,13 +3,14 @@ package pt.unl.fct.di.hyflexchain.planes.data.ledger.separated;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import pt.unl.fct.di.hyflexchain.planes.application.lvi.BlockFilter;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
-import pt.unl.fct.di.hyflexchain.planes.consensus.committees.Committee;
+import pt.unl.fct.di.hyflexchain.planes.consensus.committees.bft.BftCommittee;
 import pt.unl.fct.di.hyflexchain.planes.data.DataPlane;
 import pt.unl.fct.di.hyflexchain.planes.data.block.BlockState;
 import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
@@ -47,6 +48,8 @@ public class SeparatedMultiConsensusLedger implements DataPlane
 
 	protected final EnumMap<ConsensusMechanism, ConsensusSpecificLedger> ledgerByConsensus;
 
+	protected BiConsumer<HyFlexChainBlock, BftCommittee> uponNewBftCommittee;
+
 	/**
 	 * Create a new instance of the ledger
 	 * @param ledgerConfig The configuration of the ledger.
@@ -56,6 +59,7 @@ public class SeparatedMultiConsensusLedger implements DataPlane
 	{
 		this.configs = ledgerConfig;
 		this.ledgerByConsensus = initLedgers(genesisBlocks);
+		this.uponNewBftCommittee = null;
 	}
 
 	/**
@@ -108,6 +112,11 @@ public class SeparatedMultiConsensusLedger implements DataPlane
 	}
 
 	@Override
+	public HyFlexChainBlock getLastBlock(ConsensusMechanism consensus) {
+		return getLedgerInstance(consensus).getLastBlock();
+	}
+
+	@Override
 	public EnumMap<ConsensusMechanism, LedgerState> getLedger() {
 		return Stream.of(ConsensusMechanism.values())
 			.collect(
@@ -126,11 +135,6 @@ public class SeparatedMultiConsensusLedger implements DataPlane
 	}
 
 	@Override
-	public List<Committee> getLedgerViewPreviousCommittees(int lastN, ConsensusMechanism consensus) {
-		return getLedgerInstance(consensus).getLedgerViewPreviousCommittees(lastN);
-	}
-
-	@Override
 	public void uponNewBlock(Consumer<HyFlexChainBlock> action, ConsensusMechanism consensus) {
 		getLedgerInstance(consensus).uponNewBlock(action);
 	}
@@ -138,6 +142,21 @@ public class SeparatedMultiConsensusLedger implements DataPlane
 	@Override
 	public int blockchainSize(ConsensusMechanism consensus) {
 		return getLedgerInstance(consensus).blockchainSize();
+	}
+
+	@Override
+	public void writeOrderedBftCommitteeBlock(HyFlexChainBlock block, BftCommittee committee) {
+		// Technically the block should be written to the storage
+		if (this.uponNewBftCommittee != null)
+			this.uponNewBftCommittee.accept(block, committee);
+	}
+
+	@Override
+	public void uponNewBftCommitteeBlock(BiConsumer<HyFlexChainBlock, BftCommittee> action) {
+		if (this.uponNewBftCommittee == null)
+			this.uponNewBftCommittee = action;
+		else
+			this.uponNewBftCommittee = this.uponNewBftCommittee.andThen(action);
 	}
 	
 }

@@ -2,10 +2,12 @@ package pt.unl.fct.di.hyflexchain.planes.application.lvi.consensus;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Map.Entry;
 
 import pt.unl.fct.di.hyflexchain.planes.application.lvi.BlockFilter;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.consensus.committees.Committee;
+import pt.unl.fct.di.hyflexchain.planes.consensus.committees.CommitteeId;
 import pt.unl.fct.di.hyflexchain.planes.data.block.BlockState;
 import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
 import pt.unl.fct.di.hyflexchain.planes.data.ledger.LedgerState;
@@ -126,7 +128,7 @@ public interface LedgerViewConsensusInterface
 	 * Get the currently active committee.
 	 * @return The currently active committee.
 	 */
-	Committee getActiveCommittee();
+	Entry<CommitteeId, ? extends Committee> getActiveCommittee();
 
 	/**
 	 * Get a ledger view of previous committees.
@@ -134,5 +136,11 @@ public interface LedgerViewConsensusInterface
 	 * @param lastN The previous N committees
 	 * @return Previous Committees.
 	 */
-	List<Committee> getLedgerViewPreviousCommittees(int lastN);
+	List<? extends Committee> getLedgerViewPreviousCommittees(int lastN);
+
+	/**
+	 * Get the next committee after the current one.
+	 * @return
+	 */
+	Optional<Entry<CommitteeId, ? extends Committee>> getNextCommittee();
 }

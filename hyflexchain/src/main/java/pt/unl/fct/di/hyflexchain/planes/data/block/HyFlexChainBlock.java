@@ -69,6 +69,7 @@ public record HyFlexChainBlock(
 
 		return block;
 	}
+
 	
 	/**
 	 * Calculate the hash of this block

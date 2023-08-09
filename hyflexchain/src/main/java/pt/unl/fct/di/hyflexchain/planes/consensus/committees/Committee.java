@@ -1,5 +1,6 @@
 package pt.unl.fct.di.hyflexchain.planes.consensus.committees;
 
+import java.nio.ByteBuffer;
 import java.security.PublicKey;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -8,6 +9,7 @@ import java.util.Map;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.Address;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.InvalidAddressException;
+import pt.unl.fct.di.hyflexchain.util.crypto.Crypto;
 
 /**
  * A committee of nodes with the purpose of executing an instance of
@@ -15,6 +17,8 @@ import pt.unl.fct.di.hyflexchain.planes.data.transaction.InvalidAddressException
  */
 public class Committee
 {
+	protected int id;
+
 	protected ConsensusMechanism consensusMechanism;
 
 	protected CommitteeElectionCriteria criteria;
@@ -38,6 +42,41 @@ public class Committee
 		this.consensusMechanism = consensusMechanism;
 		this.criteria = criteria;
 		this.committee = committee;
+		this.id = generateCommitteId();
+	}
+
+	protected int generateCommitteId()
+	{
+		var serializer = Address.SERIALIZER;
+		ByteBuffer buff = null;
+		int size;
+		
+		var digest = Crypto.getSha256Digest();
+
+		for (Address address : committee) {
+			if ((buff == null ? -1 : buff.capacity()) < (size = serializer.serializedSize(address)))
+			{
+				buff = ByteBuffer.allocate(size);
+				serializer.serialize(address, buff);
+			}
+			else
+				serializer.serialize(address, buff);
+
+			int len = buff.position();
+			
+			digest.update(buff.array(), 0, len);
+			buff.position(0);
+		}
+
+		byte[] result = digest.digest();
+		buff = ByteBuffer.wrap(result);
+
+		return buff.getInt();
+	}
+
+	public boolean verifyCommitteeId()
+	{
+		return this.id == generateCommitteId();
 	}
 
 	/**
@@ -70,24 +109,6 @@ public class Committee
 	}
 
 	/**
-	 * The addresses of the nodes in the committee.
-	 * @return Committee addresses.
-	 */
-	public LinkedHashSet<Address> getCommitteeAddresses()
-	{
-		return this.committee;
-	}
-
-	/**
-	 * The election criteria used for this committee.
-	 * @return The election criteria
-	 */
-	public CommitteeElectionCriteria getCommitteeElectionCriteria()
-	{
-		return this.criteria;
-	}
-
-	/**
 	 * @param consensusMechanism the consensusMechanism to set
 	 */
 	public void setConsensusMechanism(ConsensusMechanism consensusMechanism) {
@@ -107,6 +128,36 @@ public class Committee
 	public void setCommittee(LinkedHashSet<Address> committee) {
 		this.committee = committee;
 	}
+
+	/**
+	 * @return the id
+	 */
+	public int getId() {
+		return id;
+	}
+
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	/**
+	 * @return the criteria
+	 */
+	public CommitteeElectionCriteria getCriteria() {
+		return criteria;
+	}
+
+	/**
+	 * @return the committee
+	 */
+	public LinkedHashSet<Address> getCommittee() {
+		return committee;
+	}
+
+
 
 	
 }

@@ -1,6 +1,6 @@
 'use strict';
 
-const {ConnectorBase, CaliperUtils, ConfigUtil, TxStatus} = require('@hyperledger/caliper-core');
+const { ConnectorBase, CaliperUtils, ConfigUtil, TxStatus } = require('@hyperledger/caliper-core');
 
 const CryptoUtils = require("../util/crypto/Crypto");
 const KeyPair = require("../util/crypto/KeyPair");
@@ -20,9 +20,8 @@ const Logger = CaliperUtils.getLogger('HyFlexChainConnector');
 /**
  * A connector for the HyFlexChain System.
  */
-class HyFlexChainConnector extends ConnectorBase
-{
-	/**
+class HyFlexChainConnector extends ConnectorBase {
+    /**
      * Constructor
      * @param {number} workerIndex The zero-based worker index.
      */
@@ -66,13 +65,13 @@ class HyFlexChainConnector extends ConnectorBase
             );
         }
 
-        if (! hyflexchainConfig.truststore_ca) {
+        if (!hyflexchainConfig.truststore_ca) {
             throw new Error(
                 'No truststore CA given to securely connect to HyFlexChain nodes.'
             );
         }
-        
-        if (! hyflexchainConfig.replica_addresses) {
+
+        if (!hyflexchainConfig.replica_addresses) {
             throw new Error(
                 'No replicas addresses given to serve as destination in transactions.'
             );
@@ -83,8 +82,7 @@ class HyFlexChainConnector extends ConnectorBase
         // this._throwNotImplemented('init');
     }
 
-    async installSmartContract()
-    {
+    async installSmartContract() {
         // blockmess does not support smart contracts.
     }
 
@@ -97,8 +95,8 @@ class HyFlexChainConnector extends ConnectorBase
      */
     async prepareWorkerArguments(number) {
         let keyPairs = [];
-        
-        for (let i = 0 ; i < number ; i++) {
+
+        for (let i = 0; i < number; i++) {
             keyPairs[i] = this.cryptoUtils.genKeyPairEC();
         }
 
@@ -106,18 +104,18 @@ class HyFlexChainConnector extends ConnectorBase
             keyPair => this.cryptoUtils.encodeKeyPair(keyPair)
         );
 
-		const replica_addresses_file_path =
-			path.resolve(this.hyflexchainConfig.replica_addresses);
+        const replica_addresses_file_path =
+            path.resolve(this.hyflexchainConfig.replica_addresses);
 
         Logger.error("addresses.json path: " + replica_addresses_file_path);
-		
+
         const destReplicasAddresses = Object.keys(
             require(replica_addresses_file_path)
         );
 
         let workersArgs = [];
 
-        for (let i = 0 ; i < number ; i++) {
+        for (let i = 0; i < number; i++) {
             workersArgs[i] = new WorkerArgs(
                 this.hyflexchainConfig.url[i],
                 encodedWorkersKeys[i],
@@ -144,18 +142,18 @@ class HyFlexChainConnector extends ConnectorBase
 
         const httpsAgent = new https.Agent({
             rejectUnauthorized: false, // (NOTE: this will disable client verification)
-            ca : fs.readFileSync(this.hyflexchainConfig.truststore_ca)
+            ca: fs.readFileSync(this.hyflexchainConfig.truststore_ca)
         })
 
         this.httpClient = axios.create(
             {
                 baseURL: context.getUrl(),
                 timeout: this.hyflexchainConfig.connection_timeout,
-                httpsAgent : httpsAgent
+                httpsAgent: httpsAgent
                 //headers: {'X-Custom-Header': 'foobar'}
             }
         );
-        
+
         return context;
     }
 
@@ -173,23 +171,75 @@ class HyFlexChainConnector extends ConnectorBase
      * @param {Transaction} request Methods call data.
      * @return {Promise<TxStatus>} Result and stats of the transaction invocation.
      */
-	async _sendSingleRequest(request)
-	{
-        request.sign(this.context.getKeyPair().getPrivateKey(), this.cryptoUtils);
-        request.performHash(this.cryptoUtils);
+    // 	async _sendSingleRequest(request)
+    // 	{
+    //         request.sign(this.context.getKeyPair().getPrivateKey(), this.cryptoUtils);
 
-        const data = {
-            version : request.version,
-            hash : request.hash,
-            transactionType : request.transactionType,
-            sender : request.sender,
-            signatureType : request.signatureType,
-            signature : request.signature,
-            nonce : request.nonce,
-            inputTxs : request.inputTxs,
-            outputTxs : request.outputTxs,
-            data : request.data.toString("base64")
-        }
+    //         const data = {
+    //             version : request.version,
+    //             sender : request.sender,
+    //             signatureType : request.signatureType,
+    //             signature : request.signature,
+    //             nonce : request.nonce,
+    //             transactionType : request.transactionType,
+    //             smartContract : request.smartContract,
+    //             inputTxs : request.inputTxs,
+    //             outputTxs : request.outputTxs,
+    //             data : request.data
+    //         }
+
+    //         // Logger.error(JSON.stringify(data));
+
+    //         let status = new TxStatus();
+
+    //         const onFailure = (err) => {
+    //             status.SetStatusFail();
+    //             Logger.error(`Failed tx.`);
+    //             Logger.error(err);
+    //         };
+
+    //         const onSuccess = (reply) => {
+    //             status.SetID(reply);
+    //             status.SetResult(reply);
+    //             status.SetVerification(true);
+    //             status.SetStatusSuccess();
+    //         };
+
+    //         return this.httpClient.post("/hyflexchain/ti/transaction-json", data,
+    //         {
+    //             // headers : {
+    //             //     "Content-Type" : "application/json"
+    //             // }
+    //             headers : {
+    //                 "Content-Type" : "application/json"
+    //             }
+    //         }).then(response => {
+    //             if (response.status == 200)
+    //             {
+    //                 onSuccess(response.data);
+    //                 return status;
+    //             }
+    //             else
+    //             {
+    //                 onFailure(response.statusText);
+    //                 return status;
+    //             }
+    //         }).catch(reason => {
+    //             onFailure(reason);
+    //             return status;
+    //         });
+    // 	}
+    // }
+
+    /**
+    * Submit a transaction to the blockmess blockchain.
+    * @param {Transaction} request Methods call data.
+    * @return {Promise<TxStatus>} Result and stats of the transaction invocation.
+    */
+    async _sendSingleRequest(request) {
+        request.sign(this.context.getKeyPair().getPrivateKey(), this.cryptoUtils);
+
+        const data = request.toJson();
 
         // Logger.error(JSON.stringify(data));
 
@@ -208,27 +258,25 @@ class HyFlexChainConnector extends ConnectorBase
             status.SetStatusSuccess();
         };
 
-        return this.httpClient.post("/hyflexchain/ti/transaction", data,
-        {
-            headers : {
-                "Content-Type" : "application/json"
-            }
-        }).then(response => {
-            if (response.status == 200)
+        return this.httpClient.post("/hyflexchain/ti/transaction-json", data,
             {
-                onSuccess(response.data);
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            }).then(response => {
+                if (response.status == 200) {
+                    onSuccess(response.data);
+                    return status;
+                }
+                else {
+                    onFailure(response.statusText);
+                    return status;
+                }
+            }).catch(reason => {
+                onFailure(reason);
                 return status;
-            }
-            else
-            {
-                onFailure(response.statusText);
-                return status;
-            }
-        }).catch(reason => {
-            onFailure(reason);
-            return status;
-        });
-	}
+            });
+    }
 }
 
 module.exports = HyFlexChainConnector;

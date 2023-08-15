@@ -23,7 +23,8 @@ class Context
         this.encodedPublicKey = encodedWorkerKeyPair[0];
         this.keyPair = crypto.decodeKeyPair(encodedWorkerKeyPair);
 
-        this.destAddresses = workerArgs.getDestAddresses();
+        this.destAddresses = workerArgs.getDestAddresses()
+            .map(a => Buffer.from(a.substring(2), "hex"));
     }
 
     /**
@@ -51,7 +52,7 @@ class Context
     }
 
     /**
-     * @returns {string[]} the destination addresses for generated transactions
+     * @returns {Buffer[]} the destination addresses for generated transactions
      */
     getDestAddresses()
     {

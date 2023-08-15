@@ -44,15 +44,15 @@ class CreateTransactionPowWorkload extends WorkloadModuleBase {
      * @return {Promise<TxStatus[]>}
      */
     async submitTransaction() {
-        const originPubKey = "0x01" + this.sutContext.encodedPublicKey;
+        const originPubKey = Buffer.from("01" + this.sutContext.encodedPublicKey, 'hex');
         const destAddress = this.getRandDestAddress();
         const val = Util.getRandomInt32();
 
-        const inputTxs = [HyFlexChainTransaction.createInputTx(this.getRandDestAddress(), "some hash", 0)];
+        const inputTxs = [HyFlexChainTransaction.createInputTx(Buffer.from("some hash", "utf-8"), 0)];
         const outputTxs = [HyFlexChainTransaction.createOutputTx(destAddress, val)];
         const tx = new HyFlexChainTransaction(HyFlexChainTransaction.TRANSFER, originPubKey, inputTxs, outputTxs);
         tx.nonce = this.txIndex;
-        tx.data = this.contractData;
+        tx.smartContract = HyFlexChainTransaction.smartContractCode(this.contractData);
 
         this.txIndex++;
 
@@ -61,7 +61,7 @@ class CreateTransactionPowWorkload extends WorkloadModuleBase {
 
     /**
      * Get a rand replica address from the array of destination addresses
-     * @return {string} random replica address
+     * @return {Buffer} random replica address
      */
     getRandDestAddress()
     {

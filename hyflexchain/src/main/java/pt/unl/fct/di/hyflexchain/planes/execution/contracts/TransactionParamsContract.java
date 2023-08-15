@@ -91,48 +91,6 @@ public class TransactionParamsContract extends SmartContract {
             throw new InvalidSmartContractException(e.getMessage(), e);
         }
     }
-
-    // /**
-    //  * Call the getTransactionParams of this smart contract
-    //  * 
-    //  * @param evm          The executor
-    //  * @param sender       the evm sender address
-    //  * @param worldUpdater the world updater
-    //  * @param tx           the transaction context for the call
-    //  * @return consensus parameters.
-    //  * @throws InvalidSmartContractException
-    //  */
-    // @SuppressWarnings("rawtypes")
-    // public TransactionParams callgetTransactionParams(final EvmExecutor evm, final Address sender,
-    //         final WorldUpdater worldUpdater, HyFlexChainTransaction tx) throws InvalidSmartContractException {
-    //     long totalValue = Stream.of(tx.getOutputTxs())
-    //             .filter((utxo) -> !utxo.recipient().equals(tx.getSender()))
-    //             .mapToLong(UTXO::value)
-    //             .sum();
-
-    //     final Function function = new Function(
-    //             FUNC_GETTRANSACTIONPARAMS,
-    //             Arrays.<Type>asList(new org.web3j.abi.datatypes.Utf8String(tx.getVersion()),
-    //                     new org.web3j.abi.datatypes.Utf8String(tx.getHash()),
-    //                     new org.web3j.abi.datatypes.Utf8String(tx.getSender().address()),
-    //                     new org.web3j.abi.datatypes.Utf8String(tx.getSignatureType()),
-    //                     new org.web3j.abi.datatypes.Utf8String(tx.getSignature()),
-    //                     new org.web3j.abi.datatypes.generated.Int64(tx.getNonce()),
-    //                     new org.web3j.abi.datatypes.generated.Int32(tx.getInputTxs().length),
-    //                     new org.web3j.abi.datatypes.generated.Int32(tx.getOutputTxs().length),
-    //                     new org.web3j.abi.datatypes.generated.Int64(totalValue),
-    //                     new org.web3j.abi.datatypes.generated.Int64(System.currentTimeMillis() / 1000)),
-    //             Arrays.<TypeReference<?>>asList(new TypeReference<Utf8String>() {
-    //             }));
-
-    //     try {
-    //         var res = executeConstantCallSingleValueReturn(evm, sender, function, String.class, worldUpdater);
-    //         return TransactionParams.parse(res);
-    //     } catch (RuntimeException e) {
-    //         throw new InvalidSmartContractException(e.getMessage(), e);
-    //     }
-    // }
-
     /**
      * The decided parameters for a transaction.
      */

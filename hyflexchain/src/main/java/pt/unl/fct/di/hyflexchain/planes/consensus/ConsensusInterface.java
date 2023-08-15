@@ -200,7 +200,7 @@ public abstract class ConsensusInterface
 					txmanagement.verifyTx(tx.getValue());
 
 					final TransactionParamsContractResult txParams =
-						execution.callGetTransactionParams(tx.getValue());
+						execution.executeSmartContract(tx.getValue());
 
 					if (txParams.getConsensus() != this.consensus)
 					{

@@ -80,7 +80,7 @@ public class TransactionManagementV2_0 implements TransactionManagement
     protected TransactionParamsContractResult callGetTransactionParams(HyFlexChainTransaction tx) throws InvalidTransactionException
     {
         try {
-            return ExecutionPlane.getInstance().callGetTransactionParams(tx);
+            return ExecutionPlane.getInstance().executeSmartContract(tx);
         } catch (InvalidSmartContractException e) {
             LOGGER.info(e.getMessage());
 			throw new InvalidTransactionException(e.getMessage(), e);

@@ -6,6 +6,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.util.EnumMap;
 
+import org.apache.tuweni.bytes.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,6 +15,7 @@ import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.InvalidAddressException;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.SerializedTx;
+import pt.unl.fct.di.hyflexchain.planes.data.transaction.TransactionType;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.wrapper.TxWrapper;
 import pt.unl.fct.di.hyflexchain.planes.execution.ExecutionPlane;
 import pt.unl.fct.di.hyflexchain.planes.execution.contracts.InvalidSmartContractException;
@@ -69,11 +71,39 @@ public class TransactionManagementV2_0 implements TransactionManagement
 				LOGGER.info(msg);
 				throw new InvalidTransactionException(msg);
 			}
+
+			switch (tx.getTransactionType())
+			{
+				case COMMITTEE_ELECTION:
+					break;
+				case COMMITTEE_ROTATION:
+					break;
+				case CONTRACT_CREATE:
+					ExecutionPlane.getInstance()
+						.simulateDeploySmartContract(
+							tx.getSender(),
+							tx.getSmartContract().id(),
+							Bytes.wrap(tx.getSmartContract().code()));
+					break;
+				case CONTRACT_REVOKE:
+					if (!ExecutionPlane.getInstance()
+						.isSmartContractDeployed(tx.getSender(), tx.getSmartContract().id()))
+					{
+						throw new InvalidSmartContractException("There is no smart contract associated to the specified account.");
+					}
+					break;
+				case TRANSFER:
+					break;
+				default:
+					break;
+				
+			}
 				
 		} catch (InvalidAddressException | InvalidKeyException |
-				NoSuchAlgorithmException | SignatureException e) {
+				NoSuchAlgorithmException | SignatureException |
+				InvalidSmartContractException e) {
 			LOGGER.info(e.getMessage());
-			throw new InvalidTransactionException(e.getMessage(), e);
+			throw new InvalidTransactionException("Transaction verification failed: " + e.getMessage(), e);
 		}
 	}
 
@@ -107,10 +137,23 @@ public class TransactionManagementV2_0 implements TransactionManagement
 	{
 		verifyTx(tx.tx());
 
-        final ConsensusMechanism c = callGetTransactionParams(tx.tx()).getConsensus();
-		checkAddPendingTx(getTxPool(c).addTxIfAbsent(tx.serializedTx()));
+		ConsensusMechanism c;
+		if (tx.tx().getTransactionType() == TransactionType.TRANSFER)
+		{
+			c = callGetTransactionParams(tx.tx()).getConsensus();
+			checkAddPendingTx(getTxPool(c).addTxIfAbsent(tx.serializedTx()));	
+		}
+		else if (tx.tx().getTransactionType() == TransactionType.CONTRACT_CREATE ||
+			tx.tx().getTransactionType() == TransactionType.CONTRACT_REVOKE)
+		{
+			c = ConsensusMechanism.PoW;
+		}
+		else
+		{
+			throw new InvalidTransactionException("Unsupported transaction type: " + tx.tx().getTransactionType());
+		}
 
-		LOGGER.info("Submited tx [{}]: {}", c.getConsensus(), tx.txHash());
+		LOGGER.info("Submited {} tx [{}]: {}", tx.tx().getTransactionType(), c.getConsensus(), tx.txHash());
 		return tx.txHash().toHexString();
 	}
 
@@ -139,6 +182,38 @@ public class TransactionManagementV2_0 implements TransactionManagement
 			LOGGER.error(e.getMessage(), e);
 			throw new InvalidTransactionException(e.getMessage(), e);
 		}
+	}
+
+	@Override
+	public void executeTransaction(HyFlexChainTransaction tx) throws InvalidTransactionException {
+		try {
+			switch (tx.getTransactionType())
+		{
+			case COMMITTEE_ELECTION:
+				break;
+			case COMMITTEE_ROTATION:
+				break;
+			case CONTRACT_CREATE:
+				ExecutionPlane.getInstance()
+					.deploySmartContract(tx.getSender(),
+							tx.getSmartContract().id(),
+							Bytes.wrap(tx.getSmartContract().code()));
+				break;
+			case CONTRACT_REVOKE:
+				ExecutionPlane.getInstance()
+					.revokeSmartContract(tx.getSender(),
+							tx.getSmartContract().id());
+				break;
+			case TRANSFER:
+				break;
+			default:
+				break;
+			
+		}
+		} catch (Exception e) {
+			throw new InvalidTransactionException(e.getMessage(), e);
+		}
+		
 	}
 	
 }

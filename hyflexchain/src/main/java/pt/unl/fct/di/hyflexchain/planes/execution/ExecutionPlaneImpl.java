@@ -88,6 +88,19 @@ public class ExecutionPlaneImpl implements ExecutionPlane
         return this.updater.updater();
     }
 
+    void update(ExecutionPlaneUpdaterImpl updater)
+    {
+        processOperationSynchronizedWrite(() -> {
+            installed.putAll(updater.installed);
+            revoked.addAll(updater.revoked);
+        });
+    }
+
+    @Override
+    public ExecutionPlaneUpdater getUpdater() {
+        return new ExecutionPlaneUpdaterImpl(this);
+    }
+
     @Override
     public TransactionParamsContractResult executeSmartContract(HyFlexChainTransaction tx) throws InvalidSmartContractException
     {
@@ -96,7 +109,7 @@ public class ExecutionPlaneImpl implements ExecutionPlane
         return getFailableValueSynchronizedRead(op);
     }
 
-    private TransactionParamsContractResult executeSmartContract0(HyFlexChainTransaction tx) throws InvalidSmartContractException
+    TransactionParamsContractResult executeSmartContract0(HyFlexChainTransaction tx) throws InvalidSmartContractException
     {
         ExecutionContext context;
         if (tx.getSmartContract().isAddressProvided())
@@ -109,7 +122,7 @@ public class ExecutionPlaneImpl implements ExecutionPlane
         return context.execute(tx);
     }
 
-    private ExecutionContext createExecutionContext(Address contractAddress) throws InvalidSmartContractException
+    ExecutionContext createExecutionContext(Address contractAddress) throws InvalidSmartContractException
     {
         var deployedContract = installed.get(contractAddress);
 
@@ -119,7 +132,7 @@ public class ExecutionPlaneImpl implements ExecutionPlane
         return createExecutionContext(deployedContract.code());
     }
 
-    private ExecutionContext createExecutionContext(Bytes contractCode) throws InvalidSmartContractException
+    ExecutionContext createExecutionContext(Bytes contractCode) throws InvalidSmartContractException
     {
         final WorldUpdater updater = getTmpUpdater();
         final EvmAccount sender = createDefaultAccount(updater);
@@ -137,7 +150,23 @@ public class ExecutionPlaneImpl implements ExecutionPlane
         processFailableOperationSynchronizedWrite(op);
     }
 
-    private void deploySmartContract0(Address account,Address contractAddress, Bytes contractCode)
+    @Override
+    public void simulateDeploySmartContract(Address account, Address contractAddress, Bytes contractCode)
+            throws InvalidSmartContractException
+    {
+        FailableRunnable<InvalidSmartContractException> op =
+            () ->
+        {
+            if (!isAddressValidForNewContract0(contractAddress))
+                throw new InvalidSmartContractException("Invalid address for smart contract: already used");
+
+            // create execution context to verify the smart contract
+            createExecutionContext(contractCode);
+        };
+        processFailableOperationSynchronizedRead(op);
+    }
+
+    void deploySmartContract0(Address account,Address contractAddress, Bytes contractCode)
         throws InvalidSmartContractException
     {
         if (!isAddressValidForNewContract0(contractAddress))
@@ -158,7 +187,7 @@ public class ExecutionPlaneImpl implements ExecutionPlane
         processFailableOperationSynchronizedWrite(op);
     }
 
-    private void revokeSmartContract0(Address account,Address contractAddress)
+    void revokeSmartContract0(Address account,Address contractAddress)
             throws InvalidSmartContractException
     {
         if (!isSmartContractDeployed0(account, contractAddress))
@@ -182,33 +211,39 @@ public class ExecutionPlaneImpl implements ExecutionPlane
     }
 
     @Override
+    public boolean isSmartContractRevoked(Address contractAddress)
+    {
+        return getValueSynchronizedRead(() -> isSmartContractRevoked0(contractAddress));
+    }
+
+    @Override
     public boolean isAddressValidForNewContract(Address contractAddress) {
         return getValueSynchronizedRead(() -> isAddressValidForNewContract0(contractAddress));
     }
 
-    private boolean isSmartContractDeployed0(Address contractAddress)
+    boolean isSmartContractDeployed0(Address contractAddress)
     {
         return installed.containsKey(contractAddress);
     }
 
-    private boolean isSmartContractDeployed0(Address account,Address contractAddress)
+    boolean isSmartContractDeployed0(Address account,Address contractAddress)
     {
         var deployedContract = installed.get(contractAddress);
         return deployedContract == null ? false :
             deployedContract.account().equals(account);
     }
 
-    private boolean isSmartContractRevoked0(Address contractAddress)
+    boolean isSmartContractRevoked0(Address contractAddress)
     {
         return revoked.contains(contractAddress);
     }
 
-    private boolean isAddressValidForNewContract0(Address contractAddress)
+    boolean isAddressValidForNewContract0(Address contractAddress)
     {
         return !isSmartContractDeployed0(contractAddress) && !isSmartContractRevoked0(contractAddress);
     }
 
-    private <T> T getValueSynchronizedRead(Supplier<T> get)
+    <T> T getValueSynchronizedRead(Supplier<T> get)
     {
         try {
             lock.readLock().lock();
@@ -219,7 +254,7 @@ public class ExecutionPlaneImpl implements ExecutionPlane
         }
     }
 
-    private <T, E extends Throwable> T getFailableValueSynchronizedRead(FailableSupplier<T, E> operation) throws E
+    <T, E extends Throwable> T getFailableValueSynchronizedRead(FailableSupplier<T, E> operation) throws E
     {
         try {
             lock.readLock().lock();
@@ -230,7 +265,29 @@ public class ExecutionPlaneImpl implements ExecutionPlane
         }
     }
 
-    private <E extends Throwable> void processFailableOperationSynchronizedWrite(FailableRunnable<E> operation) throws E
+    <E extends Throwable> void processFailableOperationSynchronizedRead(FailableRunnable<E> operation) throws E
+    {
+        try {
+            lock.readLock().lock();
+            operation.run();
+        } finally
+        {
+            lock.readLock().unlock();
+        }
+    }
+
+    void processOperationSynchronizedWrite(Runnable operation)
+    {
+        try {
+            lock.writeLock().lock();
+            operation.run();
+        } finally
+        {
+            lock.writeLock().unlock();
+        }
+    }
+
+    <E extends Throwable> void processFailableOperationSynchronizedWrite(FailableRunnable<E> operation) throws E
     {
         try {
             lock.writeLock().lock();

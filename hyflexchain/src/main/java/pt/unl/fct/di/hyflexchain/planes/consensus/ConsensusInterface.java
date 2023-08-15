@@ -14,6 +14,7 @@ import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
 import pt.unl.fct.di.hyflexchain.planes.data.block.MerkleTree;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.SerializedTx;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.TransactionState;
+import pt.unl.fct.di.hyflexchain.planes.data.transaction.TransactionType;
 import pt.unl.fct.di.hyflexchain.planes.execution.ExecutionPlane;
 import pt.unl.fct.di.hyflexchain.planes.execution.contracts.InvalidSmartContractException;
 import pt.unl.fct.di.hyflexchain.planes.execution.contracts.TransactionParamsContract.TransactionParamsContractResult;
@@ -199,13 +200,24 @@ public abstract class ConsensusInterface
 					ti.verifyTx(tx.getValue());
 					txmanagement.verifyTx(tx.getValue());
 
-					final TransactionParamsContractResult txParams =
-						execution.executeSmartContract(tx.getValue());
-
-					if (txParams.getConsensus() != this.consensus)
+					if (tx.getValue().getTransactionType() == TransactionType.TRANSFER) {
+						final TransactionParamsContractResult txParams = execution
+								.executeSmartContract(tx.getValue());
+						
+						if (txParams.getConsensus() != this.consensus) {
+							LOG.info(
+									"Invalid tx - smart contract exec failed -> consensus {} does not match the one for this block {}",
+									txParams.getConsensus(), this.consensus);
+							return false;
+						}
+					} else if (tx.getValue().getTransactionType() == TransactionType.CONTRACT_CREATE ||
+						tx.getValue().getTransactionType() == TransactionType.CONTRACT_REVOKE)
 					{
-						LOG.info("Invalid tx - smart contract exec failed -> consensus {} does not match the one for this block {}", txParams.getConsensus(), this.consensus);
-						return false;
+						if (ConsensusMechanism.PoW != this.consensus) {
+							LOG.info(
+									"Invalid tx type for PoW mechanism: " + tx.getValue().getTransactionType());
+							return false;
+						}
 					}
 
 					return true;

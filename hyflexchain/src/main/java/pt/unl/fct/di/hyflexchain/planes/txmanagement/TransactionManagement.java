@@ -55,4 +55,6 @@ public interface TransactionManagement {
 	 * @param tx The transaction
 	 */
 	String dispatchTransactionAndWait(TxWrapper tx) throws InvalidTransactionException;
+
+	void executeTransaction(HyFlexChainTransaction tx) throws InvalidTransactionException;
 }

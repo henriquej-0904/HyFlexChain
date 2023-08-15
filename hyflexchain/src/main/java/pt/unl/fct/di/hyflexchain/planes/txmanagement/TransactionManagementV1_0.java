@@ -109,5 +109,11 @@ public class TransactionManagementV1_0 implements TransactionManagement
 		LOGGER.info("Finalized tx: " + tx.txHash());
 		return tx.txHash().toHexString();
 	}
+
+	@Override
+	public void executeTransaction(HyFlexChainTransaction tx) throws InvalidTransactionException {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'executeTransaction'");
+	}
 	
 }

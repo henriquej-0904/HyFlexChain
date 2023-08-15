@@ -22,6 +22,9 @@ public interface ExecutionPlane {
         return ExecutionPlaneImpl.getInstance();
     }
 
+    ExecutionPlaneUpdater getUpdater();
+    
+
     /**
      * Execute the smart contract code provided by the specified transaction
      * and get the {@link TransactionParamsContractResult} result.
@@ -44,6 +47,16 @@ public interface ExecutionPlane {
      * (ex. a contract already exists with the specified address).
      */
     void deploySmartContract(Address account, Address contractAddress, Bytes contractCode) throws InvalidSmartContractException;
+
+    /**
+     * Simulate a deploy of a smart contract.
+     * @param account The account that deployed this smart contract
+     * @param contractAddress The address which the deployed contract will be accessible
+     * @param contractCode The code of the contract
+     * @throws InvalidSmartContractException if an error occurred in the deploy
+     * (ex. a contract already exists with the specified address).
+     */
+    void simulateDeploySmartContract(Address account, Address contractAddress, Bytes contractCode) throws InvalidSmartContractException;
 
     /**
      * Revokes a smart contract. This operation can only be performed
@@ -79,4 +92,6 @@ public interface ExecutionPlane {
      * @return true if is valid.
      */
     boolean isAddressValidForNewContract(Address contractAddress);
+
+    public boolean isSmartContractRevoked(Address contractAddress);
 }

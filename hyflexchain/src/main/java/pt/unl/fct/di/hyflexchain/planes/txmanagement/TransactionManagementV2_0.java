@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
+import java.util.Collection;
 import java.util.EnumMap;
 
 import org.apache.tuweni.bytes.Bytes;
@@ -72,36 +73,35 @@ public class TransactionManagementV2_0 implements TransactionManagement
 				throw new InvalidTransactionException(msg);
 			}
 
-			switch (tx.getTransactionType())
-			{
-				case COMMITTEE_ELECTION:
-					break;
-				case COMMITTEE_ROTATION:
-					break;
-				case CONTRACT_CREATE:
-					ExecutionPlane.getInstance()
-						.simulateDeploySmartContract(
-							tx.getSender(),
-							tx.getSmartContract().id(),
-							Bytes.wrap(tx.getSmartContract().code()));
-					break;
-				case CONTRACT_REVOKE:
-					if (!ExecutionPlane.getInstance()
-						.isSmartContractDeployed(tx.getSender(), tx.getSmartContract().id()))
-					{
-						throw new InvalidSmartContractException("There is no smart contract associated to the specified account.");
-					}
-					break;
-				case TRANSFER:
-					break;
-				default:
-					break;
+			// switch (tx.getTransactionType())
+			// {
+			// 	case COMMITTEE_ELECTION:
+			// 		break;
+			// 	case COMMITTEE_ROTATION:
+			// 		break;
+			// 	case CONTRACT_CREATE:
+			// 		ExecutionPlane.getInstance()
+			// 			.simulateDeploySmartContract(
+			// 				tx.getSender(),
+			// 				tx.getSmartContract().id(),
+			// 				Bytes.wrap(tx.getSmartContract().code()));
+			// 		break;
+			// 	case CONTRACT_REVOKE:
+			// 		if (!ExecutionPlane.getInstance()
+			// 			.isSmartContractDeployed(tx.getSender(), tx.getSmartContract().id()))
+			// 		{
+			// 			throw new InvalidSmartContractException("There is no smart contract associated to the specified account.");
+			// 		}
+			// 		break;
+			// 	case TRANSFER:
+			// 		break;
+			// 	default:
+			// 		break;
 				
-			}
+			// }
 				
 		} catch (InvalidAddressException | InvalidKeyException |
-				NoSuchAlgorithmException | SignatureException |
-				InvalidSmartContractException e) {
+				NoSuchAlgorithmException | SignatureException e) {
 			LOGGER.info(e.getMessage());
 			throw new InvalidTransactionException("Transaction verification failed: " + e.getMessage(), e);
 		}
@@ -185,35 +185,39 @@ public class TransactionManagementV2_0 implements TransactionManagement
 	}
 
 	@Override
-	public void executeTransaction(HyFlexChainTransaction tx) throws InvalidTransactionException {
+	public void executeTransactions(Collection<HyFlexChainTransaction> txs) throws InvalidTransactionException {
+		var execUpdater = ExecutionPlane.getInstance().getUpdater();
+
 		try {
-			switch (tx.getTransactionType())
-		{
-			case COMMITTEE_ELECTION:
-				break;
-			case COMMITTEE_ROTATION:
-				break;
-			case CONTRACT_CREATE:
-				ExecutionPlane.getInstance()
-					.deploySmartContract(tx.getSender(),
-							tx.getSmartContract().id(),
-							Bytes.wrap(tx.getSmartContract().code()));
-				break;
-			case CONTRACT_REVOKE:
-				ExecutionPlane.getInstance()
-					.revokeSmartContract(tx.getSender(),
-							tx.getSmartContract().id());
-				break;
-			case TRANSFER:
-				break;
-			default:
-				break;
-			
-		}
+			for (var tx : txs) {
+				switch (tx.getTransactionType()) {
+					case COMMITTEE_ELECTION:
+						break;
+					case COMMITTEE_ROTATION:
+						break;
+					case CONTRACT_CREATE:
+						execUpdater
+								.deploySmartContract(tx.getSender(),
+										tx.getSmartContract().id(),
+										Bytes.wrap(tx.getSmartContract().code()));
+						break;
+					case CONTRACT_REVOKE:
+						execUpdater
+								.revokeSmartContract(tx.getSender(),
+										tx.getSmartContract().id());
+						break;
+					case TRANSFER:
+						break;
+					default:
+						break;
+
+				}
+			}
 		} catch (Exception e) {
 			throw new InvalidTransactionException(e.getMessage(), e);
 		}
-		
+
+		execUpdater.commit();
 	}
 	
 }

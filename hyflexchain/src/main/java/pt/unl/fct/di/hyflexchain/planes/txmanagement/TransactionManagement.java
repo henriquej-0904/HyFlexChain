@@ -1,5 +1,7 @@
 package pt.unl.fct.di.hyflexchain.planes.txmanagement;
 
+import java.util.Collection;
+
 import pt.unl.fct.di.hyflexchain.planes.application.ti.InvalidTransactionException;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
@@ -56,5 +58,5 @@ public interface TransactionManagement {
 	 */
 	String dispatchTransactionAndWait(TxWrapper tx) throws InvalidTransactionException;
 
-	void executeTransaction(HyFlexChainTransaction tx) throws InvalidTransactionException;
+	void executeTransactions(Collection<HyFlexChainTransaction> txs) throws InvalidTransactionException;
 }

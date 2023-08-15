@@ -388,6 +388,9 @@ public class PowConsensus extends ConsensusInterface
 				var block = createBlock(blockBody, merkleTree,
 					Bytes.wrap(operation, bodyStartIndex, operation.length - bodyStartIndex));
 
+				TransactionManagement.getInstance().executeTransactions(
+					block.obj().body().findTransactions().values());
+
 				DataPlane.getInstance().writeOrderedBlock(block, POW);
     
 				LOG.info("Appended valid block with size=" + block.obj().serializedSize() + " & hash: " +

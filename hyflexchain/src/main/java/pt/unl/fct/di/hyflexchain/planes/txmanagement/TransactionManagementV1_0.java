@@ -3,6 +3,7 @@ package pt.unl.fct.di.hyflexchain.planes.txmanagement;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
+import java.util.Collection;
 import java.util.EnumMap;
 
 import org.slf4j.Logger;
@@ -111,9 +112,9 @@ public class TransactionManagementV1_0 implements TransactionManagement
 	}
 
 	@Override
-	public void executeTransaction(HyFlexChainTransaction tx) throws InvalidTransactionException {
+	public void executeTransactions(Collection<HyFlexChainTransaction> txs) throws InvalidTransactionException {
 		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'executeTransaction'");
+		throw new UnsupportedOperationException("Unimplemented method 'executeTransactions'");
 	}
 	
 }

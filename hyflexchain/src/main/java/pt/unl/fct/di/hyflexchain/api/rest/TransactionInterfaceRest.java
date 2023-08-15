@@ -26,10 +26,26 @@ public interface TransactionInterfaceRest {
 	 * 
 	 * @return The generated transaction id.
 	 */
-	@Path("/transaction")
+	@Path("/transaction-json")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	String sendTransactionAndWait(HyFlexChainTransaction tx);
+
+	/**
+	 * Send transaction primitive:
+	 * submits a transaction for verification and,
+	 * if successfull, dispatch it to the system for ordering. <p>
+	 * This method waits for the transaction to be
+	 * finalized.
+	 * @param tx The transaction to send.
+	 * 
+	 * @return The generated transaction id.
+	 */
+	@Path("/transaction")
+	@POST
+	@Consumes(MediaType.APPLICATION_OCTET_STREAM)
+	@Produces(MediaType.APPLICATION_JSON)
+	String sendTransactionAndWait(byte[] tx);
 	
 }

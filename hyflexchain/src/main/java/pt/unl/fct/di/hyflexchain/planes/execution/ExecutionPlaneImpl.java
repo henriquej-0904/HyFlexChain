@@ -76,7 +76,7 @@ public class ExecutionPlaneImpl implements ExecutionPlane
 
         try {
             final var contract =
-            TransactionParamsContract.deploy(this.evm, sender.getAddress(), Bytes.wrap(tx.getData()), updater);
+            TransactionParamsContract.deploy(this.evm, sender.getAddress(), Bytes.wrap(tx.getSmartContract().code()), updater);
 
             return contract.callgetTransactionParams(this.evm, sender.getAddress(), updater, tx);
         } catch (InvalidSmartContractException e) {

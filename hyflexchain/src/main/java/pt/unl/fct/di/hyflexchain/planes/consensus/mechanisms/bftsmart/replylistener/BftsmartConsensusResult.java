@@ -1,20 +1,25 @@
 package pt.unl.fct.di.hyflexchain.planes.consensus.mechanisms.bftsmart.replylistener;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
 import java.security.PrivateKey;
 import java.security.SignatureException;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.Address;
-import pt.unl.fct.di.hyflexchain.util.crypto.HyflexchainSignature;
+import pt.unl.fct.di.hyflexchain.util.BytesOps;
+import pt.unl.fct.di.hyflexchain.util.Utils;
+import pt.unl.fct.di.hyflexchain.util.crypto.HyFlexChainSignature;
 import pt.unl.fct.di.hyflexchain.util.crypto.SignatureAlgorithm;
 import pt.unl.fct.di.hyflexchain.util.reply.SignedReply;
 import pt.unl.fct.di.hyflexchain.util.result.Result;
-import pt.unl.fct.di.hyflexchain.util.serializers.BytesSerializer;
+import pt.unl.fct.di.hyflexchain.util.serializer.ISerializer;
 
-public interface BftsmartConsensusResult extends Result<VerifiedTransactionsReply, byte[]> {
+public interface BftsmartConsensusResult extends Result<VerifiedTransactionsReply, byte[]>, BytesOps {
 
-    public static final BytesSerializer<BftsmartConsensusResult> SERIALIZER =
+    public static final Serializer SERIALIZER =
         new BftsmartConsensusResult.Serializer();
 
     /**
@@ -27,10 +32,21 @@ public interface BftsmartConsensusResult extends Result<VerifiedTransactionsRepl
      * @throws InvalidKeyException
      * @throws SignatureException
      */
-    SignedReply signReply(
+    default SignedReply signReply(
             Address address,
             PrivateKey privKey,
-            SignatureAlgorithm signatureAlg) throws InvalidKeyException, SignatureException;
+            SignatureAlgorithm signatureAlg) throws InvalidKeyException, SignatureException
+    {
+        final byte[] data = new byte[serializedSize()];
+        try {
+            SERIALIZER.serialize(this, Unpooled.wrappedBuffer(data).setIndex(0, 0));
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e.getMessage(), e);
+        }
+        HyFlexChainSignature sig = HyFlexChainSignature.sign(address, privKey, signatureAlg, data);
+        return new SignedReply(sig, data);
+    }
 
     static BftsmartConsensusResult ok(VerifiedTransactionsReply result) {
         return new OkConsensusResult(result);
@@ -48,13 +64,9 @@ public interface BftsmartConsensusResult extends Result<VerifiedTransactionsRepl
         }
 
         @Override
-        public SignedReply signReply(Address address, PrivateKey privKey,
-                SignatureAlgorithm signatureAlg)
-                throws InvalidKeyException, SignatureException
-        {
-            final var data = SERIALIZER.serialize(this);
-            HyflexchainSignature sig = HyflexchainSignature.sign(address, privKey, signatureAlg, data);
-            return new SignedReply(sig, data.array());
+        public int serializedSize() {
+            return Byte.BYTES
+                + getOkResult().serializedSize();
         }
     }
 
@@ -66,61 +78,44 @@ public interface BftsmartConsensusResult extends Result<VerifiedTransactionsRepl
         }
 
         @Override
-        public SignedReply signReply(Address address, PrivateKey privKey,
-                SignatureAlgorithm signatureAlg)
-                throws InvalidKeyException, SignatureException
-        {
-            final var data = SERIALIZER.serialize(this);
-            HyflexchainSignature sig = HyflexchainSignature.sign(address, privKey, signatureAlg, data);
-            return new SignedReply(sig, data.array());
+        public int serializedSize() {
+            return Byte.BYTES
+                + BytesOps.serializedSize(getFailedResult());
         }
     }
 
-    class Serializer implements BytesSerializer<BftsmartConsensusResult>
+    public class Serializer implements ISerializer<BftsmartConsensusResult>
     {
         protected static final byte TRUE = 1;
         protected static final byte FALSE = 1;
 
-        protected static final BytesSerializer<VerifiedTransactionsReply> okSerializer =
+        protected static final VerifiedTransactionsReply.Serializer okSerializer =
             VerifiedTransactionsReply.SERIALIZER;
 
-        protected static final BytesSerializer<byte[]> failedSerializer =
-            BytesSerializer.primitiveArraySerializer(byte[].class);
-
-
-        @Override
-        public Class<BftsmartConsensusResult> getType() {
-            return BftsmartConsensusResult.class;
-        }
+        protected static final ISerializer<byte[]> failedSerializer =
+            Utils.serializer.getArraySerializerByte();
 
         @Override
-        public int serializedSize(BftsmartConsensusResult obj) {
-            return 1 + (obj.isOk() ?
-                okSerializer.serializedSize(obj.getOkResult()) :
-                failedSerializer.serializedSize(obj.getFailedResult())
-            );
-        }
+        public void serialize(BftsmartConsensusResult obj, ByteBuf buff) throws IOException {
+            buff.writeBoolean(obj.isOk());
 
-        @Override
-        public ByteBuffer serialize(BftsmartConsensusResult obj, ByteBuffer buff) {
-            buff.put(obj.isOk() ? TRUE : FALSE);
-            return obj.isOk() ? okSerializer.serialize(obj.getOkResult(), buff) :
+            if (obj.isOk())
+                okSerializer.serialize(obj.getOkResult(), buff);
+            else
                 failedSerializer.serialize(obj.getFailedResult(), buff);
         }
 
         @Override
-        public BftsmartConsensusResult deserialize(ByteBuffer buff) {
+        public BftsmartConsensusResult deserialize(ByteBuf buff) throws IOException {
             try {
-            boolean ok = buff.get() == TRUE;
+            boolean ok = buff.readBoolean();
 
             if (ok)
                 return ok(VerifiedTransactionsReply.SERIALIZER.deserialize(buff));
             else
-                return failed(
-                        BytesSerializer.primitiveArraySerializer(byte[].class)
-                                .deserialize(buff));
+                return failed(failedSerializer.deserialize(buff));
         } catch (Exception e) {
-            throw new IllegalArgumentException("Cannot deserialize a BftsmartConsensusResult", e);
+            throw new IOException("Cannot deserialize a BftsmartConsensusResult", e);
         }
         }
         

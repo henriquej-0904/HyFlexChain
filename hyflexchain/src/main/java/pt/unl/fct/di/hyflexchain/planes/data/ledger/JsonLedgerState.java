@@ -7,10 +7,11 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
 import pt.unl.fct.di.hyflexchain.util.Utils;
+import pt.unl.fct.di.hyflexchain.util.crypto.HashedObject;
 
 public class JsonLedgerState implements LedgerState
 {
-	private List<HyFlexChainBlock> list;
+	private List<HashedObject<HyFlexChainBlock>> list;
 
 	/**
 	 * 
@@ -23,14 +24,14 @@ public class JsonLedgerState implements LedgerState
 	/**
 	 * @param list
 	 */
-	public JsonLedgerState(List<HyFlexChainBlock> list) {
+	public JsonLedgerState(List<HashedObject<HyFlexChainBlock>> list) {
 		this.list = list;
 	}
 
 	@Override
 	public void loadFullLedger(byte[] ledger) {
 		var json = Utils.json;
-		TypeReference<List<HyFlexChainBlock>> ref =
+		TypeReference<List<HashedObject<HyFlexChainBlock>>> ref =
 			new TypeReference<>() { };
 
 		try {
@@ -52,7 +53,7 @@ public class JsonLedgerState implements LedgerState
 	}
 
 	@Override
-	public Iterator<HyFlexChainBlock> iterator() {
+	public Iterator<HashedObject<HyFlexChainBlock>> iterator() {
 		return this.list.iterator();
 	}
 

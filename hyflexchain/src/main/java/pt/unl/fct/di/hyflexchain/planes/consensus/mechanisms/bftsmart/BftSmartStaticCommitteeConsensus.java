@@ -2,10 +2,12 @@ package pt.unl.fct.di.hyflexchain.planes.consensus.mechanisms.bftsmart;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
-import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.SignatureException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -20,6 +22,8 @@ import bftsmart.tom.MessageContext;
 import bftsmart.tom.ServiceReplica;
 import bftsmart.tom.server.defaultservices.DefaultReplier;
 import bftsmart.tom.server.defaultservices.DefaultSingleRecoverable;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import pt.unl.fct.di.blockmess.wrapper.client.tcp.BlockmessWrapperClientTCP;
 import pt.unl.fct.di.hyflexchain.planes.application.lvi.LedgerViewInterface;
 import pt.unl.fct.di.hyflexchain.planes.application.lvi.consensus.BftSmartLVI;
@@ -39,18 +43,42 @@ import pt.unl.fct.di.hyflexchain.planes.data.block.BlockBody;
 import pt.unl.fct.di.hyflexchain.planes.data.block.BlockHeader;
 import pt.unl.fct.di.hyflexchain.planes.data.block.BlockMetaHeader;
 import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
+import pt.unl.fct.di.hyflexchain.planes.data.block.MerkleTree;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.Address;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.InvalidAddressException;
+import pt.unl.fct.di.hyflexchain.planes.data.transaction.SerializedTx;
 import pt.unl.fct.di.hyflexchain.planes.network.Host;
 import pt.unl.fct.di.hyflexchain.planes.txmanagement.TransactionManagement;
+import pt.unl.fct.di.hyflexchain.util.BytesOps;
 import pt.unl.fct.di.hyflexchain.util.Utils;
 import pt.unl.fct.di.hyflexchain.util.config.MultiLedgerConfig;
 import pt.unl.fct.di.hyflexchain.util.crypto.Crypto;
-import pt.unl.fct.di.hyflexchain.util.crypto.HyflexchainSignature;
+import pt.unl.fct.di.hyflexchain.util.crypto.HashedObject;
+import pt.unl.fct.di.hyflexchain.util.crypto.HyFlexChainSignature;
 import pt.unl.fct.di.hyflexchain.util.crypto.SignatureAlgorithm;
 
 public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
     protected static final Logger LOG = LoggerFactory.getLogger(BftSmartStaticCommitteeConsensus.class);
+
+    protected static final byte[] FALSE = new byte[] { 0 };
+
+    protected static final int DIFF_TARGET = 0;
+
+    protected static final BlockMetaHeader PROPOSAL_BLOCK_META_HEADER =
+		new BlockMetaHeader(ConsensusMechanism.BFT_SMaRt, DIFF_TARGET, new HyFlexChainSignature[0],
+            CommitteeId.FIRST_COMMITTEE_ID);
+
+    protected static final byte[] PROPOSAL_BLOCK_META_HEADER_SERIALIZED =
+        new byte[PROPOSAL_BLOCK_META_HEADER.serializedSize()];
+
+        static {
+            try {
+                BlockMetaHeader.SERIALIZER.serialize(PROPOSAL_BLOCK_META_HEADER,
+                    Unpooled.wrappedBuffer(PROPOSAL_BLOCK_META_HEADER_SERIALIZED).setIndex(0, 0));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
     protected BFT_SMaRtConfig config;
 
@@ -72,9 +100,7 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
      */
     protected VerifiedBlockProcessor blockProcessor;
 
-    private static final byte[] FALSE = new byte[] { 0 };
-
-    private static final int DIFF_TARGET = 0;
+    
 
     /**
      * @param consensus
@@ -154,25 +180,87 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
         }
     }
 
+    // @Override
+    // public void orderTxs(BlockBody blockBody) {
+    //     try {
+    //         byte[] operation = Utils.json.writeValueAsBytes(blockBody);
+
+    //         var listener = createReplyListener();
+    //         listener.submitAsyncOrderedRequest(operation, (reply) -> {
+    //             try {
+    //                 BftsmartConsensusResult result = BftsmartConsensusResult.SERIALIZER.deserialize(
+    //                         ByteBuffer.wrap(reply.getReplyBytes()));
+
+    //                 boolean res = result.isOk();
+
+    //                 Map<String, Boolean> mapTxRes = blockBody.findTransactions().keySet().stream()
+    //                         .collect(Collectors.toUnmodifiableMap(
+    //                                 (tx) -> tx, (tx) -> res));
+
+    //                 TransactionManagement.getInstance().getTxPool(this.consensus)
+    //                         .removePendingTxsAndNotify(mapTxRes);
+
+    //                 if (!res) {
+    //                     LOG.info("BFT-SMART: Invalided block from committee with {} signatures",
+    //                             reply.getSignaturesCount());
+
+    //                     return;
+    //                 }
+
+    //                 // txs ordered and valid
+    //                 // disseminate through blockmess the created block
+
+    //                 var okReply = result.getOkResult();
+    //                 String previous = Bytes.wrap(okReply.prevBlockMerkleRootHash())
+    //                         .toHexString();
+
+    //                 var block = createBlock(reply.getSignatures().values()
+    //                         .toArray(HyFlexChainSignature[]::new), okReply.nonce(), previous, blockBody);
+
+    //                 LOG.info("BFT-SMART: Validated block from committee with {} signatures: {}",
+    //                         reply.getSignaturesCount(),
+    //                         block.header().getMetaHeader().getHash());
+
+    //                 // invoke blockmess
+    //                 this.blockmess.invokeAsync(Utils.json.writeValueAsBytes(block));
+
+    //             } catch (Exception e) {
+    //                 e.printStackTrace();
+    //             }
+    //         });
+
+    //     } catch (Exception e) {
+    //         e.printStackTrace();
+    //     }
+
+    // }
+
     @Override
-    public void orderTxs(BlockBody blockBody) {
+    public void orderTxs(Collection<SerializedTx> txs) {
+
+        List<Bytes> txHashes = txs.stream()
+			.map(SerializedTx::hash)
+			.map(Bytes::wrap)
+			.collect(Collectors.toCollection(() -> new ArrayList<>(txs.size())));
+		
+		MerkleTree merkleTree = MerkleTree.createMerkleTree(txHashes);
+
+		LOG.info("Propose block -> merkle tree: " + merkleTree.getMerkleRootHash());
+
         try {
-            byte[] operation = Utils.json.writeValueAsBytes(blockBody);
+            SerializedBlock proposedBlock = createSerializedBlockProposal(txs, merkleTree);
 
             var listener = createReplyListener();
-            listener.submitAsyncOrderedRequest(operation, (reply) -> {
+            listener.submitAsyncOrderedRequest(proposedBlock.block, (reply) -> {
                 try {
                     BftsmartConsensusResult result = BftsmartConsensusResult.SERIALIZER.deserialize(
-                            ByteBuffer.wrap(reply.getReplyBytes()));
+                            Unpooled.wrappedBuffer(reply.getReplyBytes()));
 
                     boolean res = result.isOk();
 
-                    Map<String, Boolean> mapTxRes = blockBody.findTransactions().keySet().stream()
-                            .collect(Collectors.toUnmodifiableMap(
-                                    (tx) -> tx, (tx) -> res));
-
+                    // notify the result of these transactions
                     TransactionManagement.getInstance().getTxPool(this.consensus)
-                            .removePendingTxsAndNotify(mapTxRes);
+                            .removePendingTxsAndNotify(txHashes, res);
 
                     if (!res) {
                         LOG.info("BFT-SMART: Invalided block from committee with {} signatures",
@@ -185,18 +273,18 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
                     // disseminate through blockmess the created block
 
                     var okReply = result.getOkResult();
-                    String previous = Bytes.wrap(okReply.prevBlockMerkleRootHash())
-                            .toHexString();
+                    Bytes previous = Bytes.wrap(okReply.prevBlockMerkleRootHash());
 
-                    var block = createBlock(reply.getSignatures().values()
-                            .toArray(HyflexchainSignature[]::new), okReply.nonce(), previous, blockBody);
+                    SerializedBlock block = createSerializedBlock(reply.getSignatures().values()
+                            .toArray(HyFlexChainSignature[]::new), okReply.nonce(), previous,
+                            merkleTree.getMerkleRootHash(), proposedBlock);
 
-                    LOG.info("BFT-SMART: Validated block from committee with {} signatures: {}",
+                    LOG.info("BFT-SMART: Validated block from committee with {} signatures & merkle hash: {}",
                             reply.getSignaturesCount(),
-                            block.header().getMetaHeader().getHash());
+                            merkleTree.getMerkleRootHash());
 
                     // invoke blockmess
-                    this.blockmess.invokeAsync(Utils.json.writeValueAsBytes(block));
+                    this.blockmess.invokeAsync(block.block);
 
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -206,8 +294,30 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
+
+    protected SerializedBlock createSerializedBlockProposal(Collection<SerializedTx> txs, MerkleTree merkleTree)
+        throws IOException
+	{
+		var header = BlockHeader.create(PROPOSAL_BLOCK_META_HEADER, Bytes.EMPTY, merkleTree.getMerkleRootHash(), 0);
+
+		int headerSize = header.serializedSize(PROPOSAL_BLOCK_META_HEADER_SERIALIZED.length);
+		int bodySize = BlockBody.serializedSize(txs);
+
+		int size = HyFlexChainBlock.serializedSize(headerSize, bodySize);
+		
+		byte[] block = new byte[size];
+		var buff = Unpooled.wrappedBuffer(block).setIndex(0, 0);
+
+		buff.writeInt(headerSize + bodySize);
+		buff.writeBytes(PROPOSAL_BLOCK_META_HEADER_SERIALIZED);
+		BlockHeader.SERIALIZER.serializeAllButMetaHeader(header, buff);
+
+        int bodyIndex = buff.writerIndex();
+		BlockBody.SERIALIZER.serialize(txs, buff);
+
+		return new SerializedBlock(block, bodyIndex);
+	}
 
     /**
      * Create a reply listener
@@ -221,10 +331,11 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
                 this.staticCommittee.getMiddle().getBftCriteria().consensusQuorum());
     }
 
-    protected HyFlexChainBlock createBlock(HyflexchainSignature[] validators, long nonce,
-            String previous, BlockBody body) {
+    protected SerializedBlock createSerializedBlock(HyFlexChainSignature[] validators, long nonce,
+            Bytes previous, Bytes merkleHash, SerializedBlock proposedBlock) throws IOException 
+    {
         BlockMetaHeader metaHeader = new BlockMetaHeader(this.consensus, DIFF_TARGET, validators,
-                this.staticCommittee.getLeft().id(), this.staticCommittee.getLeft().blockHash());
+                this.staticCommittee.getLeft());
 
         /**
          * Due to the fact that bft-smart does not provide a method
@@ -234,17 +345,25 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
          * replica to create a block because it need the signatures of all
          * the other replicas in the committee.
          */
-        metaHeader.setHash(body.getMerkleTree().getRoot().hash());
+        // metaHeader.setHash(body.getMerkleTree().getRoot().hash());
 
-        BlockHeader header = BlockHeader.create(metaHeader, previous,
-                body.getMerkleTree().getRoot().hash(),
-                nonce);
+        BlockHeader header = BlockHeader.create(metaHeader, previous, merkleHash, nonce);
 
-        HyFlexChainBlock block = new HyFlexChainBlock(header, body);
+        int headerSize = header.serializedSize();
+		int bodySize = proposedBlock.bodySize();
 
-        // block.calcAndSetHash();
+		int size = HyFlexChainBlock.serializedSize(headerSize, bodySize);
+		
+		byte[] block = new byte[size];
+		var buff = Unpooled.wrappedBuffer(block).setIndex(0, 0);
 
-        return block;
+		buff.writeInt(headerSize + bodySize);
+        BlockHeader.SERIALIZER.serialize(header, buff);
+
+        int bodyIndex = buff.writerIndex();
+        proposedBlock.copyBodyTo(buff);
+
+        return new SerializedBlock(block, bodyIndex);
     }
 
     @Override
@@ -252,8 +371,7 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
         var metaHeader = block.header().getMetaHeader();
         return block.header().getMetaHeader().getConsensus() == this.consensus &&
                 metaHeader.getDifficultyTarget() == DIFF_TARGET &&
-                metaHeader.getCommitteeId() == this.staticCommittee.getLeft().id() &&
-                metaHeader.getCommitteeBlockHash().equalsIgnoreCase(this.staticCommittee.getLeft().blockHash()) &&
+                metaHeader.getCommitteeId().equals(this.staticCommittee.getLeft()) &&
                 verifyValidators(block);
     }
 
@@ -269,26 +387,31 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
 
         if (!this.staticCommittee.getMiddle().getCommittee()
                 .containsAll(Stream.of(validators)
-                        .map(HyflexchainSignature::address)
+                        .map(HyFlexChainSignature::address)
                         .toList())) {
             LOG.info("Invalid block meta header: some validators do not belong in the current committee");
             return false;
         }
 
-        var data = BftsmartConsensusResult.SERIALIZER.serialize(
-                BftsmartConsensusResult.ok(new VerifiedTransactionsReply(
-                        block.header().getNonce(),
-                        Bytes.fromHexString(previous).toArrayUnsafe(),
-                        Bytes.fromHexString(hash).toArrayUnsafe())));
+        var signedDataResult = BftsmartConsensusResult.ok(
+            new VerifiedTransactionsReply(block.header().getNonce(),
+                previous.toArrayUnsafe(), hash.toArrayUnsafe())
+        );
+        
+        byte[] signedData;
+        try {
+            signedData = BytesOps.serialize(signedDataResult, BftsmartConsensusResult.SERIALIZER);
+        } catch (IOException e) {
+            LOG.error(e.getMessage(), e);
+            return false;
+        }
 
-        for (HyflexchainSignature sig : validators) {
+        for (HyFlexChainSignature sig : validators) {
             try {
-                if (!sig.verify(data)) {
+                if (!sig.verify(signedData)) {
                     LOG.info("Invalid block meta header: invalid validator signature");
                     return false;
                 }
-
-                data.position(0);
 
             } catch (InvalidKeyException | SignatureException | InvalidAddressException e) {
                 LOG.info("Invalid block meta header: invalid validator signature", e);
@@ -300,11 +423,10 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
     }
 
     @Override
-    protected boolean verifyHeader(HyFlexChainBlock block) {
+    protected boolean verifyHeader(HyFlexChainBlock block, MerkleTree merkleTree) {
         var header = block.header();
-        var body = block.body();
 
-        if (!header.getMerkleRoot().equalsIgnoreCase(body.getMerkleTree().getRoot().hash())) {
+        if (!header.getMerkleRoot().equals(merkleTree.getMerkleRootHash())) {
             LOG.info("Invalid block header: invalid  merkle root");
             return false;
         }
@@ -314,12 +436,6 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
 
     @Override
     protected boolean verifyBody(BlockBody body) {
-        if (!body.getMerkleTree().verifyTree(
-                body.findTransactions().keySet())) {
-            LOG.info("Invalid Block Merkle tree.");
-            return false;
-        }
-
         var ti = TransactionInterface.getInstance();
         var txmanagement = TransactionManagement.getInstance();
 
@@ -353,7 +469,7 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
         protected final KeyPair selfKeyPair;
         protected final SignatureAlgorithm sigAlg;
 
-        protected String lastBlockHash;
+        protected Bytes lastBlockHash;
 
         protected BFT_SMaRtServiceReplica(BftCommittee committee) {
             var config = BftSmartStaticCommitteeConsensus.this.config;
@@ -403,7 +519,8 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
             }
 
             try {
-                final BlockBody blockBody = Utils.json.readValue(arg0, BlockBody.class);
+                final HyFlexChainBlock block =
+                    HyFlexChainBlock.SERIALIZER.deserialize(Unpooled.wrappedBuffer(arg0)); 
 
                 /* if (blockBody.findTransactions().size() == 1
                         && blockBody.findTransactions().values().iterator()
@@ -420,7 +537,7 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
                  * 3) reply to the client, signed by this replica
                  */
 
-                return processNormalBlockBody(blockBody);
+                return processNormalBlockBody(block);
 
             } catch (Exception e) {
                 Utils.logError(e, LOG);
@@ -428,37 +545,46 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
             }
         }
 
-        protected byte[] processNormalBlockBody(BlockBody blockBody) throws InvalidKeyException, SignatureException {
-            if (!verifyBody(blockBody)) {
-                final String merkleHash = blockBody.getMerkleTree().getRoot().hash();
+        protected byte[] processNormalBlockBody(HyFlexChainBlock block) throws InvalidKeyException, SignatureException {
 
-                LOG.info("Invalid block body -> merkle tree: " + blockBody.getMerkleTree().getRoot().hash());
+            MerkleTree merkleTree = MerkleTree.createMerkleTree(block.body().findTransactions().keySet());
 
-                return BftsmartConsensusResult.failed(
-                        Bytes.fromHexString(merkleHash).toArrayUnsafe())
+			if (!merkleTree.getMerkleRootHash().equals(block.header().getMerkleRoot()))
+			{
+				LOG.info("Invalid block merkle root, provided={}, computed={}",
+                    block.header().getMerkleRoot(), merkleTree.getMerkleRootHash());
+                
+				return BftsmartConsensusResult.failed(block.header().getMerkleRoot().toArrayUnsafe())
+                        .signReply(this.selfAddress, this.selfKeyPair.getPrivate(), this.sigAlg)
+                        .serialize();
+			}
+
+            if (!verifyBody(block.body()))
+            {
+                LOG.info("Invalid block body -> merkle root: " + merkleTree.getMerkleRootHash());
+
+                return BftsmartConsensusResult.failed(merkleTree.getMerkleRootHash().toArrayUnsafe())
                         .signReply(this.selfAddress, this.selfKeyPair.getPrivate(), this.sigAlg)
                         .serialize();
             }
 
-            final String merkleHash = blockBody.getMerkleTree().getRoot().hash();
-
             /**
              * The merkle hash of the previous block
              */
-            final String previousMerkleHash = this.lastBlockHash;
+            final Bytes previousMerkleHash = this.lastBlockHash;
 
             // Update previous merkle hash with the current one
-            this.lastBlockHash = merkleHash;
+            this.lastBlockHash = merkleTree.getMerkleRootHash();
 
             var reply = BftsmartConsensusResult.ok(new VerifiedTransactionsReply(
                     this.successfullOrderedBlocks,
-                    Bytes.fromHexString(previousMerkleHash).toArrayUnsafe(),
-                    Bytes.fromHexString(merkleHash).toArrayUnsafe()));
+                    previousMerkleHash.toArrayUnsafe(),
+                    merkleTree.getMerkleRootHash().toArrayUnsafe()));
 
             var signedReply = reply.signReply(
                     this.selfAddress, this.selfKeyPair.getPrivate(), this.sigAlg);
 
-            LOG.info("BFT-SMART: Accepted block with hash: " + merkleHash);
+            LOG.info("BFT-SMART: Accepted block with hash: " + merkleTree.getMerkleRootHash());
 
             var replyBytes = signedReply.serialize();
 
@@ -505,15 +631,21 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
          */
         protected void processReceivedBlock(byte[] data) {
             try {
-                final HyFlexChainBlock block = Utils.json.readValue(data, HyFlexChainBlock.class);
+                final HyFlexChainBlock block =
+                    HyFlexChainBlock.SERIALIZER.deserialize(Unpooled.wrappedBuffer(data));
 
-                if (blockProcessor.alreadyProcessed(block)) {
-                    LOG.info("Received already processed block: " + block.header().getMetaHeader().getHash());
+                final HashedObject<HyFlexChainBlock> hashedBlock =
+                    new HashedObject<>(block.header().getMerkleRoot(), block);
+
+                if (blockProcessor.alreadyProcessed(hashedBlock)) {
+                    LOG.info("Received already processed block: " + hashedBlock.hash());
                     return;
                 }
 
-                if (!verifyBlock(block)) {
-                    LOG.info("Received invalid block with hash: " + block.header().getMetaHeader().getHash());
+                MerkleTree merkleTree = MerkleTree.createMerkleTree(block.body().findTransactions().keySet());
+
+                if (!verifyBlock(block, merkleTree)) {
+                    LOG.info("Received invalid block with hash: " + hashedBlock.hash());
                     return;
                 }
 
@@ -522,14 +654,14 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
                 if (!committeeValidity.infiniteValidity() && nonce >= committeeValidity.blocks()) {
                     LOG.info(
                             "Received invalid block from committee with invalid validity with hash {}, nonce {}, validity {}",
-                            block.header().getMetaHeader().getHash(), nonce, committeeValidity.blocks());
+                            hashedBlock.hash(), nonce, committeeValidity.blocks());
                     return;
                 }
 
                 LOG.info("BFT-SMART (Blockmess): Received valid block from committee with hash: " +
-                        block.header().getMetaHeader().getHash());
+                        hashedBlock.hash());
 
-                blockProcessor.processBlock(block);
+                blockProcessor.processBlock(hashedBlock);
 
             } catch (Exception e) {
                 LOG.info(e.getMessage());
@@ -542,4 +674,19 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
         }
     }
 
+    /**
+     * SerializedBlock
+     */
+    public record SerializedBlock(byte[] block, int bodyIndex) {
+
+        public int bodySize()
+        {
+            return block.length - bodyIndex;
+        }
+
+        public void copyBodyTo(ByteBuf buff)
+        {
+            buff.writeBytes(block, bodyIndex, bodySize());
+        }
+    }
 }

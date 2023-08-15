@@ -1,5 +1,6 @@
 package pt.unl.fct.di.hyflexchain.planes.consensus;
 
+import java.util.Collection;
 import java.util.function.Predicate;
 
 import org.slf4j.Logger;
@@ -10,6 +11,8 @@ import pt.unl.fct.di.hyflexchain.planes.application.ti.InvalidTransactionExcepti
 import pt.unl.fct.di.hyflexchain.planes.application.ti.TransactionInterface;
 import pt.unl.fct.di.hyflexchain.planes.data.block.BlockBody;
 import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
+import pt.unl.fct.di.hyflexchain.planes.data.block.MerkleTree;
+import pt.unl.fct.di.hyflexchain.planes.data.transaction.SerializedTx;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.TransactionState;
 import pt.unl.fct.di.hyflexchain.planes.execution.ExecutionPlane;
 import pt.unl.fct.di.hyflexchain.planes.execution.contracts.InvalidSmartContractException;
@@ -71,7 +74,14 @@ public abstract class ConsensusInterface
 	 * consensus implementation.
 	 * @param blockBody The block body to order.
 	 */
-	public abstract void orderTxs(BlockBody blockBody);
+	// public abstract void orderTxs(BlockBody blockBody);
+
+	/**
+	 * Order a block body (set of serialized transactions) according to this specific
+	 * consensus implementation.
+	 * @param txs A collection of transactions to order.
+	 */
+	public abstract void orderTxs(Collection<SerializedTx> txs);
 
 	/**
 	 * Create a block for this consensus mechanism ready
@@ -107,7 +117,7 @@ public abstract class ConsensusInterface
 	 * @param block The block to verify
 	 * @return true if it is valid, otherwise false.
 	 */
-	protected boolean verifyBlock(HyFlexChainBlock block)
+	protected boolean verifyBlock(HyFlexChainBlock block, MerkleTree merkleTree)
 	{
 		if (! verifyMetaHeader(block))
 		{
@@ -115,7 +125,7 @@ public abstract class ConsensusInterface
 			return false;
 		}
 
-		if (! verifyHeader(block))
+		if (! verifyHeader(block, merkleTree))
 		{
 			LOG.info("Invalid block header");
 			return false;
@@ -126,28 +136,21 @@ public abstract class ConsensusInterface
 
 	protected boolean verifyMetaHeader(HyFlexChainBlock block)
 	{
-		if (!block.verifyHash())
-		{
-			LOG.info("Block invalid hash.");
-			return false;
-		}
-
 		return block.header().getMetaHeader().getConsensus() == this.consensus;
 	}
 
-	protected boolean verifyHeader(HyFlexChainBlock block)
+	protected boolean verifyHeader(HyFlexChainBlock block, MerkleTree merkleTree)
 	{
 		var header = block.header();
-		var body = block.body();
 		var lvi = LedgerViewInterface.getInstance();
 		
-		if (! header.getPrevHash().equalsIgnoreCase(lvi.getLastBlockHash(this.consensus)))
+		if (! header.getPrevHash().equals(lvi.getLastBlockHash(this.consensus)))
 		{
 			LOG.info("Invalid block header: prev hash");
 			return false;
 		}
 
-		if ( ! header.getMerkleRoot().equalsIgnoreCase(body.getMerkleTree().getRoot().hash()))
+		if ( ! header.getMerkleRoot().equals(merkleTree.getMerkleRootHash()))
 		{
 			LOG.info("Invalid block header: invalid  merkle root");
 			return false;
@@ -158,14 +161,6 @@ public abstract class ConsensusInterface
 
 	protected boolean verifyBody(BlockBody body)
 	{
-		if (! body.getMerkleTree().verifyTree(
-			body.findTransactions().keySet()
-		))
-		{
-			LOG.info("Invalid Block Merkle tree.");
-			return false;
-		}
-
 		return this.verifyBlockBodyPred.test(body);
 	}
 
@@ -173,9 +168,9 @@ public abstract class ConsensusInterface
 	{
 		var lvi = LedgerViewInterface.getInstance();
 
-		return body.findTransactions().values().stream()
+		return body.findTransactions().entrySet().stream()
 			.allMatch((tx) -> {
-				if (lvi.getTransactionState(tx.getHash(), this.consensus) == TransactionState.FINALIZED)
+				if (lvi.getTransactionState(tx.getKey(), this.consensus) == TransactionState.FINALIZED)
 				{
 					LOG.info("Invalid tx - is already finalized");
 					return false;
@@ -192,20 +187,20 @@ public abstract class ConsensusInterface
 		var txmanagement = TransactionManagement.getInstance();
 		var execution = ExecutionPlane.getInstance();
 
-		return body.findTransactions().values().stream()
+		return body.findTransactions().entrySet().stream()
 			.allMatch((tx) -> {
-				if (lvi.getTransactionState(tx.getHash(), this.consensus) == TransactionState.FINALIZED)
+				if (lvi.getTransactionState(tx.getKey(), this.consensus) == TransactionState.FINALIZED)
 				{
 					LOG.info("Invalid tx - is already finalized");
 					return false;
 				}
 					
 				try {
-					ti.verifyTx(tx);
-					txmanagement.verifyTx(tx);
+					ti.verifyTx(tx.getValue());
+					txmanagement.verifyTx(tx.getValue());
 
 					final TransactionParamsContractResult txParams =
-						execution.callGetTransactionParams(tx);
+						execution.callGetTransactionParams(tx.getValue());
 
 					if (txParams.getConsensus() != this.consensus)
 					{

@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction.Version;
+import pt.unl.fct.di.hyflexchain.planes.data.transaction.wrapper.TxWrapper;
 import pt.unl.fct.di.hyflexchain.planes.txmanagement.TransactionManagement;
 
 /**
@@ -35,7 +36,7 @@ public class TransactionInterfaceV1_0 implements TransactionInterface {
 			throw exc;
 		}
 
-		if (tx.getSender() == null || tx.getHash() == null ||
+		if (tx.getSender() == null ||
 			tx.getSignatureType() == null || tx.getSignature() == null)
 		{
 			var exc = new InvalidTransactionException("At least one field is null");
@@ -45,16 +46,16 @@ public class TransactionInterfaceV1_0 implements TransactionInterface {
 	}
 
 	@Override
-	public String sendTransaction(HyFlexChainTransaction tx) throws InvalidTransactionException
+	public String sendTransaction(TxWrapper tx) throws InvalidTransactionException
 	{
-		verifyTx(tx);
+		verifyTx(tx.tx());
 		return TransactionManagement.getInstance().dispatchTransaction(tx);	
 	}
 
 	@Override
-	public String sendTransactionAndWait(HyFlexChainTransaction tx) throws InvalidTransactionException
+	public String sendTransactionAndWait(TxWrapper tx) throws InvalidTransactionException
 	{
-		verifyTx(tx);
+		verifyTx(tx.tx());
 		return TransactionManagement.getInstance().dispatchTransactionAndWait(tx);
 	}
 	

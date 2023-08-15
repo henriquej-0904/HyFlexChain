@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import org.apache.tuweni.bytes.Bytes;
+
 import pt.unl.fct.di.hyflexchain.planes.application.lvi.BlockFilter;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.consensus.committees.Committee;
@@ -11,6 +13,7 @@ import pt.unl.fct.di.hyflexchain.planes.data.block.BlockState;
 import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
 import pt.unl.fct.di.hyflexchain.planes.data.ledger.LedgerState;
 import pt.unl.fct.di.hyflexchain.util.config.LedgerConfig;
+import pt.unl.fct.di.hyflexchain.util.crypto.HashedObject;
 
 /**
  * An interface for a consensus specific ledger implementation.
@@ -23,7 +26,7 @@ public interface ConsensusSpecificLedger
 	 * @param genesisBlock The genesis block
 	 * @return The initialized object
 	 */
-	ConsensusSpecificLedger init(LedgerConfig config, HyFlexChainBlock genesisBlock);
+	ConsensusSpecificLedger init(LedgerConfig config, HashedObject<HyFlexChainBlock> genesisBlock);
 
 	/**
 	 * Get the consensus mechanism of this ledger implementation.
@@ -35,7 +38,7 @@ public interface ConsensusSpecificLedger
 	 * Write an ordered block to the Ledger.
 	 * @param block The ordered block
 	 */
-	void writeOrderedBlock(HyFlexChainBlock block);
+	void writeOrderedBlock(HashedObject<HyFlexChainBlock> block);
 
 	/**
 	 * Get a transaction.
@@ -100,23 +103,23 @@ public interface ConsensusSpecificLedger
 	 * @param id The id of the block
 	 * @return The block.
 	 */
-	Optional<HyFlexChainBlock> getBlock(String id);
+	Optional<HyFlexChainBlock> getBlock(Bytes id);
 
-	HyFlexChainBlock getLastBlock();
+	HashedObject<HyFlexChainBlock> getLastBlock();
 
 	/**
 	 * Get the state of a block.
 	 * @param id The id of the block
 	 * @return The state of the block.
 	 */
-	Optional<BlockState> getBlockState(String id);
+	Optional<BlockState> getBlockState(Bytes id);
 
 	/**
 	 * Get all blocks according to the specified filter.
 	 * @param filter The filter
 	 * @return All filtered blocks.
 	 */
-	List<HyFlexChainBlock> getBlocks(BlockFilter filter);
+	List<HashedObject<HyFlexChainBlock>> getBlocks(BlockFilter filter);
 
 	/**
 	 * Get the number of blocks in the blockchain.
@@ -151,7 +154,7 @@ public interface ConsensusSpecificLedger
 	 * to the chain.
 	 * @param action The action to call
 	 */
-	public void uponNewBlock(Consumer<HyFlexChainBlock> action);
+	public void uponNewBlock(Consumer<HashedObject<HyFlexChainBlock>> action);
 
 	//////////////////////////////////////////// COMMITTEES ////////////////////////////////////////////
 
@@ -160,12 +163,12 @@ public interface ConsensusSpecificLedger
 	 * @param block The ordered block
 	 * @param committee The committee in the block.
 	 */
-	void writeOrderedCommitteeBlock(HyFlexChainBlock block, Committee committee);
+	// void writeOrderedCommitteeBlock(HashedObject<HyFlexChainBlock> block, Committee committee);
 
 	/**
 	 * Call the specified action upon a new block with a committee is appended
 	 * to the chain.
 	 * @param action The action to call
 	 */
-	public void uponNewCommitteeBlock(Consumer<HyFlexChainBlock> action);
+	// public void uponNewCommitteeBlock(Consumer<HashedObject<HyFlexChainBlock>> action);
 }

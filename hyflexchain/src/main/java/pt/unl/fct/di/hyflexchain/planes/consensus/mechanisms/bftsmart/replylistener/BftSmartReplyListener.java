@@ -15,6 +15,8 @@ import bftsmart.tom.AsynchServiceProxy;
 import bftsmart.tom.RequestContext;
 import bftsmart.tom.core.messages.TOMMessage;
 import bftsmart.tom.core.messages.TOMMessageType;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.Address;
 import pt.unl.fct.di.hyflexchain.util.reply.MultiSignedReply;
 import pt.unl.fct.di.hyflexchain.util.reply.SignedReply;
@@ -107,19 +109,19 @@ public class BftSmartReplyListener implements ReplyListener
         if (this.requestId == -1)
             this.requestId = arg0.getOperationId();
 
-        ByteBuffer replyBytes = ByteBuffer.wrap(arg1.getContent());
-
-        if (replyBytes.capacity() == 0)
+        if (arg1.getContent().length == 0)
         {
             LOG.info("Invalid bft-smart replica reply: empty");
             return;
         }
 
-        if (replyBytes.capacity() == 1)
+        if (arg1.getContent().length == 1)
         {
             LOG.info("Invalid bft-smart replica reply: invalid transactions");
             return;
         }
+
+        ByteBuf replyBytes = Unpooled.wrappedBuffer(arg1.getContent());
 
         try {
             SignedReply reply = SignedReply.SERIALIZER.deserialize(replyBytes);

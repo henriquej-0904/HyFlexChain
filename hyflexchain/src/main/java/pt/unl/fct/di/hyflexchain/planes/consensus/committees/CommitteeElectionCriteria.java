@@ -99,6 +99,13 @@ public class CommitteeElectionCriteria
 	 * The type of randomness source used to elect a committee.
 	 */
 	public static enum RandSource {
+
+		/**
+		 * This type is used to represent committees that do not require
+		 * randomness for the election procedure (ex. PoW based mechanisms). 
+		 */
+		NONE,
+
 		/**
 		 * Randomness based on a local approach where each node
 		 * computes a deterministic function to obtain a random seed.
@@ -126,7 +133,7 @@ public class CommitteeElectionCriteria
 
 		public boolean infiniteValidity()
 		{
-			return blocks == -1;
+			return blocks == INFINITE_VALIDITY.blocks;
 		}
 	}
 

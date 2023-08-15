@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -32,8 +34,16 @@ public class StaticAddressToHostDirectoryService implements AddressDirectoryServ
     public static StaticAddressToHostDirectoryService fromJsonFile(File file)
     {
         try {
-            Map<Address, Host> map =
-                Utils.json.readValue(file, new TypeReference<Map<Address, Host>>() {});
+            Map<String, Host> serializedMap =
+                Utils.json.readValue(file, new TypeReference<Map<String, Host>>() {});
+
+            Map<Address, Host> map = serializedMap.entrySet().stream()
+                .collect(Collectors.toMap(
+                    (e) -> Address.fromHexString(e.getKey()),
+                    Entry::getValue,
+                    (x, y) -> x,
+                    () -> HashMap.<Address, Host>newHashMap(serializedMap.size())));
+
             return new StaticAddressToHostDirectoryService(map);
         } catch (Exception e) {
             throw new IllegalArgumentException("Invalid Address Directory JSON file.",

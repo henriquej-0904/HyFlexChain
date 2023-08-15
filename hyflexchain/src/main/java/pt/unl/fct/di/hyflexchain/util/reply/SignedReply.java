@@ -1,23 +1,27 @@
 package pt.unl.fct.di.hyflexchain.util.reply;
 
-import java.nio.ByteBuffer;
+import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.SignatureException;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.InvalidAddressException;
-import pt.unl.fct.di.hyflexchain.util.crypto.HyflexchainSignature;
-import pt.unl.fct.di.hyflexchain.util.serializers.BytesSerializer;
+import pt.unl.fct.di.hyflexchain.util.BytesOps;
+import pt.unl.fct.di.hyflexchain.util.Utils;
+import pt.unl.fct.di.hyflexchain.util.crypto.HyFlexChainSignature;
+import pt.unl.fct.di.hyflexchain.util.serializer.ISerializer;
 
 /**
  * Represents a reply which is signed by a specific crypto
  * algorithm.
  */
-public class SignedReply
+public class SignedReply implements BytesOps
 {
-    public static final BytesSerializer<SignedReply> SERIALIZER =
+    public static final Serializer SERIALIZER =
         new SignedReply.Serializer();
 
-    public final HyflexchainSignature signature;
+    public final HyFlexChainSignature signature;
 
     public final byte[] replyBytes;
 
@@ -26,7 +30,7 @@ public class SignedReply
      * @param signature
      * @param replyBytes
      */
-    public SignedReply(HyflexchainSignature signature, byte[] replyBytes) {
+    public SignedReply(HyFlexChainSignature signature, byte[] replyBytes) {
         this.signature = signature;
         this.replyBytes = replyBytes;
     }
@@ -40,7 +44,7 @@ public class SignedReply
      */
     public boolean verifySignature() throws InvalidKeyException, SignatureException, InvalidAddressException
     {
-        return this.signature.verify(ByteBuffer.wrap(replyBytes));
+        return this.signature.verify(replyBytes);
     }
 
     /**
@@ -49,44 +53,38 @@ public class SignedReply
      */
     public byte[] serialize()
     {
-        return SERIALIZER.serialize(
-            this,
-            ByteBuffer.allocate(SERIALIZER.serializedSize(this))
-        ).array();
+        try {
+            var array = new byte[serializedSize()];
+            SERIALIZER.serialize(this, Unpooled.wrappedBuffer(array).setIndex(0, 0));
+            return array;
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
     }
 
-    public static class Serializer implements BytesSerializer<SignedReply>
+    @Override
+    public int serializedSize() {
+        return signature.serializedSize() +
+            BytesOps.serializedSize(replyBytes);
+    }
+
+    public static class Serializer implements ISerializer<SignedReply>
     {
-        private final BytesSerializer<byte[]> byteArraySerializer =
-            BytesSerializer.primitiveArraySerializer(byte[].class);
+        private final ISerializer<byte[]> byteArraySerializer =
+            Utils.serializer.getArraySerializerByte();
 
         @Override
-        public Class<SignedReply> getType() {
-            return SignedReply.class;
+        public void serialize(SignedReply t, ByteBuf out) throws IOException {
+            HyFlexChainSignature.SERIALIZER.serialize(t.signature, out);
+            byteArraySerializer.serialize(t.replyBytes, out);
         }
 
         @Override
-        public int serializedSize(SignedReply obj) {
-            return HyflexchainSignature.SERIALIZER.serializedSize(obj.signature)
-                + byteArraySerializer.serializedSize(obj.replyBytes);
-        }
-
-        @Override
-        public ByteBuffer serialize(SignedReply obj, ByteBuffer buff) {
-            buff = HyflexchainSignature.SERIALIZER.serialize(obj.signature, buff);
-            return byteArraySerializer.serialize(obj.replyBytes, buff);
-        }
-
-        @Override
-        public SignedReply deserialize(ByteBuffer buff) {
-            try {
-                return new SignedReply(
-                    HyflexchainSignature.SERIALIZER.deserialize(buff),
-                    byteArraySerializer.deserialize(buff)
-                );
-            } catch (Exception e) {
-                throw new RuntimeException("Failed to deserialize: SignedReply", e);
-            }
+        public SignedReply deserialize(ByteBuf in) throws IOException {
+            return new SignedReply(
+                HyFlexChainSignature.SERIALIZER.deserialize(in),
+                byteArraySerializer.deserialize(in)
+            );
         }
     }
 }

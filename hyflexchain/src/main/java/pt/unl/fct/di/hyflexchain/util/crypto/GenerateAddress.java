@@ -45,7 +45,7 @@ public class GenerateAddress {
                 continue;
 
             key = ks.getCertificate(entry).getPublicKey();
-            map.put(Address.fromPubKey(key).address(), entry);
+            map.put(Address.fromPubKey(key).toHexString(), entry);
 
             // System.out.printf("%s:\t%s\n", entry, Address.fromPubKey(key).address());
         }

@@ -135,6 +135,15 @@ public class Crypto {
         }
     }
 
+    public static Signature createSignatureInstance(SignatureAlgorithm sigAlg)
+    {
+        try {
+            return Signature.getInstance(sigAlg.getName(), DEFAULT_PROVIDER);
+        } catch (NoSuchProviderException | NoSuchAlgorithmException e) {
+            throw new Error(e);
+        }
+    }
+
     public static PublicKey getPublicKey(byte[] encodedPublicKey, String algorithm)
         throws NoSuchAlgorithmException, InvalidKeySpecException
     {

@@ -1,5 +1,6 @@
 package pt.unl.fct.di.hyflexchain.planes.txmanagement;
 
+import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
@@ -12,6 +13,8 @@ import pt.unl.fct.di.hyflexchain.planes.application.ti.InvalidTransactionExcepti
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.InvalidAddressException;
+import pt.unl.fct.di.hyflexchain.planes.data.transaction.SerializedTx;
+import pt.unl.fct.di.hyflexchain.planes.data.transaction.wrapper.TxWrapper;
 import pt.unl.fct.di.hyflexchain.planes.execution.ExecutionPlane;
 import pt.unl.fct.di.hyflexchain.planes.execution.contracts.InvalidSmartContractException;
 import pt.unl.fct.di.hyflexchain.planes.execution.contracts.TransactionParamsContract.TransactionParamsContractResult;
@@ -59,13 +62,6 @@ public class TransactionManagementV2_0 implements TransactionManagement
     @Override
 	public void verifyTx(HyFlexChainTransaction tx) throws InvalidTransactionException
 	{
-		if (! tx.verifyHash())
-		{
-			var msg = "Transaction invalid hash";
-			LOGGER.info(msg);
-			throw new InvalidTransactionException(msg);
-		}
-
 		try {
 			if (! tx.verifySignature())
 			{
@@ -107,28 +103,42 @@ public class TransactionManagementV2_0 implements TransactionManagement
 	}
 
 	@Override
-	public String dispatchTransaction(HyFlexChainTransaction tx) throws InvalidTransactionException
+	public String dispatchTransaction(TxWrapper tx) throws InvalidTransactionException
 	{
-		verifyTx(tx);
+		verifyTx(tx.tx());
 
-        final ConsensusMechanism c = callGetTransactionParams(tx).getConsensus();
-		checkAddPendingTx(getTxPool(c).addTxIfAbsent(tx));
+        final ConsensusMechanism c = callGetTransactionParams(tx.tx()).getConsensus();
+		checkAddPendingTx(getTxPool(c).addTxIfAbsent(tx.serializedTx()));
 
-		LOGGER.info("Submited tx [{}]: {}", c.getConsensus(), tx.getHash());
-		return tx.getHash();  
+		LOGGER.info("Submited tx [{}]: {}", c.getConsensus(), tx.txHash());
+		return tx.txHash().toHexString();
 	}
 
 	@Override
-	public String dispatchTransactionAndWait(HyFlexChainTransaction tx) throws InvalidTransactionException
+	public String dispatchTransactionAndWait(TxWrapper tx) throws InvalidTransactionException
 	{
-		verifyTx(tx);
+		verifyTx(tx.tx());
 
-        final ConsensusMechanism c = callGetTransactionParams(tx).getConsensus();
-		checkAddPendingTx(getTxPool(c).addTxIfAbsentAndWait(tx, LOGGER));
+        final ConsensusMechanism c = callGetTransactionParams(tx.tx()).getConsensus();
 
-		LOGGER.info("Finalized tx: " + tx.getHash());
+		try {
+			checkAddPendingTx(getTxPool(c).addTxIfAbsentAndWait(tx.serializedTx(), LOGGER));
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 
-		return tx.getHash();
+		LOGGER.info("Finalized tx: " + tx.txHash());
+		return tx.txHash().toHexString();
+	}
+
+	protected SerializedTx serialize(HyFlexChainTransaction tx) throws InvalidTransactionException
+	{
+		try {
+			return SerializedTx.from(tx);
+		} catch (IOException e) {
+			LOGGER.error(e.getMessage(), e);
+			throw new InvalidTransactionException(e.getMessage(), e);
+		}
 	}
 	
 }

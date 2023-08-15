@@ -1,12 +1,15 @@
 package pt.unl.fct.di.hyflexchain.planes.data.block;
 
+import java.security.MessageDigest;
 import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Deque;
 import java.util.Queue;
 
-import static pt.unl.fct.di.hyflexchain.util.Utils.fromHex;
-import static pt.unl.fct.di.hyflexchain.util.Utils.toHex;
-import static pt.unl.fct.di.hyflexchain.util.crypto.Crypto.getSha256Digest;
+import org.apache.tuweni.bytes.Bytes;
+
+import pt.unl.fct.di.hyflexchain.util.crypto.Crypto;
 
 /**
  * A Merkle Tree for transactions in a block.
@@ -21,19 +24,18 @@ public class MerkleTree
 	 * @param right Right node (or null if this node is a leaf)
 	 */
 	public static record Node(
-		String hash, Node left, Node right
+		Bytes hash, Node left, Node right
 	) implements Cloneable {
 
 		/**
 		 * Create a new Leaf node based on the hash of a transaction.
-		 * @param txHash The hash (string hex) of the transaction
+		 * @param txHash The hash of the transaction
 		 * @return A new Leaf node.
 		 */
-		public static Node createLeafNode(String txHash)
+		public static Node createLeafNode(Bytes txHash, MessageDigest md)
 		{
-			var fstHash = fromHex(txHash);
-			var sndHash = getSha256Digest().digest(fstHash);
-			return new Node(toHex(sndHash), null, null);
+			txHash.update(md);
+			return new Node(Bytes.wrap(md.digest()), null, null);
 		}
 
 		/**
@@ -42,27 +44,21 @@ public class MerkleTree
 		 * @param right The right (child) node
 		 * @return A new Node.
 		 */
-		public static Node createNode(Node left, Node right)
+		public static Node createNode(Node left, Node right, MessageDigest md)
 		{
-			var msgDigest = getSha256Digest();
-			msgDigest.update(fromHex(left.hash()));
-			msgDigest.update(fromHex(right.hash()));
-			var digest = msgDigest.digest();
+			left.hash.update(md);
+			right.hash.update(md);
+			var digest = md.digest();
 
 			// double hash
-			digest = msgDigest.digest(digest);
+			digest = md.digest(digest);
 
-			return new Node(toHex(digest), left, right);
+			return new Node(Bytes.wrap(digest), left, right);
 		}
 
 		@Override
-		public Object clone() throws CloneNotSupportedException {
+		public Object clone() {
 			return new Node(hash, left, right);
-		}
-
-		@Override
-		public int hashCode() {
-			return hash.hashCode();
 		}
 
 		@Override
@@ -84,82 +80,25 @@ public class MerkleTree
 
 	protected Node root;
 
-	public MerkleTree() {}
+	protected MerkleTree() {}
+
+	protected MerkleTree(Node root)
+	{
+		this.root = root;
+	}
 
 	/**
-	 * Create a new Merkle Tree based on a list of transactions.
+	 * Create a new Merkle Tree based on a list of transaction hashes.
 	 * @param txHashes The list of transaction hashes
 	 */
-	public MerkleTree(Collection<String> txHashes)
+	public static MerkleTree createMerkleTree(Collection<Bytes> txHashes)
 	{
-		this.root = createMerkleTree(txHashes);
+		return new MerkleTree(new MerkleTreeBuilder(txHashes).createMerkleTree());
 	}
 
-	protected Node createMerkleTree(Collection<String> txHashes)
+	public Bytes getMerkleRootHash()
 	{
-		Queue<Node> nodes = createLeafNodes(txHashes);
-
-		while (nodes.size() >= 2) {
-			nodes = createNodes(nodes);
-		}
-
-		assert nodes.size() == 1;
-		return nodes.poll();
-	}
-
-	/**
-	 * Create the base level of leaf nodes based on the tx hashes.
-	 * @param txHashes A list of tx hashes
-	 * @return A list of computed nodes.
-	 */
-	protected Queue<Node> createLeafNodes(Collection<String> txHashes)
-	{
-		if (txHashes.isEmpty())
-			throw new IllegalArgumentException("txHashes is empty");
-
-		boolean isEven = txHashes.size() % 2 == 0;
-		Queue<Node> nodes = new ArrayDeque<>(isEven ? txHashes.size() : txHashes.size() + 1);
-
-		if (isEven)
-		{
-			for (String txHash : txHashes) {
-				nodes.add(Node.createLeafNode(txHash));
-			}
-		} else
-		{
-			Node n = null;
-			var it = txHashes.iterator();
-
-			while (it.hasNext()) {
-				n = Node.createLeafNode(it.next());
-				nodes.add(n);
-			}
-
-			// add a copy of the last node
-			nodes.add(n);
-		}
-
-		return nodes;
-	}
-
-	/**
-	 * Create a new Queue<Node> level of nodes on the tree.
-	 * @param nodes The list of nodes to compute the upper level
-	 * @return The computed list of nodes.
-	 * @precondition {@code nodes.size() >= 2 && nodes.size() % 2 == 0}
-	 */
-	protected Queue<Node> createNodes(Queue<Node> nodes)
-	{
-		assert nodes.size() >= 2 && nodes.size() % 2 == 0;
-
-		int size = nodes.size();
-
-		for (int i = 0; i < size / 2; i++)
-		{
-			nodes.add(Node.createNode(nodes.poll(), nodes.poll()));
-		}
-
-		return nodes;
+		return root.hash;
 	}
 
 	/**
@@ -176,33 +115,75 @@ public class MerkleTree
 		this.root = root;
 	}
 
-	/**
-	 * Verify if this merkle tree is valid for
-	 * the specified list of transactions.
-	 * @param txHashes The list of transaction hashes.
-	 * @return true if this merkle tree is valid.
-	 */
-	public boolean verifyTree(Collection<String> txHashes)
-	{
-		var calculated = new MerkleTree(txHashes);
-		return verifyTree(this.getRoot(), calculated.getRoot());
+	protected static class MerkleTreeBuilder {
+
+		protected final Collection<Bytes> txHashes;
+
+		protected final MessageDigest md;
+		
+
+		/**
+		 * @param txHashes
+		 */
+		public MerkleTreeBuilder(Collection<Bytes> txHashes) {
+			this.txHashes = txHashes;
+			this.md = Crypto.getSha256Digest();
+		}
+
+		public Node createMerkleTree() {
+			Queue<Node> nodes = createLeafNodes(txHashes);
+
+			while (nodes.size() >= 2) {
+				nodes = createNodes(nodes);
+			}
+
+			assert nodes.size() == 1;
+			return nodes.poll();
+		}
+
+		/**
+		 * Create the base level of leaf nodes based on the tx hashes.
+		 * 
+		 * @param txHashes A stream of tx hashes
+		 * @return A queue of computed nodes.
+		 */
+		protected Queue<Node> createLeafNodes(Collection<Bytes> txHashes) {
+			if (txHashes.isEmpty())
+				throw new IllegalArgumentException("txHashes is empty");
+
+			boolean isEven = txHashes.size() % 2 == 0;
+
+			Deque<Node> nodes = new ArrayDeque<>(isEven ? txHashes.size() : txHashes.size() + 1);
+
+			for (var txHash : txHashes) {
+				nodes.add(Node.createLeafNode(txHash, md));
+			}
+
+			if (!isEven) {
+				// add a copy of the last node
+				nodes.add(nodes.peekLast());
+			}
+
+			return nodes;
+		}
+
+		/**
+		 * Create a new Queue<Node> level of nodes on the tree.
+		 * 
+		 * @param nodes The list of nodes to compute the upper level
+		 * @return The computed list of nodes.
+		 * @precondition {@code nodes.size() >= 2 && nodes.size() % 2 == 0}
+		 */
+		protected Queue<Node> createNodes(Queue<Node> nodes) {
+			assert nodes.size() >= 2 && nodes.size() % 2 == 0;
+
+			int size = nodes.size();
+
+			for (int i = 0; i < size / 2; i++) {
+				nodes.add(Node.createNode(nodes.poll(), nodes.poll(), md));
+			}
+
+			return nodes;
+		}
 	}
-	
-
-	protected boolean verifyTree(Node n1, Node n2)
-	{
-		if (n1 == null && n2 == null)
-			return true;
-
-		if (n1 == null)
-			return false;
-
-		if (!n1.equals(n2))
-			return false;
-
-		return verifyTree(n1.left, n2.left)
-			&& verifyTree(n1.right, n2.right);		
-	}
-
-	
 }

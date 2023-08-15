@@ -9,6 +9,7 @@ import pt.unl.fct.di.hyflexchain.api.rest.TransactionInterfaceRest;
 import pt.unl.fct.di.hyflexchain.planes.application.ApplicationInterface;
 import pt.unl.fct.di.hyflexchain.planes.application.ti.InvalidTransactionException;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
+import pt.unl.fct.di.hyflexchain.planes.data.transaction.wrapper.TxWrapper;
 
 @Singleton
 public class HyFlexChainResource implements TransactionInterfaceRest {
@@ -33,13 +34,20 @@ public class HyFlexChainResource implements TransactionInterfaceRest {
 	public String sendTransactionAndWait(HyFlexChainTransaction tx)
 	{
 		try {
-			return hyflexchainInterface.getTi().sendTransactionAndWait(tx);
+			return hyflexchainInterface.getTi().sendTransactionAndWait(TxWrapper.from(tx));
 		} catch (InvalidTransactionException e) {
 			LOG.info(e.getMessage());
 			throw new BadRequestException(e.getMessage(), e);
 		}
 	}
 
-	
-
+	@Override
+	public String sendTransactionAndWait(byte[] tx) {
+		try {
+			return hyflexchainInterface.getTi().sendTransactionAndWait(TxWrapper.from(tx));
+		} catch (InvalidTransactionException e) {
+			LOG.info(e.getMessage());
+			throw new BadRequestException(e.getMessage(), e);
+		}
+	}
 }

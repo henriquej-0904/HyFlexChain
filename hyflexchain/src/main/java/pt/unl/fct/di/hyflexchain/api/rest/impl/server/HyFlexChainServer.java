@@ -9,6 +9,7 @@ import javax.net.ssl.SSLContext;
 import org.glassfish.jersey.jdkhttp.JdkHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 
+import pt.unl.fct.di.hyflexchain.api.rest.impl.server.config.MarshallingFeature;
 import pt.unl.fct.di.hyflexchain.api.rest.impl.server.resources.HyFlexChainResource;
 import pt.unl.fct.di.hyflexchain.planes.application.ApplicationInterface;
 
@@ -43,6 +44,7 @@ public class HyFlexChainServer
 			// URI uri = new URI(String.format("http://%s:%d/api/rest", "0.0.0.0", port));
 
 			ResourceConfig config = new ResourceConfig();
+			config.register(MarshallingFeature.class);
 			config.register(HyFlexChainResource.class);
             
 			SSLContext sslContext = app.getConfig().getSSLContextServer();

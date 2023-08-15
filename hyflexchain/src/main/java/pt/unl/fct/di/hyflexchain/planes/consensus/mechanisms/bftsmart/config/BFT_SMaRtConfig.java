@@ -92,7 +92,7 @@ public class BFT_SMaRtConfig
             throw configError(Configs.STATIC_COMMITTEE.name);
 
         return Stream.of(res.split(";"))
-            .map(Address::new)
+            .map(Address::fromHexString)
             .toList();
     }
 

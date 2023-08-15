@@ -1,10 +1,12 @@
 package pt.unl.fct.di.hyflexchain.planes.data.transaction;
 
-import java.nio.ByteBuffer;
-import java.util.function.Consumer;
+import java.security.Signature;
+import java.security.SignatureException;
 
-import pt.unl.fct.di.hyflexchain.util.Bytes;
+import pt.unl.fct.di.hyflexchain.util.BytesOps;
 import pt.unl.fct.di.hyflexchain.util.Utils;
+import pt.unl.fct.di.hyflexchain.util.crypto.SignatureOps;
+import pt.unl.fct.di.hyflexchain.util.serializer.ISerializer;
 
 /**
  * Represents an Unspent Transaction Output
@@ -12,13 +14,25 @@ import pt.unl.fct.di.hyflexchain.util.Utils;
  * @param recipient The address of the receiving account
  * @param value The value to transfer
  */
-public record UTXO(Address recipient, long value)
-implements Bytes<UTXO>
+public record UTXO(Address recipient, long value) implements BytesOps, SignatureOps
 {
+	public static final ISerializer<UTXO> SERIALIZER =
+		Utils.serializer.getRecordSerializer(
+			UTXO.class,
+			Address.SERIALIZER,
+			Utils.serializer.getSerializer(long.class)
+		);
 
 	@Override
-	public void applyToBytes(Consumer<ByteBuffer> apply) {
-		apply.accept(ByteBuffer.wrap(recipient.address().getBytes()));
-		apply.accept(Utils.toBytes(value));
+	public Signature update(Signature sig) throws SignatureException {
+		recipient.update(sig);
+		sig.update(Utils.toBytes(value));
+		return sig;
 	}
+
+	@Override
+	public int serializedSize() {
+		return recipient.serializedSize() + Long.BYTES;
+	}
+	
 }

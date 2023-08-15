@@ -1,12 +1,21 @@
 package pt.unl.fct.di.hyflexchain.planes.data.transaction;
 
-import java.nio.ByteBuffer;
+import java.io.IOException;
+import java.security.MessageDigest;
 import java.security.PublicKey;
+import java.security.Signature;
+import java.security.SignatureException;
+
 import org.apache.tuweni.bytes.Bytes;
 
+import io.netty.buffer.ByteBuf;
+import pt.unl.fct.di.hyflexchain.util.BytesOps;
+import pt.unl.fct.di.hyflexchain.util.Utils;
 import pt.unl.fct.di.hyflexchain.util.crypto.Crypto;
 import pt.unl.fct.di.hyflexchain.util.crypto.CryptoAlgorithm;
-import pt.unl.fct.di.hyflexchain.util.serializers.BytesSerializer;
+import pt.unl.fct.di.hyflexchain.util.crypto.HashOps;
+import pt.unl.fct.di.hyflexchain.util.crypto.SignatureOps;
+import pt.unl.fct.di.hyflexchain.util.serializer.ISerializer;
 
 /**
  * Represents an address in a transaction.
@@ -19,15 +28,36 @@ import pt.unl.fct.di.hyflexchain.util.serializers.BytesSerializer;
  * being {@code hex()} a function to convert byte[]
  * to an hexadecimal string.
  */
-public record Address(String address) {
+public record Address(Bytes address) implements BytesOps, HashOps, SignatureOps {
 
-	public static final BytesSerializer<Address> SERIALIZER = new Serializer();
+	public static final Serializer SERIALIZER = new Serializer();
+
+	public static final Address NULL_ADDRESS = new Address(Bytes.EMPTY);
+
+	public static Address fromHexString(String address)
+	{
+		return new Address(Bytes.fromHexString(address));
+	}
+
+	public static Address fromBase64String(String address)
+	{
+		return new Address(Bytes.fromBase64String(address));
+	}
+
+	public String toHexString()
+	{
+		return address.toHexString();
+	}
+
+	public String toBase64String()
+	{
+		return address.toBase64String();
+	}
+
 
 	public PublicKey readPublicKey() throws InvalidAddressException
 	{
 		try {
-			Bytes address = Bytes.fromHexString(this.address);
-
 			CryptoAlgorithm alg = CryptoAlgorithm.decodeOrThrow(address.get(0));
 			byte[] encodedPublicKey = address.slice(1).toArray();
 			
@@ -45,38 +75,74 @@ public record Address(String address) {
 		
 		Bytes encodedKey = Bytes.wrap(Crypto.encodePublicKey(key));
 
-		return new Address(Bytes.wrap(algId, encodedKey).toHexString());
+		return new Address(Bytes.wrap(algId, encodedKey));
 	}
 
-	public static class Serializer implements BytesSerializer<Address> {
+	public boolean isNullAddress()
+	{
+		return this.equals(NULL_ADDRESS);
+	}
 
-		protected BytesSerializer<byte[]> byteArraySerializer =
-			BytesSerializer.primitiveArraySerializer(byte[].class);
+	@Override
+	public int hashCode() {
+		return address.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Address other = (Address) obj;
+		return address.equals(other.address);
+	}
+
+
+
+	public static class Serializer implements ISerializer<Address> {
+
+		protected ISerializer<byte[]> byteArraySerializer =
+            Utils.serializer.getArraySerializerByte();
 
 		@Override
-		public int serializedSize(Address obj) {
-			return Integer.BYTES + obj.address.length() / 2;
+		public void serialize(Address t, ByteBuf out) throws IOException {
+			byteArraySerializer.serialize(t.address.toArray(), out);
 		}
 
 		@Override
-		public ByteBuffer serialize(Address obj, ByteBuffer buff) {
-			return byteArraySerializer.serialize(
-				Bytes.fromHexString(obj.address).toArrayUnsafe(),
-				buff
-			);
+		public Address deserialize(ByteBuf in) throws IOException {
+			byte[] array = byteArraySerializer.deserialize(in);
+			return array.length == 0 ? NULL_ADDRESS : new Address(Bytes.wrap(array));
 		}
 
-		@Override
-		public Address deserialize(ByteBuffer buff) {
-			return new Address(
-				Bytes.wrap(byteArraySerializer.deserialize(buff)).toHexString()
-			);
+		public int serializedSize(Address t)
+		{
+			return Integer.BYTES + t.address.size();
 		}
+	}
 
-		@Override
-		public Class<Address> getType() {
-			return Address.class;
-		}
+
+
+	@Override
+	public Signature update(Signature sig) throws SignatureException {
+		sig.update(address.toArrayUnsafe());
+		return sig;
+	}
+
+	@Override
+	public MessageDigest update(MessageDigest md) {
+		md.update(Utils.toBytes(address.size()));
+		md.update(address.toArrayUnsafe());
+		return md;
+	}
+
+	@Override
+	public int serializedSize()
+	{
+		return Integer.BYTES + address.size();
 	}
 
 }

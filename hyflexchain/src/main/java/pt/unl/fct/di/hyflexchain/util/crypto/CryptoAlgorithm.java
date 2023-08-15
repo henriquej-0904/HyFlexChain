@@ -1,11 +1,14 @@
 package pt.unl.fct.di.hyflexchain.util.crypto;
 
+import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import io.netty.buffer.ByteBuf;
 import pt.unl.fct.di.hyflexchain.util.Utils;
+import pt.unl.fct.di.hyflexchain.util.serializer.ISerializer;
 
 /**
  * The currently supported crypto algorithms.
@@ -16,6 +19,9 @@ public enum CryptoAlgorithm
      * The eliptic curve algorithm
      */
     EC("EC", (byte) 1);
+
+    public static final ISerializer<CryptoAlgorithm> SERIALIZER =
+        new Serializer();
 
     private final String name;
 
@@ -92,5 +98,22 @@ public enum CryptoAlgorithm
     public static NoSuchAlgorithmException noSuchAlgorithmException(byte algId)
     {
         return new NoSuchAlgorithmException("Invalid crypto algorithm identifier: " + algId);
+    }
+
+    static final class Serializer implements ISerializer<CryptoAlgorithm>
+    {
+        @Override
+        public void serialize(CryptoAlgorithm t, ByteBuf out) throws IOException {
+            out.writeByte(t.algId);
+        }
+
+        @Override
+        public CryptoAlgorithm deserialize(ByteBuf in) throws IOException {
+            try {
+                return decodeOrThrow(in.readByte());
+            } catch (NoSuchAlgorithmException e) {
+                throw new IOException(e.getMessage(), e);
+            }
+        }
     }
 }

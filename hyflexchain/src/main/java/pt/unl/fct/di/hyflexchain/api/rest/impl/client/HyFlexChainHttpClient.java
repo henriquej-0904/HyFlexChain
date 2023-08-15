@@ -11,6 +11,7 @@ import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.InvocationCallback;
+import jakarta.ws.rs.core.MediaType;
 import pt.unl.fct.di.hyflexchain.api.rest.TransactionInterfaceRest;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
 
@@ -40,17 +41,6 @@ public class HyFlexChainHttpClient implements Closeable {
             .build();
     }
 
-    /* public LedgerClient(String replicaId, URI endpoint, SecureRandom random, SSLContext sslContext) throws KeyStoreException
-    {
-        ClientBuilder builder = getClientBuilder().sslContext(sslContext)
-            .hostnameVerifier((arg0, arg1) -> true);
-
-        this.client = builder.build();
-        this.endpoint = endpoint;
-
-        this.serverPublicKey = Crypto.getTrustStore().getCertificate(replicaId).getPublicKey();
-    } */
-
     private static ClientBuilder getClientBuilder()
     {
         return ClientBuilder.newBuilder().connectTimeout(CONNECT_TIMEOUT, TimeUnit.SECONDS)
@@ -61,10 +51,20 @@ public class HyFlexChainHttpClient implements Closeable {
         InvocationCallback<String> callback)
     {
         return this.client.target(endpoint).path(PREPEND_URL).path(TransactionInterfaceRest.PATH)
-            .path("transaction")
+            .path("transaction-json")
             .request()
             .async()
             .post(Entity.json(tx), callback);
+    }
+
+    public Future<String> sendTransactionAsync(URI endpoint, byte[] tx,
+        InvocationCallback<String> callback)
+    {
+        return this.client.target(endpoint).path(PREPEND_URL).path(TransactionInterfaceRest.PATH)
+            .path("transaction")
+            .request()
+            .async()
+            .post(Entity.entity(tx, MediaType.APPLICATION_OCTET_STREAM_TYPE), callback);
     }
 
     @Override

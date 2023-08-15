@@ -6,6 +6,8 @@ import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import org.apache.tuweni.bytes.Bytes;
+
 import pt.unl.fct.di.hyflexchain.planes.application.lvi.BlockFilter;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.consensus.committees.bft.BftCommittee;
@@ -14,6 +16,7 @@ import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
 import pt.unl.fct.di.hyflexchain.planes.data.ledger.LedgerState;
 import pt.unl.fct.di.hyflexchain.planes.data.ledger.separated.SeparatedMultiConsensusLedger;
 import pt.unl.fct.di.hyflexchain.util.config.MultiLedgerConfig;
+import pt.unl.fct.di.hyflexchain.util.crypto.HashedObject;
 
 /**
  * Represents the Data Plane with operations to add a block to the chain
@@ -38,7 +41,7 @@ public interface DataPlane {
 	 * @param block The ordered block
 	 * @param consensusType The type of consensus mechanism used to order the block
 	 */
-	void writeOrderedBlock(HyFlexChainBlock block, ConsensusMechanism consensusType);
+	void writeOrderedBlock(HashedObject<HyFlexChainBlock> block, ConsensusMechanism consensusType);
 
 	/**
 	 * Dispatch an unordered block to the Blockmess Layer to be ordered
@@ -130,7 +133,7 @@ public interface DataPlane {
 	 * @param consensus The consensus mechanism
 	 * @return The block.
 	 */
-	Optional<HyFlexChainBlock> getBlock(String id, ConsensusMechanism consensus);
+	Optional<HyFlexChainBlock> getBlock(Bytes id, ConsensusMechanism consensus);
 
 	/**
 	 * Get the state of a block.
@@ -138,7 +141,7 @@ public interface DataPlane {
 	 * @param consensus The consensus mechanism
 	 * @return The state of the block.
 	 */
-	Optional<BlockState> getBlockState(String id, ConsensusMechanism consensus);
+	Optional<BlockState> getBlockState(Bytes id, ConsensusMechanism consensus);
 
 	/**
 	 * Get all blocks according to the specified filter.
@@ -146,14 +149,14 @@ public interface DataPlane {
 	 * @param consensus The consensus mechanism
 	 * @return All filtered blocks.
 	 */
-	List<HyFlexChainBlock> getBlocks(BlockFilter filter, ConsensusMechanism consensus);
+	List<HashedObject<HyFlexChainBlock>> getBlocks(BlockFilter filter, ConsensusMechanism consensus);
 
 	/**
 	 * Get the last block.
 	 * @param consensus The consensus mechanism
 	 * @return The last block.
 	 */
-	default HyFlexChainBlock getLastBlock(ConsensusMechanism consensus)
+	default HashedObject<HyFlexChainBlock> getLastBlock(ConsensusMechanism consensus)
 	{
 		return getBlocks(
 			BlockFilter.fromFilter(BlockFilter.Type.LAST_N, 1), consensus
@@ -195,7 +198,7 @@ public interface DataPlane {
 	 * @param action The action to call
 	 * @param consensus The consensus mechanism
 	 */
-	public void uponNewBlock(Consumer<HyFlexChainBlock> action, ConsensusMechanism consensus);
+	public void uponNewBlock(Consumer<HashedObject<HyFlexChainBlock>> action, ConsensusMechanism consensus);
 
 	//////////////////////////////////////////// COMMITTEES ////////////////////////////////////////////
 
@@ -204,12 +207,12 @@ public interface DataPlane {
 	 * @param block The ordered block
 	 * @param committee The committee in the block.
 	 */
-	void writeOrderedBftCommitteeBlock(HyFlexChainBlock block, BftCommittee committee);
+	void writeOrderedBftCommitteeBlock(HashedObject<HyFlexChainBlock> block, BftCommittee committee);
 
 	/**
 	 * Call the specified action upon a new block with a bft committee is appended
 	 * to the chain.
 	 * @param action The action to call
 	 */
-	public void uponNewBftCommitteeBlock(BiConsumer<HyFlexChainBlock, BftCommittee> action);
+	public void uponNewBftCommitteeBlock(BiConsumer<HashedObject<HyFlexChainBlock>, BftCommittee> action);
 }

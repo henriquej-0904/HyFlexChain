@@ -20,6 +20,7 @@ import pt.unl.fct.di.hyflexchain.planes.consensus.committees.bft.SybilResistantB
 import pt.unl.fct.di.hyflexchain.planes.consensus.mechanisms.bftsmart.config.BFT_SMaRtConfig;
 import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.Address;
+import pt.unl.fct.di.hyflexchain.util.crypto.HashedObject;
 
 /**
  * An implementation of Sybil-resistant committee election for BFT consensus
@@ -38,7 +39,7 @@ public class RecipientNodesBasedCommitteeElection implements SybilResistantBftCo
     /**
      * Get the last N finalized blocks.
      */
-    private final IntFunction<List<HyFlexChainBlock>> getLastFinalizedBlocks;
+    private final IntFunction<List<HashedObject<HyFlexChainBlock>>> getLastFinalizedBlocks;
 
     /**
      * Get the last N previous committees.
@@ -153,10 +154,10 @@ public class RecipientNodesBasedCommitteeElection implements SybilResistantBftCo
         );
     }
 
-    protected Set<Address> createElectoralBase(List<HyFlexChainBlock> lastBlocks)
+    protected Set<Address> createElectoralBase(List<HashedObject<HyFlexChainBlock>> lastBlocks)
     {
         return lastBlocks.stream()
-            .flatMap(b -> Stream.of(b.body().getTransactions()))
+            .flatMap(b -> Stream.of(b.obj().body().getTransactions()))
             .flatMap(t -> Stream.of(t.recipientAddresses()))
             .collect(Collectors.toSet());
     }

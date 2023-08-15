@@ -13,7 +13,6 @@ import pt.unl.fct.di.hyflexchain.api.rest.impl.client.HyFlexChainHttpClient;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusInterface;
 import pt.unl.fct.di.hyflexchain.planes.consensus.committees.CommitteeId;
 import pt.unl.fct.di.hyflexchain.planes.consensus.committees.bft.BftCommittee;
-import pt.unl.fct.di.hyflexchain.planes.data.block.BlockBody;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.Address;
 import pt.unl.fct.di.hyflexchain.planes.network.Host;
 import pt.unl.fct.di.hyflexchain.planes.txmanagement.TransactionManagement;
@@ -96,7 +95,7 @@ public class BftSmartConsensusThread implements Runnable {
 
 					LOG.info("BFT-SMART: Order block of transactions");
 
-					this.consensus.orderTxs(BlockBody.from(txs));
+					this.consensus.orderTxs(txs);
 				}
 				else
 				{
@@ -108,7 +107,7 @@ public class BftSmartConsensusThread implements Runnable {
 					LOG.info("BFT-SMART: Redirecting {} txs to {}", txs.size(), redirect);
 
 					for (var tx : txs) {
-						this.hyflexchainClient.sendTransactionAsync(redirect, tx,
+						this.hyflexchainClient.sendTransactionAsync(redirect, tx.serialized(),
 							new RedirectTransaction(tx, txPool));
 					}
 				}

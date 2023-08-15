@@ -22,7 +22,7 @@ public class BftSmartLVI extends LedgerViewConsensusImpl {
 
 	private final LinkedMap<CommitteeId, BftCommittee> committees;
 	
-	private volatile Entry<CommitteeId, BftCommittee> currentCommittee;
+	private Entry<CommitteeId, BftCommittee> currentCommittee;
 
 
     public BftSmartLVI() {
@@ -43,7 +43,7 @@ public class BftSmartLVI extends LedgerViewConsensusImpl {
 			addCommittee(
 				new CommitteeId(
 					c.getId(),
-					b.header().getMetaHeader().getHash()
+					b.hash()
 				),
 				c
 			));

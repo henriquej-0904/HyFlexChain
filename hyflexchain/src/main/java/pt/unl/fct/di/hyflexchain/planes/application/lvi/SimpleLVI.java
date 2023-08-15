@@ -7,6 +7,8 @@ import java.util.Optional;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
+import org.apache.tuweni.bytes.Bytes;
+
 import pt.unl.fct.di.hyflexchain.planes.application.lvi.consensus.BftSmartLVI;
 import pt.unl.fct.di.hyflexchain.planes.application.lvi.consensus.LedgerViewConsensusInterface;
 import pt.unl.fct.di.hyflexchain.planes.application.lvi.consensus.PowLVI;
@@ -20,6 +22,7 @@ import pt.unl.fct.di.hyflexchain.planes.data.ledger.LedgerState;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.TransactionState;
 import pt.unl.fct.di.hyflexchain.util.config.MultiLedgerConfig;
+import pt.unl.fct.di.hyflexchain.util.crypto.HashedObject;
 
 public class SimpleLVI implements LedgerViewInterface {
 
@@ -74,33 +77,33 @@ public class SimpleLVI implements LedgerViewInterface {
 	}
 
 	@Override
-	public Optional<HyFlexChainTransaction> getTransaction(String id, ConsensusMechanism consensus) {
+	public Optional<HyFlexChainTransaction> getTransaction(Bytes id, ConsensusMechanism consensus) {
 		return getLVI(consensus).getTransaction(id);
 	}
 
 	@Override
-	public TransactionState getTransactionState(String id, ConsensusMechanism consensus) {
+	public TransactionState getTransactionState(Bytes id, ConsensusMechanism consensus) {
 		return getLVI(consensus).getTransactionState(id);
 	}
 
 	@Override
-	public Optional<HyFlexChainBlock> getBlock(String id, ConsensusMechanism consensus) {
+	public Optional<HyFlexChainBlock> getBlock(Bytes id, ConsensusMechanism consensus) {
 		return data.getBlock(id, consensus);
 	}
 
 	@Override
-	public Optional<BlockState> getBlockState(String id, ConsensusMechanism consensus) {
+	public Optional<BlockState> getBlockState(Bytes id, ConsensusMechanism consensus) {
 		return data.getBlockState(id, consensus);
 	}
 
 	@Override
-	public List<HyFlexChainBlock> getBlocks(BlockFilter filter, ConsensusMechanism consensus) {
+	public List<HashedObject<HyFlexChainBlock>> getBlocks(BlockFilter filter, ConsensusMechanism consensus) {
 		return data.getBlocks(filter, consensus);
 	}
 
 	@Override
-	public String getLastBlockHash(ConsensusMechanism consensus) {
-		return data.getLastBlock(consensus).header().getMetaHeader().getHash();
+	public Bytes getLastBlockHash(ConsensusMechanism consensus) {
+		return data.getLastBlock(consensus).hash();
 	}
 
 	@Override

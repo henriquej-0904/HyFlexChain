@@ -70,14 +70,14 @@ public class TransactionParamsContract extends SmartContract {
 
         final List<Utf8String> outputTxsAddress = Stream.of(tx.getOutputTxs())
                 .map(UTXO::recipient)
-                .map(pt.unl.fct.di.hyflexchain.planes.data.transaction.Address::address)
+                .map(pt.unl.fct.di.hyflexchain.planes.data.transaction.Address::toHexString)
                 .map(Utf8String::new).toList();
 
         final Function function = new Function(
                 FUNC_GETTRANSACTIONPARAMS,
                 Arrays.<Type>asList(
                         new Utf8String(tx.getVersion()),
-                        new Utf8String(tx.getSender().address()),
+                        new Utf8String(tx.getSender().toHexString()),
                         new DynamicArray<Int64>(Int64.class, outputTxsValue),
                         new DynamicArray<Utf8String>(Utf8String.class, outputTxsAddress),
                         new Int64(System.currentTimeMillis() / 1000)),

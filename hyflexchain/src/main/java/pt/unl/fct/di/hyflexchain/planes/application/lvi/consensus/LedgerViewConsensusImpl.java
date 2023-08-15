@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import org.apache.tuweni.bytes.Bytes;
+
 import java.util.Map.Entry;
 
 import pt.unl.fct.di.hyflexchain.planes.application.lvi.BlockFilter;
@@ -19,12 +22,13 @@ import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.TransactionState;
 import pt.unl.fct.di.hyflexchain.planes.txmanagement.TransactionManagement;
 import pt.unl.fct.di.hyflexchain.planes.txmanagement.txpool.TxPool;
+import pt.unl.fct.di.hyflexchain.util.crypto.HashedObject;
 
 public class LedgerViewConsensusImpl implements LedgerViewConsensusInterface {
 
 	protected final ConsensusMechanism consensus;
 
-	protected final Map<String, HyFlexChainTransaction> finalizedTxs;
+	protected final Map<Bytes, HyFlexChainTransaction> finalizedTxs;
 
 	protected TxPool txPool;
 
@@ -38,13 +42,13 @@ public class LedgerViewConsensusImpl implements LedgerViewConsensusInterface {
 	 * @param consensus
 	 * @param finalizedTxs
 	 */
-	public LedgerViewConsensusImpl(ConsensusMechanism consensus, Map<String, HyFlexChainTransaction> finalizedTxs) {
+	public LedgerViewConsensusImpl(ConsensusMechanism consensus, Map<Bytes, HyFlexChainTransaction> finalizedTxs) {
 		this.consensus = consensus;
 		this.finalizedTxs = finalizedTxs;
 
 		this.data = DataPlane.getInstance();
 		this.data.uponNewBlock((block) ->
-			this.finalizedTxs.putAll(block.body().findTransactions()), consensus);
+			this.finalizedTxs.putAll(block.obj().body().findTransactions()), consensus);
 
 	}
 
@@ -54,21 +58,12 @@ public class LedgerViewConsensusImpl implements LedgerViewConsensusInterface {
 	}
 
 	@Override
-	public Optional<HyFlexChainTransaction> getTransaction(String id) {
-		var tx = getTxPool().getPendingTx(id);
-
-		if (tx.isPresent())
-			return tx;
-
-		var finalized = this.finalizedTxs.get(id);
-		if (finalized != null)
-			tx = Optional.of(finalized);
-
-		return tx;
+	public Optional<HyFlexChainTransaction> getTransaction(Bytes id) {
+		return Optional.ofNullable(this.finalizedTxs.get(id));
 	}
 
 	@Override
-	public TransactionState getTransactionState(String id) {
+	public TransactionState getTransactionState(Bytes id) {
 		if (getTxPool().txExists(id))
 			return TransactionState.PENDING;
 
@@ -79,17 +74,17 @@ public class LedgerViewConsensusImpl implements LedgerViewConsensusInterface {
 	}
 
 	@Override
-	public Optional<HyFlexChainBlock> getBlock(String id) {
+	public Optional<HyFlexChainBlock> getBlock(Bytes id) {
 		return this.data.getBlock(id, consensus);
 	}
 
 	@Override
-	public Optional<BlockState> getBlockState(String id) {
+	public Optional<BlockState> getBlockState(Bytes id) {
 		return this.data.getBlockState(id, consensus);
 	}
 
 	@Override
-	public List<HyFlexChainBlock> getBlocks(BlockFilter filter) {
+	public List<HashedObject<HyFlexChainBlock>> getBlocks(BlockFilter filter) {
 		return this.data.getBlocks(filter, consensus);
 	}
 

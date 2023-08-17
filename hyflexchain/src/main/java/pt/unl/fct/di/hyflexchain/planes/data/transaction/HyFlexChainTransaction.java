@@ -93,7 +93,7 @@ public class HyFlexChainTransaction implements BytesOps, HashOps, SignatureOps {
 	public static HyFlexChainTransaction create(Address sender, SignatureAlgorithm signatureType, byte[] signature,
 			long nonce, TransactionType transactionType, SmartContract smartContract, TxInput[] inputTxs,
 			UTXO[] outputTxs, byte[] data) {
-		return new HyFlexChainTransaction(Version.V1_0.getVersion(), sender, signatureType, signature,
+		return new HyFlexChainTransaction(Version.V1_0.name(), sender, signatureType, signature,
 			nonce, transactionType, smartContract, inputTxs, outputTxs, data);
 	}
 
@@ -106,7 +106,7 @@ public class HyFlexChainTransaction implements BytesOps, HashOps, SignatureOps {
 	 */
 	public static HyFlexChainTransaction createContract(Address sender, SignatureAlgorithm signatureType, byte[] signature,
 			long nonce, SmartContract smartContract) {
-		return new HyFlexChainTransaction(Version.V1_0.getVersion(), sender, signatureType, signature,
+		return new HyFlexChainTransaction(Version.V1_0.name(), sender, signatureType, signature,
 			nonce, TransactionType.CONTRACT_CREATE, smartContract, new TxInput[0], new UTXO[0], new byte[0]);
 	}
 
@@ -119,7 +119,7 @@ public class HyFlexChainTransaction implements BytesOps, HashOps, SignatureOps {
 	 */
 	public static HyFlexChainTransaction revokeContract(Address sender, SignatureAlgorithm signatureType, byte[] signature,
 			long nonce, SmartContract smartContract) {
-		return new HyFlexChainTransaction(Version.V1_0.getVersion(), sender, signatureType, signature,
+		return new HyFlexChainTransaction(Version.V1_0.name(), sender, signatureType, signature,
 			nonce, TransactionType.CONTRACT_REVOKE, smartContract, new TxInput[0], new UTXO[0], new byte[0]);
 	}
 

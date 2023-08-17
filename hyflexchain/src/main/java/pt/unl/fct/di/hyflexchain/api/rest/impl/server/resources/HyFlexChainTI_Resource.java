@@ -12,13 +12,13 @@ import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.wrapper.TxWrapper;
 
 @Singleton
-public class HyFlexChainResource implements TransactionInterfaceRest {
+public class HyFlexChainTI_Resource implements TransactionInterfaceRest {
 	
-	Logger LOG = LoggerFactory.getLogger(HyFlexChainResource.class);
+	Logger LOG = LoggerFactory.getLogger(HyFlexChainTI_Resource.class);
 
 	private static ApplicationInterface hyflexchainInterface;
 
-	public HyFlexChainResource()
+	public HyFlexChainTI_Resource()
 	{
 		
 	}
@@ -27,7 +27,7 @@ public class HyFlexChainResource implements TransactionInterfaceRest {
 	 * @param hyflexchainInterface the hyflexchainInterface to set
 	 */
 	public static void setHyflexchainInterface(ApplicationInterface hyflexchainInterface) {
-		HyFlexChainResource.hyflexchainInterface = hyflexchainInterface;
+		HyFlexChainTI_Resource.hyflexchainInterface = hyflexchainInterface;
 	}
 
 	@Override

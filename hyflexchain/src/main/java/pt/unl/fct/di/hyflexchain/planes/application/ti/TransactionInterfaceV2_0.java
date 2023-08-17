@@ -15,7 +15,7 @@ import pt.unl.fct.di.hyflexchain.planes.txmanagement.TransactionManagement;
  */
 public class TransactionInterfaceV2_0 implements TransactionInterface {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(TransactionInterfaceV1_0.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(TransactionInterfaceV2_0.class);
 
     @Override
 	public void verifyTx(HyFlexChainTransaction tx) throws InvalidTransactionException
@@ -25,7 +25,7 @@ public class TransactionInterfaceV2_0 implements TransactionInterface {
 			version = HyFlexChainTransaction.Version.valueOf(tx.getVersion());
 		} catch (Exception e) {
 			var exc = InvalidTransactionException.invalidVersion(tx.getVersion());
-			LOGGER.info(exc.getMessage());
+			LOGGER.error(exc.getMessage(), e);
 			throw exc;
 		}
 

@@ -10,7 +10,8 @@ import org.glassfish.jersey.jdkhttp.JdkHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 
 import pt.unl.fct.di.hyflexchain.api.rest.impl.server.config.MarshallingFeature;
-import pt.unl.fct.di.hyflexchain.api.rest.impl.server.resources.HyFlexChainResource;
+import pt.unl.fct.di.hyflexchain.api.rest.impl.server.resources.HyFlexChainSCMI_Resource;
+import pt.unl.fct.di.hyflexchain.api.rest.impl.server.resources.HyFlexChainTI_Resource;
 import pt.unl.fct.di.hyflexchain.planes.application.ApplicationInterface;
 
 public class HyFlexChainServer
@@ -38,14 +39,19 @@ public class HyFlexChainServer
 			ApplicationInterface app = new ApplicationInterface(new File(args[2]),
 				Arrays.copyOfRange(args, MIN_ARGS, args.length, String[].class));
 			
-			HyFlexChainResource.setHyflexchainInterface(app);
+			HyFlexChainTI_Resource.setHyflexchainInterface(app);
+			HyFlexChainSCMI_Resource.setHyflexchainInterface(app);
             
 			URI uri = new URI(String.format("https://%s:%d/api/rest", "0.0.0.0", port));
 			// URI uri = new URI(String.format("http://%s:%d/api/rest", "0.0.0.0", port));
 
 			ResourceConfig config = new ResourceConfig();
 			config.register(MarshallingFeature.class);
-			config.register(HyFlexChainResource.class);
+			config.register(HyFlexChainTI_Resource.class);
+
+			// This REST interface should be protected and only accessible to authenticated clients
+			// who own the key pair of this replica.
+			config.register(HyFlexChainSCMI_Resource.class);
             
 			SSLContext sslContext = app.getConfig().getSSLContextServer();
 			JdkHttpServerFactory.createHttpServer(uri, config, sslContext);

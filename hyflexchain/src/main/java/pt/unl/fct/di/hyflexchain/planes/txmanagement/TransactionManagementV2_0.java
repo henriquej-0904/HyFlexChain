@@ -141,7 +141,6 @@ public class TransactionManagementV2_0 implements TransactionManagement
 		if (tx.tx().getTransactionType() == TransactionType.TRANSFER)
 		{
 			c = callGetTransactionParams(tx.tx()).getConsensus();
-			checkAddPendingTx(getTxPool(c).addTxIfAbsent(tx.serializedTx()));	
 		}
 		else if (tx.tx().getTransactionType() == TransactionType.CONTRACT_CREATE ||
 			tx.tx().getTransactionType() == TransactionType.CONTRACT_REVOKE)
@@ -153,6 +152,8 @@ public class TransactionManagementV2_0 implements TransactionManagement
 			throw new InvalidTransactionException("Unsupported transaction type: " + tx.tx().getTransactionType());
 		}
 
+		checkAddPendingTx(getTxPool(c).addTxIfAbsent(tx.serializedTx()));	
+
 		LOGGER.info("Submited {} tx [{}]: {}", tx.tx().getTransactionType(), c.getConsensus(), tx.txHash());
 		return tx.txHash().toHexString();
 	}
@@ -162,7 +163,20 @@ public class TransactionManagementV2_0 implements TransactionManagement
 	{
 		verifyTx(tx.tx());
 
-        final ConsensusMechanism c = callGetTransactionParams(tx.tx()).getConsensus();
+		ConsensusMechanism c;
+		if (tx.tx().getTransactionType() == TransactionType.TRANSFER)
+		{
+			c = callGetTransactionParams(tx.tx()).getConsensus();
+		}
+		else if (tx.tx().getTransactionType() == TransactionType.CONTRACT_CREATE ||
+			tx.tx().getTransactionType() == TransactionType.CONTRACT_REVOKE)
+		{
+			c = ConsensusMechanism.PoW;
+		}
+		else
+		{
+			throw new InvalidTransactionException("Unsupported transaction type: " + tx.tx().getTransactionType());
+		}
 
 		try {
 			checkAddPendingTx(getTxPool(c).addTxIfAbsentAndWait(tx.serializedTx(), LOGGER));

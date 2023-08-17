@@ -43,7 +43,7 @@ public record SmartContract(Address id, byte[] code) implements BytesOps, HashOp
     }
 
     public boolean isAddressProvided() {
-        return id.isNullAddress();
+        return !id.isNullAddress();
     }
 
     public boolean isCodeProvided() {

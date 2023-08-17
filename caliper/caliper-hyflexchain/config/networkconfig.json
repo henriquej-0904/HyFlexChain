@@ -4,14 +4,18 @@
     },
     "hyflexchain": {
         "url": [
-            "https://localhost:18004/api/rest",
             "https://localhost:18000/api/rest",
             "https://localhost:18001/api/rest",
             "https://localhost:18002/api/rest",
-            "https://localhost:18003/api/rest"
+            "https://localhost:18003/api/rest",
+            "https://localhost:18004/api/rest"
         ],
         "connection_timeout" : "60000",
         "truststore_ca" : "./crypto/hyflexchain_root_cert.pem",
-        "replica_addresses" : "./crypto/addresses.json"
+        "replica_addresses" : "./crypto/addresses.json",
+        "smart_contracts" : {
+            "pow": "./config/smart-contracts/pow.sc",
+            "bftsmart": "./config/smart-contracts/bftsmart.sc"
+        }
     }
 }

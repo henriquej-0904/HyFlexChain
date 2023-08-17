@@ -76,14 +76,74 @@ class HyFlexChainConnector extends ConnectorBase {
                 'No replicas addresses given to serve as destination in transactions.'
             );
         }
+
+        if (!hyflexchainConfig.smart_contracts) {
+            throw new Error(
+                'No smart contracts are defined.'
+            );
+        }
     }
 
     async init(workerInit) {
         // this._throwNotImplemented('init');
+
+        const smart_contracts_files = new Map(Object.entries(this.hyflexchainConfig.smart_contracts));
+        this.smart_contracts_map = new Map();
+
+        smart_contracts_files.forEach((element, k) => {
+            this.smart_contracts_map.set(k,
+                Buffer.from(fs.readFileSync(path.resolve(element), { encoding : "utf-8" }), "hex")
+            )
+        });
+
+        if (workerInit)
+            return;
+
+        const httpsAgent = new https.Agent({
+            rejectUnauthorized: false, // (NOTE: this will disable client verification)
+            ca: fs.readFileSync(this.hyflexchainConfig.truststore_ca)
+        })
+
+        const httpClient = axios.create(
+            {
+                baseURL: this.hyflexchainConfig.url[0],
+                timeout: this.hyflexchainConfig.connection_timeout,
+                httpsAgent: httpsAgent
+                //headers: {'X-Custom-Header': 'foobar'}
+            }
+        );
+
+        const onFailure = (err) => {
+            Logger.error(`Failed to install smart contract.`);
+            Logger.error(err);
+        };
+
+        this.installed_smart_contracts = new Map();
+
+        for (const iterator of this.smart_contracts_map) {
+            let k = iterator[0];
+            let element = iterator[1];
+            
+            await httpClient.post("/hyflexchain/scmi/install", element,
+            {
+                headers: {
+                    "Content-Type": "application/octet-stream"
+                }
+            }).then(response => {
+                if (response.status == 200) {
+                    Logger.error(`Installed smart contract: ` + k + ", " + response.data);
+                    this.installed_smart_contracts.set(k, Buffer.from(response.data, "hex"))
+                }
+                else {
+                    onFailure(response.statusText);
+                }
+            }).catch(reason => {
+                onFailure(reason);
+            });
+        }
     }
 
     async installSmartContract() {
-        // blockmess does not support smart contracts.
     }
 
     /**
@@ -112,6 +172,7 @@ class HyFlexChainConnector extends ConnectorBase {
         const destReplicasAddresses = Object.keys(
             require(replica_addresses_file_path)
         );
+
 
         let workersArgs = [];
 

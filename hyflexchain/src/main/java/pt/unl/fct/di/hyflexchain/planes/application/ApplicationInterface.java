@@ -6,6 +6,7 @@ import java.io.IOException;
 import org.apache.commons.cli.ParseException;
 
 import pt.unl.fct.di.hyflexchain.planes.application.lvi.LedgerViewInterface;
+import pt.unl.fct.di.hyflexchain.planes.application.scmi.SmartContractManagementInterface;
 import pt.unl.fct.di.hyflexchain.planes.application.ti.TransactionInterface;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusPlaneConfig;
 import pt.unl.fct.di.hyflexchain.util.config.MultiLedgerConfig;
@@ -23,6 +24,8 @@ public class ApplicationInterface
 	protected final LedgerViewInterface lvi;
 
 	protected final TransactionInterface ti;
+
+	protected final SmartContractManagementInterface scmi;
 
 	protected final MultiLedgerConfig config;
 
@@ -44,6 +47,7 @@ public class ApplicationInterface
 
 		this.lvi = LedgerViewInterface.getInstance();
 		this.ti = TransactionInterface.getInstance();
+		this.scmi = SmartContractManagementInterface.getInstance();
 
 		// init consensus plane
 		this.consensusPlaneConfig = new ConsensusPlaneConfig(config);
@@ -65,9 +69,16 @@ public class ApplicationInterface
 	}
 
 	/**
+	 * @return the scmi
+	 */
+	public SmartContractManagementInterface getScmi() {
+		return scmi;
+	}	
+
+	/**
 	 * @return the config
 	 */
 	public MultiLedgerConfig getConfig() {
 		return config;
-	}	
+	}
 }

@@ -4,6 +4,7 @@ import java.security.MessageDigest;
 import java.security.Signature;
 import java.security.SignatureException;
 
+import pt.unl.fct.di.hyflexchain.planes.execution.SmartContractAddress;
 import pt.unl.fct.di.hyflexchain.util.BytesOps;
 import pt.unl.fct.di.hyflexchain.util.Utils;
 import pt.unl.fct.di.hyflexchain.util.crypto.HashOps;
@@ -28,6 +29,10 @@ public record SmartContract(Address id, byte[] code) implements BytesOps, HashOp
             Utils.serializer.getArraySerializerByte());
 
     private static final byte[] EMPTY_CODE = new byte[0];
+
+    public static SmartContract create(byte[] code) {
+        return new SmartContract(SmartContractAddress.random(), code);
+    }
 
     public static SmartContract reference(Address id) {
         return new SmartContract(id, EMPTY_CODE);

@@ -2,7 +2,9 @@ package pt.unl.fct.di.hyflexchain.planes.data.transaction;
 
 import java.io.IOException;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.security.Signature;
 import java.security.SignatureException;
 
@@ -33,6 +35,25 @@ public record Address(Bytes address) implements BytesOps, HashOps, SignatureOps 
 	public static final Serializer SERIALIZER = new Serializer();
 
 	public static final Address NULL_ADDRESS = new Address(Bytes.EMPTY);
+
+	private final static SecureRandom rand;
+
+	static {
+		try {
+			rand = SecureRandom.getInstanceStrong();
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+			throw new Error(e.getMessage(), e);
+		}
+	}
+
+
+	public static Address random(int size)
+	{
+		var bytes = new byte[size];
+		rand.nextBytes(bytes);
+		return new Address(Bytes.wrap(bytes));
+	}
 
 	public static Address fromHexString(String address)
 	{

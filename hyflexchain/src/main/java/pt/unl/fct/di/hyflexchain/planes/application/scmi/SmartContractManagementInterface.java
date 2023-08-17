@@ -2,7 +2,7 @@ package pt.unl.fct.di.hyflexchain.planes.application.scmi;
 
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.Address;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.TransactionType;
-
+import pt.unl.fct.di.hyflexchain.planes.application.ti.InvalidTransactionException;
 import pt.unl.fct.di.hyflexchain.planes.application.ti.TransactionInterface;
 
 /**
@@ -23,6 +23,11 @@ import pt.unl.fct.di.hyflexchain.planes.application.ti.TransactionInterface;
  */
 public interface SmartContractManagementInterface {
 	
+	static SmartContractManagementInterface getInstance()
+	{
+		return SCMIImpl.getInstance();
+	}
+
 	/**
 	 * Create a new smart contract with the provided code.
 	 * The owner of the newly created smart contract is
@@ -30,7 +35,7 @@ public interface SmartContractManagementInterface {
 	 * @param contractCode The code of the smart contract.
 	 * @return The address of the newly created smart contract.
 	 */
-	Address installSmartContract(byte[] contractCode);
+	String installSmartContract(byte[] contractCode) throws InvalidTransactionException;
 
 	/**
 	 * Revoke the specified smart contract.
@@ -39,6 +44,6 @@ public interface SmartContractManagementInterface {
 	 * @param contractAddress The address of the smart contract to revoke
 	 * @return The address of the revoked smart contract.
 	 */
-	Address revokeSmartContract(Address contractAddress);
+	String revokeSmartContract(Address contractAddress) throws InvalidTransactionException;
 
 }

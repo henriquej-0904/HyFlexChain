@@ -1,6 +1,5 @@
 package pt.unl.fct.di.hyflexchain.planes.consensus.mechanisms.bftsmart.replylistener;
 
-import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -42,6 +41,8 @@ public class BftSmartReplyListener implements ReplyListener
 
     protected Consumer<MultiSignedReply> postAction;
 
+    protected boolean complete;
+
     /**
      * Create a new Reply Listener for BFT-SMaRt that waits for
      * the specified number of replies.
@@ -63,6 +64,8 @@ public class BftSmartReplyListener implements ReplyListener
         this.minReplies = minReplies;
         this.replies = new LinkedList<>();
         this.requestId = -1;
+
+        this.complete = false;
     }
 
     /**
@@ -104,7 +107,10 @@ public class BftSmartReplyListener implements ReplyListener
     @Override
     public void replyReceived(RequestContext arg0, TOMMessage arg1)
     {
-        LOG.info("Received BFT-SMART reply!");
+        if (this.complete)
+            return;
+
+        // LOG.info("Received BFT-SMART reply!");
 
         if (this.requestId == -1)
             this.requestId = arg0.getOperationId();
@@ -146,6 +152,7 @@ public class BftSmartReplyListener implements ReplyListener
             {
                 proxy.cleanAsynchRequest(this.requestId);
                 this.postAction.accept(this.topReply);
+                this.complete = true;
             }
 
         } catch (Exception e) {

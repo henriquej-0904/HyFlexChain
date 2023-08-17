@@ -155,15 +155,19 @@ public class PowConsensus extends ConsensusInterface
 
 		byte[] requestBytes = createSerializedBlockProposal(txs, merkleTree);
 
+		final long before = System.currentTimeMillis();
+
 		blockmess.invokeAsyncOperation(requestBytes,
 				(reply) -> {
+					final long after = System.currentTimeMillis();
 
 					boolean res = Arrays.equals(TRUE, reply.getLeft());
 
 					TransactionManagement.getInstance().getTxPool(POW)
 							.removePendingTxsAndNotify(txHashes, res);
 
-					// LOG.info("blockmess reply: {}", reply);
+					if (res)
+						LOG.info("[{}] Block latency (ms): {}", consensus, after - before);
 				});
 	}
 
@@ -393,8 +397,8 @@ public class PowConsensus extends ConsensusInterface
 
 				DataPlane.getInstance().writeOrderedBlock(block, POW);
     
-				LOG.info("Appended valid block with size=" + block.obj().serializedSize() + " & hash: " +
-					block.hash());
+				LOG.info("[{}] Appended valid block with size={} & hash={}", consensus,
+					block.obj().serializedSize(), block.hash());
 
 				return TRUE;
                 

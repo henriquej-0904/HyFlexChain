@@ -249,10 +249,14 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
 
         try {
             SerializedBlock proposedBlock = createSerializedBlockProposal(txs, merkleTree);
-
             var listener = createReplyListener();
+
+            final long before = System.currentTimeMillis();
+
             listener.submitAsyncOrderedRequest(proposedBlock.block, (reply) -> {
                 try {
+                    final long after = System.currentTimeMillis();
+
                     BftsmartConsensusResult result = BftsmartConsensusResult.SERIALIZER.deserialize(
                             Unpooled.wrappedBuffer(reply.getReplyBytes()));
 
@@ -262,9 +266,12 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
                     TransactionManagement.getInstance().getTxPool(this.consensus)
                             .removePendingTxsAndNotify(txHashes, res);
 
-                    if (!res) {
-                        LOG.info("BFT-SMART: Invalided block from committee with {} signatures",
-                                reply.getSignaturesCount());
+                    if (res)
+						LOG.info("[{}] Block latency (ms): {}", consensus, after - before);
+                    else
+                    {
+                        LOG.info("[{}] Invalided block from committee with {} signatures",
+                                consensus, reply.getSignaturesCount());
 
                         return;
                     }
@@ -584,7 +591,7 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
             var signedReply = reply.signReply(
                     this.selfAddress, this.selfKeyPair.getPrivate(), this.sigAlg);
 
-            LOG.info("BFT-SMART: Accepted block with hash: " + merkleTree.getMerkleRootHash());
+            LOG.info("[{}] Committee: Accepted block with hash: {}", consensus, merkleTree.getMerkleRootHash());
 
             var replyBytes = signedReply.serialize();
 
@@ -658,8 +665,11 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
                     return;
                 }
 
-                LOG.info("BFT-SMART (Blockmess): Received valid block from committee with hash: " +
-                        hashedBlock.hash());
+                LOG.info("[{}] Appended valid block with size={} & hash={}", consensus,
+					data.length, hashedBlock.hash());
+
+                // LOG.info("BFT-SMART (Blockmess): Received valid block from committee with hash: " +
+                //         hashedBlock.hash());
 
                 blockProcessor.processBlock(hashedBlock);
 

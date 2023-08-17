@@ -1,7 +1,6 @@
 package pt.unl.fct.di.hyflexchain.planes.consensus.mechanisms.bftsmart.replylistener;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
 import java.security.PrivateKey;
 import java.security.SignatureException;

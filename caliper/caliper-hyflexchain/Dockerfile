@@ -17,7 +17,8 @@ RUN caliper bind --caliper-bind-file sut.yaml
 COPY --chown=node:node lib ./lib
 COPY --chown=node:node launch-master.sh ./
 
-ENV CALIPER_BENCHCONFIG=config/benchmark_with_sc_pow_bftsmart.yaml
+# ENV CALIPER_BENCHCONFIG=config/benchmark_with_sc_pow_bftsmart.yaml
+ENV CALIPER_BENCHCONFIG=config/benchmark_mixed_pow_bftsmart.yaml
 ENV CALIPER_NETWORKCONFIG=config/networkconfig.json
 
 USER root

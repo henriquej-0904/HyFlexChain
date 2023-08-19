@@ -3,19 +3,19 @@ test:
     number: 2
   rounds:
 
-    - label: Submit 5000 Transactions 50 tps
-      description: Test description for transfering money between accounts.
-      # txDuration: 60
-      txNumber: 5000
-      rateControl:
-        type: fixed-rate
-        opts:
-          tps: 50
-      workload:
-        module: lib/benchmarks/CreateTransactionPowWithSC.js
+    # - label: Submit 5000 Transactions 50 tps - Mixed(PoW - 50%, BFT-SMaRt - 50%)
+    #   description: Submit BFT-SMaRt transactions
+    #   # txDuration: 60
+    #   txNumber: 5000
+    #   rateControl:
+    #     type: fixed-rate
+    #     opts:
+    #       tps: 50
+    #   workload:
+    #     module: lib/benchmarks/CreateTransactionPoW_BftsmartWithSC.js
 
-    - label: Submit 10000 Transactions 100 tps
-      description: Test description for transfering money between accounts.
+    - label: Submit 10000 Transactions 100 tps - Mixed(PoW - 50%, BFT-SMaRt - 50%)
+      description: Submit BFT-SMaRt transactions
       # txDuration: 60
       txNumber: 10000
       rateControl:
@@ -23,9 +23,9 @@ test:
         opts:
           tps: 100
       workload:
-        module: lib/benchmarks/CreateTransactionPowWithSC.js
+        module: lib/benchmarks/CreateTransactionPoW_BftsmartWithSC.js
 
-    - label: Submit 20000 Transactions 200 tps
+    - label: Submit 20000 Transactions 200 tps - Mixed(PoW - 50%, BFT-SMaRt - 50%)
       description: Test description for transfering money between accounts.
       # txDuration: 60
       txNumber: 20000
@@ -34,9 +34,9 @@ test:
         opts:
           tps: 200
       workload:
-        module: lib/benchmarks/CreateTransactionPowWithSC.js
+        module: lib/benchmarks/CreateTransactionPoW_BftsmartWithSC.js
 
-    - label: Submit 40000 Transactions 400 tps
+    - label: Submit 40000 Transactions 400 tps - Mixed(PoW - 50%, BFT-SMaRt - 50%)
       description: Test description for transfering money between accounts.
       # txDuration: 60
       txNumber: 40000
@@ -45,9 +45,9 @@ test:
         opts:
           tps: 400
       workload:
-        module: lib/benchmarks/CreateTransactionPowWithSC.js
+        module: lib/benchmarks/CreateTransactionPoW_BftsmartWithSC.js
 
-    - label: Submit 80000 Transactions 800 tps
+    - label: Submit 80000 Transactions 800 tps - Mixed(PoW - 50%, BFT-SMaRt - 50%)
       description: Test description for transfering money between accounts.
       # txDuration: 60
       txNumber: 80000
@@ -56,7 +56,7 @@ test:
         opts:
           tps: 800
       workload:
-        module: lib/benchmarks/CreateTransactionPowWithSC.js
+        module: lib/benchmarks/CreateTransactionPoW_BftsmartWithSC.js
   
 # monitors:
 #   resource:

@@ -19,6 +19,7 @@ import pt.unl.fct.di.hyflexchain.planes.data.transaction.SerializedTx;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.TransactionType;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.wrapper.TxWrapper;
 import pt.unl.fct.di.hyflexchain.planes.execution.ExecutionPlane;
+import pt.unl.fct.di.hyflexchain.planes.execution.ExecutionPlaneUpdater;
 import pt.unl.fct.di.hyflexchain.planes.execution.contracts.InvalidSmartContractException;
 import pt.unl.fct.di.hyflexchain.planes.execution.contracts.TransactionParamsContract.TransactionParamsContractResult;
 import pt.unl.fct.di.hyflexchain.planes.txmanagement.txpool.TxPool;
@@ -200,7 +201,8 @@ public class TransactionManagementV2_0 implements TransactionManagement
 
 	@Override
 	public void executeTransactions(Collection<HyFlexChainTransaction> txs) throws InvalidTransactionException {
-		var execUpdater = ExecutionPlane.getInstance().getUpdater();
+		
+		ExecutionPlaneUpdater execUpdater = null;
 
 		try {
 			for (var tx : txs) {
@@ -210,12 +212,16 @@ public class TransactionManagementV2_0 implements TransactionManagement
 					case COMMITTEE_ROTATION:
 						break;
 					case CONTRACT_CREATE:
+						if (execUpdater == null)
+							execUpdater = ExecutionPlane.getInstance().getUpdater();
 						execUpdater
 								.deploySmartContract(tx.getSender(),
 										tx.getSmartContract().id(),
 										Bytes.wrap(tx.getSmartContract().code()));
 						break;
 					case CONTRACT_REVOKE:
+						if (execUpdater == null)
+							execUpdater = ExecutionPlane.getInstance().getUpdater();
 						execUpdater
 								.revokeSmartContract(tx.getSender(),
 										tx.getSmartContract().id());
@@ -231,7 +237,8 @@ public class TransactionManagementV2_0 implements TransactionManagement
 			throw new InvalidTransactionException(e.getMessage(), e);
 		}
 
-		execUpdater.commit();
+		if (execUpdater != null)
+			execUpdater.commit();
 	}
 	
 }

@@ -36,7 +36,7 @@ public class HyFlexChainTI_Resource implements TransactionInterfaceRest {
 		try {
 			return hyflexchainInterface.getTi().sendTransactionAndWait(TxWrapper.from(tx));
 		} catch (InvalidTransactionException e) {
-			LOG.info(e.getMessage());
+			e.printStackTrace();
 			throw new BadRequestException(e.getMessage(), e);
 		}
 	}
@@ -46,7 +46,7 @@ public class HyFlexChainTI_Resource implements TransactionInterfaceRest {
 		try {
 			return hyflexchainInterface.getTi().sendTransactionAndWait(TxWrapper.from(tx));
 		} catch (InvalidTransactionException e) {
-			LOG.info(e.getMessage());
+			e.printStackTrace();
 			throw new BadRequestException(e.getMessage(), e);
 		}
 	}

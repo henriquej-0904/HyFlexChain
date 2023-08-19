@@ -18,8 +18,6 @@ docker network create $network_name
 
 docker run --rm -d --name $replica_name -h $replica_name  \
 	--network $network_name -p $server_port:$server_port \
-	-v "$(pwd)/tls-config/$replica_name:/app/tls-config/$replica_name" \
-	-v "$(pwd)/tls-config/truststore.pkcs12:/app/tls-config/truststore.pkcs12" \
 	-v "$(pwd)/hyflexchain-config:/app/hyflexchain-config" \
 	-v "$(pwd)/blockmess/config:/app/blockmess-config" \
 	-v "$(pwd)/blockmess/keys:/app/keys" \

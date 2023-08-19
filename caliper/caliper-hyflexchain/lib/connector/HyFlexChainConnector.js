@@ -132,7 +132,7 @@ class HyFlexChainConnector extends ConnectorBase {
             }).then(response => {
                 if (response.status == 200) {
                     Logger.error(`Installed smart contract: ` + k + ", " + response.data);
-                    this.installed_smart_contracts.set(k, Buffer.from(response.data, "hex"))
+                    this.installed_smart_contracts.set(k, response.data);
                 }
                 else {
                     onFailure(response.statusText);
@@ -141,6 +141,8 @@ class HyFlexChainConnector extends ConnectorBase {
                 onFailure(reason);
             });
         }
+        
+        Logger.error("installed contracts: " + JSON.stringify(Object.fromEntries(this.installed_smart_contracts)));
     }
 
     async installSmartContract() {
@@ -173,14 +175,14 @@ class HyFlexChainConnector extends ConnectorBase {
             require(replica_addresses_file_path)
         );
 
-
         let workersArgs = [];
 
         for (let i = 0; i < number; i++) {
             workersArgs[i] = new WorkerArgs(
                 this.hyflexchainConfig.url[i],
                 encodedWorkersKeys[i],
-                destReplicasAddresses
+                destReplicasAddresses,
+                Object.fromEntries(this.installed_smart_contracts)
             );
         }
 

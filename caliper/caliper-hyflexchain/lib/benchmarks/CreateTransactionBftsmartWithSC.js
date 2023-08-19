@@ -43,9 +43,18 @@ class CreateTransactionBftsmartWorkload extends WorkloadModuleBase {
      */
     async submitTransaction() {
 
-        if (!this.contractData)
+        if (!this.smartContract)
         {
-            this.contractData = this.sutAdapter.smart_contracts_map.get("bftsmart");
+            // reference smart contract
+            if (this.sutAdapter.hyflexchainConfig.reference_smart_contract)
+            {
+                const ref = this.sutContext.installedContracts.get("bftsmart");
+                this.smartContract = HyFlexChainTransaction.smartContractRef(ref);
+            } else // pyggyback smart contract
+            {
+                const contractData = this.sutAdapter.smart_contracts_map.get("bftsmart");
+                this.smartContract = HyFlexChainTransaction.smartContractCode(contractData);
+            }
         }
 
         const originPubKey = Buffer.from("01" + this.sutContext.encodedPublicKey, 'hex');
@@ -56,7 +65,7 @@ class CreateTransactionBftsmartWorkload extends WorkloadModuleBase {
         const outputTxs = [HyFlexChainTransaction.createOutputTx(destAddress, val)];
         const tx = new HyFlexChainTransaction(HyFlexChainTransaction.TRANSFER, originPubKey, inputTxs, outputTxs);
         tx.nonce = this.txIndex;
-        tx.smartContract = HyFlexChainTransaction.smartContractCode(this.contractData);
+        tx.smartContract = this.smartContract;
 
         this.txIndex++;
 

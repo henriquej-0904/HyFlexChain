@@ -25,6 +25,15 @@ class Context
 
         this.destAddresses = workerArgs.getDestAddresses()
             .map(a => Buffer.from(a.substring(2), "hex"));
+
+        const installedContracts = new Map(Object.entries(workerArgs.getInstalledContracts()));
+        // console.log(installedContracts);
+        this.installedContracts = new Map();
+        installedContracts.forEach((v, k) => {
+            this.installedContracts.set(k, Buffer.from(v.substring(2), "hex"));
+        });
+
+        // console.log(Object.fromEntries(this.installedContracts));
     }
 
     /**
@@ -57,6 +66,11 @@ class Context
     getDestAddresses()
     {
         return this.destAddresses;
+    }
+
+    getInstalledContracts()
+    {
+        return this.installedContracts;
     }
 }
 

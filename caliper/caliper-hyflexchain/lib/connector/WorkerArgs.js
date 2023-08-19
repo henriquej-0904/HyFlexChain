@@ -11,7 +11,7 @@ class WorkerArgs
      */
     static fromArgs(obj)
     {
-        return new WorkerArgs(obj.url, obj.keyPair, obj.destAddresses);
+        return new WorkerArgs(obj.url, obj.keyPair, obj.destAddresses, obj.installedContracts);
     }
 
     /**
@@ -19,12 +19,14 @@ class WorkerArgs
      * @param {string} url the url of the replica to connect to
      * @param {string[]} keyPair the key pair of this worker
      * @param {string[]} destAddresses the destination addresses for generated transactions
+     * @param installedContracts the installed smart contracts
      */
-    constructor(url, keyPair, destAddresses)
+    constructor(url, keyPair, destAddresses, installedContracts)
     {
         this.url = url;
         this.keyPair = keyPair;
         this.destAddresses = destAddresses;
+        this.installedContracts = installedContracts;
     }
 
     /**
@@ -49,6 +51,11 @@ class WorkerArgs
     getDestAddresses()
     {
         return this.destAddresses;
+    }
+
+    getInstalledContracts()
+    {
+        return this.installedContracts;
     }
 }
 

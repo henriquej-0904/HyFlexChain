@@ -50,6 +50,7 @@ import pt.unl.fct.di.hyflexchain.planes.data.transaction.SerializedTx;
 import pt.unl.fct.di.hyflexchain.planes.network.Host;
 import pt.unl.fct.di.hyflexchain.planes.txmanagement.TransactionManagement;
 import pt.unl.fct.di.hyflexchain.util.BytesOps;
+import pt.unl.fct.di.hyflexchain.util.ResetInterface;
 import pt.unl.fct.di.hyflexchain.util.Utils;
 import pt.unl.fct.di.hyflexchain.util.config.MultiLedgerConfig;
 import pt.unl.fct.di.hyflexchain.util.crypto.Crypto;
@@ -124,7 +125,7 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
         // check if this node is in the committee
         if (this.staticCommittee.getMiddle().getCommittee().contains(selfAddress)) {
             // init bft smart
-            this.bftSmartReplica = new BFT_SMaRtServiceReplica(this.staticCommittee.getMiddle());
+            this.bftSmartReplica = new BFT_SMaRtServiceReplica();
         }
 
         // init blockmess connector
@@ -135,6 +136,19 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
                         () -> this.staticCommittee),
                 "BFT-SMaRt-Consensus-Thread")
                 .start();
+    }
+
+    @Override
+    public void reset() {
+        ((ResetInterface) this.blockProcessor).reset();
+        this.staticCommittee = getStaticCommittee();
+
+        var selfAddress = config.getLedgerConfig().getMultiLedgerConfig().getSelfAddress();
+        // check if this node is in the committee
+        if (this.staticCommittee.getMiddle().getCommittee().contains(selfAddress)) {
+            // reset bft smart
+            ((ResetInterface) this.bftSmartReplica).reset();
+        }
     }
 
     protected Triple<CommitteeId, BftCommittee, Map<Address, Host>> getStaticCommittee() {
@@ -461,14 +475,14 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
     /**
      * An implementation of the BFT-SMaRT replica.
      */
-    protected class BFT_SMaRtServiceReplica extends DefaultSingleRecoverable {
+    protected class BFT_SMaRtServiceReplica extends DefaultSingleRecoverable implements ResetInterface {
         protected static final Logger LOG = LoggerFactory.getLogger(BFT_SMaRtServiceReplica.class);
 
         protected final byte[] EMPTY = new byte[0];
 
         protected final ServiceReplica replica;
 
-        protected final BftCommittee committee;
+        protected BftCommittee committee;
         protected final long nBlocksValidity;
         protected long successfullOrderedBlocks;
 
@@ -478,7 +492,7 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
 
         protected Bytes lastBlockHash;
 
-        protected BFT_SMaRtServiceReplica(BftCommittee committee) {
+        protected BFT_SMaRtServiceReplica() {
             var config = BftSmartStaticCommitteeConsensus.this.config;
             this.replica = new ServiceReplica(
                     config.getBftSmartReplicaId(),
@@ -486,7 +500,7 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
                     // config.getBftSmartConfigFolder().getAbsolutePath(),
                     this, this, null, new DefaultReplier(), null);
 
-            this.committee = committee;
+            this.committee = staticCommittee.getMiddle();
             this.nBlocksValidity = this.committee.getBftCriteria().getValidity().blocks();
             this.successfullOrderedBlocks = 0;
 
@@ -494,6 +508,13 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
             this.selfAddress = multiledgerConfig.getSelfAddress();
             this.selfKeyPair = multiledgerConfig.getSelfKeyPair();
             this.sigAlg = Crypto.DEFAULT_SIGNATURE_TRANSFORMATION;
+            this.lastBlockHash = lvi.getLastBlockHash(consensus);
+        }
+
+        @Override
+        public void reset() {
+            this.committee = staticCommittee.getMiddle();
+            this.successfullOrderedBlocks = 0;
             this.lastBlockHash = lvi.getLastBlockHash(consensus);
         }
 

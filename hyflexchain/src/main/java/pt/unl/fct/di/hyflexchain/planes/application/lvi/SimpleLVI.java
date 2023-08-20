@@ -21,10 +21,11 @@ import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
 import pt.unl.fct.di.hyflexchain.planes.data.ledger.LedgerState;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.TransactionState;
+import pt.unl.fct.di.hyflexchain.util.ResetInterface;
 import pt.unl.fct.di.hyflexchain.util.config.MultiLedgerConfig;
 import pt.unl.fct.di.hyflexchain.util.crypto.HashedObject;
 
-public class SimpleLVI implements LedgerViewInterface {
+public class SimpleLVI implements LedgerViewInterface, ResetInterface {
 
 	private static SimpleLVI instance;
 
@@ -74,6 +75,13 @@ public class SimpleLVI implements LedgerViewInterface {
 		}
 
 		return null;
+	}
+
+	@Override
+	public void reset() {
+		for (var lvi : this.lvis.values()) {
+			((ResetInterface) lvi).reset();
+		}
 	}
 
 	@Override

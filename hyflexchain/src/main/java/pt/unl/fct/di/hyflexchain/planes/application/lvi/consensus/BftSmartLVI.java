@@ -50,6 +50,27 @@ public class BftSmartLVI extends LedgerViewConsensusImpl {
     }
 
     @Override
+	public void reset() {
+		super.reset();
+
+		this.committees.clear();
+		this.committees.put(CommitteeId.FIRST_COMMITTEE_ID,
+			new StaticElection(config).performCommitteeElection(config.getStaticElectionCriteria())
+				.get());
+
+		this.currentCommittee = null;
+
+		this.data.uponNewBftCommitteeBlock((b, c) ->
+			addCommittee(
+				new CommitteeId(
+					c.getId(),
+					b.hash()
+				),
+				c
+			));
+	}
+
+	@Override
 	public Entry<CommitteeId, BftCommittee> getActiveCommittee() {
 		return this.currentCommittee;
 	}

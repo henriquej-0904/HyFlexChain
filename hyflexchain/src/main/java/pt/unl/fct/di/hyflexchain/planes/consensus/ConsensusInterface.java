@@ -19,13 +19,14 @@ import pt.unl.fct.di.hyflexchain.planes.execution.ExecutionPlane;
 import pt.unl.fct.di.hyflexchain.planes.execution.contracts.InvalidSmartContractException;
 import pt.unl.fct.di.hyflexchain.planes.execution.contracts.TransactionParamsContract.TransactionParamsContractResult;
 import pt.unl.fct.di.hyflexchain.planes.txmanagement.TransactionManagement;
+import pt.unl.fct.di.hyflexchain.util.ResetInterface;
 import pt.unl.fct.di.hyflexchain.util.config.MultiLedgerConfig;
 
 /**
  * Represents the interface for interacting with a specific
  * consensus mechanism.
  */
-public abstract class ConsensusInterface
+public abstract class ConsensusInterface implements ResetInterface
 {
 	protected static final Logger LOG = LoggerFactory.getLogger(ConsensusInterface.class);
 

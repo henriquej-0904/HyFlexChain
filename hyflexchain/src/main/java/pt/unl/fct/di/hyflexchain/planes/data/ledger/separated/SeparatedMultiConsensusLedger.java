@@ -18,6 +18,7 @@ import pt.unl.fct.di.hyflexchain.planes.data.block.BlockState;
 import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
 import pt.unl.fct.di.hyflexchain.planes.data.ledger.LedgerState;
 import pt.unl.fct.di.hyflexchain.planes.data.ledger.separated.inmemory.InMemoryLedger;
+import pt.unl.fct.di.hyflexchain.util.ResetInterface;
 import pt.unl.fct.di.hyflexchain.util.config.MultiLedgerConfig;
 import pt.unl.fct.di.hyflexchain.util.crypto.HashedObject;
 
@@ -26,7 +27,7 @@ import pt.unl.fct.di.hyflexchain.util.crypto.HashedObject;
  * for each different consensus mechanism. So, the state of
  * those multiple ledger instances is never merged.
  */
-public class SeparatedMultiConsensusLedger implements DataPlane
+public class SeparatedMultiConsensusLedger implements DataPlane, ResetInterface
 {
 	protected static SeparatedMultiConsensusLedger instance;
 
@@ -49,7 +50,7 @@ public class SeparatedMultiConsensusLedger implements DataPlane
 
 	protected final MultiLedgerConfig configs;
 
-	protected final EnumMap<ConsensusMechanism, ConsensusSpecificLedger> ledgerByConsensus;
+	protected EnumMap<ConsensusMechanism, ConsensusSpecificLedger> ledgerByConsensus;
 
 	protected BiConsumer<HashedObject<HyFlexChainBlock>, BftCommittee> uponNewBftCommittee;
 
@@ -87,6 +88,12 @@ public class SeparatedMultiConsensusLedger implements DataPlane
 	protected ConsensusSpecificLedger getLedgerInstance(ConsensusMechanism consensus)
 	{
 		return this.ledgerByConsensus.get(consensus);
+	}
+
+	@Override
+	public void reset() {
+		this.ledgerByConsensus = initLedgers(HyFlexChainBlock.GENESIS_BLOCK);
+		this.uponNewBftCommittee = null;
 	}
 
 	@Override

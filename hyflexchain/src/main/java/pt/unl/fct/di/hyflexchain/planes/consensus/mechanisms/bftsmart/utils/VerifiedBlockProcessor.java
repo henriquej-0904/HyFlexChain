@@ -10,6 +10,7 @@ import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.consensus.committees.CommitteeId;
 import pt.unl.fct.di.hyflexchain.planes.data.DataPlane;
 import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
+import pt.unl.fct.di.hyflexchain.util.ResetInterface;
 import pt.unl.fct.di.hyflexchain.util.crypto.HashedObject;
 
 /**
@@ -17,7 +18,7 @@ import pt.unl.fct.di.hyflexchain.util.crypto.HashedObject;
  * save verified blocks. When there are consecutive blocks
  * they are written to the ledger.
  */
-public class VerifiedBlockProcessor {
+public class VerifiedBlockProcessor implements ResetInterface {
     
     private final ConsensusMechanism consensus;
     
@@ -43,6 +44,11 @@ public class VerifiedBlockProcessor {
         this.lvi = lvi;
         this.ledger = ledger;
         this.pendingBlocks = HashMap.newHashMap(10);
+    }
+
+    @Override
+    public void reset() {
+        this.pendingBlocks.clear();
     }
 
     protected Map<Bytes, HashedObject<HyFlexChainBlock>> getPendingBlocks(CommitteeId committeeId)
@@ -110,6 +116,4 @@ public class VerifiedBlockProcessor {
             lastBlockHash = block.hash();
         }
     }
-
-
 }

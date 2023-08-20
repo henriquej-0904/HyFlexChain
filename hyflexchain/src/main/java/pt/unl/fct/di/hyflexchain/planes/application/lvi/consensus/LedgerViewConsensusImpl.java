@@ -22,9 +22,10 @@ import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.TransactionState;
 import pt.unl.fct.di.hyflexchain.planes.txmanagement.TransactionManagement;
 import pt.unl.fct.di.hyflexchain.planes.txmanagement.txpool.TxPool;
+import pt.unl.fct.di.hyflexchain.util.ResetInterface;
 import pt.unl.fct.di.hyflexchain.util.crypto.HashedObject;
 
-public class LedgerViewConsensusImpl implements LedgerViewConsensusInterface {
+public class LedgerViewConsensusImpl implements LedgerViewConsensusInterface, ResetInterface {
 
 	protected final ConsensusMechanism consensus;
 
@@ -42,7 +43,7 @@ public class LedgerViewConsensusImpl implements LedgerViewConsensusInterface {
 	 * @param consensus
 	 * @param finalizedTxs
 	 */
-	public LedgerViewConsensusImpl(ConsensusMechanism consensus, Map<Bytes, HyFlexChainTransaction> finalizedTxs) {
+	protected LedgerViewConsensusImpl(ConsensusMechanism consensus, Map<Bytes, HyFlexChainTransaction> finalizedTxs) {
 		this.consensus = consensus;
 		this.finalizedTxs = finalizedTxs;
 
@@ -50,6 +51,13 @@ public class LedgerViewConsensusImpl implements LedgerViewConsensusInterface {
 		this.data.uponNewBlock((block) ->
 			this.finalizedTxs.putAll(block.obj().body().findTransactions()), consensus);
 
+	}
+
+	@Override
+	public void reset() {
+		this.finalizedTxs.clear();
+		this.data.uponNewBlock((block) ->
+			this.finalizedTxs.putAll(block.obj().body().findTransactions()), consensus);
 	}
 
 	@Override

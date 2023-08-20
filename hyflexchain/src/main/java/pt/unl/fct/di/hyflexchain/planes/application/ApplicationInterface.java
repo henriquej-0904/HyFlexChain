@@ -4,11 +4,16 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import org.apache.commons.cli.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import pt.unl.fct.di.hyflexchain.planes.application.lvi.LedgerViewInterface;
 import pt.unl.fct.di.hyflexchain.planes.application.scmi.SmartContractManagementInterface;
 import pt.unl.fct.di.hyflexchain.planes.application.ti.TransactionInterface;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusPlaneConfig;
+import pt.unl.fct.di.hyflexchain.planes.data.DataPlane;
+import pt.unl.fct.di.hyflexchain.planes.txmanagement.TransactionManagement;
+import pt.unl.fct.di.hyflexchain.util.ResetInterface;
 import pt.unl.fct.di.hyflexchain.util.config.MultiLedgerConfig;
 
 /**
@@ -19,8 +24,10 @@ import pt.unl.fct.di.hyflexchain.util.config.MultiLedgerConfig;
  * 
  * There must be only one instance of this class per java process.
  */
-public class ApplicationInterface
+public class ApplicationInterface implements ResetInterface
 {
+	private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationInterface.class);
+
 	protected final LedgerViewInterface lvi;
 
 	protected final TransactionInterface ti;
@@ -80,5 +87,15 @@ public class ApplicationInterface
 	 */
 	public MultiLedgerConfig getConfig() {
 		return config;
+	}
+
+	@Override
+	public synchronized void reset() {
+		LOGGER.info("Resetting state...");
+		((ResetInterface) DataPlane.getInstance()).reset();
+		((ResetInterface) TransactionManagement.getInstance()).reset();
+		((ResetInterface) this.lvi).reset();
+		((ResetInterface) this.consensusPlaneConfig).reset();
+		LOGGER.info("Reset complete with success!");
 	}
 }

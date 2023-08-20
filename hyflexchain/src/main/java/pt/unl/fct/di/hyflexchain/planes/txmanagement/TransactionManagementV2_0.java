@@ -23,6 +23,7 @@ import pt.unl.fct.di.hyflexchain.planes.execution.ExecutionPlaneUpdater;
 import pt.unl.fct.di.hyflexchain.planes.execution.contracts.InvalidSmartContractException;
 import pt.unl.fct.di.hyflexchain.planes.execution.contracts.TransactionParamsContract.TransactionParamsContractResult;
 import pt.unl.fct.di.hyflexchain.planes.txmanagement.txpool.TxPool;
+import pt.unl.fct.di.hyflexchain.util.ResetInterface;
 import pt.unl.fct.di.hyflexchain.util.config.MultiLedgerConfig;
 
 /**
@@ -31,7 +32,7 @@ import pt.unl.fct.di.hyflexchain.util.config.MultiLedgerConfig;
  * i.e., there are 2 consensus and a smart contract is executed
  * to obtain consensus parameters for the ordering of a specific transaction.
  */
-public class TransactionManagementV2_0 implements TransactionManagement
+public class TransactionManagementV2_0 implements TransactionManagement, ResetInterface
 {
 	private static final Logger LOGGER = LoggerFactory.getLogger(TransactionManagementV2_0.class);
 
@@ -46,6 +47,13 @@ public class TransactionManagementV2_0 implements TransactionManagement
         MultiLedgerConfig.getInstance().getActiveConsensusMechanisms().stream()
             .forEach((c) -> this.txPools.put(c, new TxPool(c))
         );
+	}
+
+	@Override
+	public void reset() {
+		for (var txPool : this.txPools.values()) {
+			((ResetInterface) txPool).reset();
+		}
 	}
 
 	@Override

@@ -85,6 +85,9 @@ public class PowConsensus extends ConsensusInterface
 		.start();
 	}
 
+	@Override
+	public void reset() {}
+
 	/* @Override
 	public void orderBlock(HyFlexChainBlock block)
 	{

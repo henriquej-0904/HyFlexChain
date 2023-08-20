@@ -19,13 +19,14 @@ import org.thavam.util.concurrent.blockingMap.BlockingMap;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.SerializedTx;
+import pt.unl.fct.di.hyflexchain.util.ResetInterface;
 import pt.unl.fct.di.hyflexchain.util.crypto.HashedObject;
 
 /**
  * A transaction pool of pending transactions for a specific consensus
  * mechanism.
  */
-public class TxPool
+public class TxPool implements ResetInterface
 {
 	public static final int WAIT_MILLIS = 10;
 	public static final int PENDING_INIT_SIZE = 1000;
@@ -39,7 +40,7 @@ public class TxPool
 	 * A map of tx hash and result. It represents the
 	 * result of a processed transaction.
 	 */
-	private final BlockingMap<Bytes, Boolean> finished;
+	private BlockingMap<Bytes, Boolean> finished;
 
 	private final Map<Bytes, SerializedTx> waitingForFinalization;
 
@@ -61,6 +62,17 @@ public class TxPool
 		this.finished = new BlockingHashMap<>();
 
 		this.lock = new ReentrantLock();
+	}
+
+	@Override
+	public void reset() {
+		this.lock.lock();
+
+		this.waitingForFinalization.clear();
+		this.pending.clear();
+		this.finished = new BlockingHashMap<>();
+		
+		this.lock.unlock();
 	}
 
 	/**

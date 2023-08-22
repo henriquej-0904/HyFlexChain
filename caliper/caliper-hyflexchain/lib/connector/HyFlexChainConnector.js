@@ -332,11 +332,11 @@ class HyFlexChainConnector extends ConnectorBase {
                     return status;
                 }
                 else {
-                    onFailure(response.statusText);
+                    onFailure(this.context.getUrl() + "\n" + response.statusText);
                     return status;
                 }
             }).catch(reason => {
-                onFailure(reason);
+                onFailure(this.context.getUrl() + "\n" + reason);
                 return status;
             });
     }

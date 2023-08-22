@@ -9,7 +9,7 @@ max_id=$2
 
 # echo "Starting Blockmess Servers"
 
-# ./run-blockmess_server.sh $min_id
+# ./run-blockmess_server.sh $min_id $3 $4
 
 # sleep 3
 
@@ -23,7 +23,7 @@ max_id=$2
 
 echo "Starting HyFlexChain servers"
 
-./run-server-cluster.sh $min_id
+./run-server-cluster.sh $min_id $3 $4
 
 sleep 3
 

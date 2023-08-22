@@ -9,7 +9,7 @@ replicaId=$1
 blockmess_port=`expr 12000 + $replicaId`
 blockmess_wrapper_port=`expr 15000 + $replicaId`
 
-network_name=hyflexchain
+network_name=host
 
 replica_name=blockmess-server-bft-smart-$replicaId
 
@@ -19,7 +19,7 @@ interface=eth0
 address=$2
 contact=$3
 
-docker network create $network_name
+# docker network create $network_name
 
 docker run --rm -d --name $replica_name -h $replica_name  \
 	--network $network_name \

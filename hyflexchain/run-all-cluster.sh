@@ -7,19 +7,19 @@ min_id=$1
 max_id=$2
 
 
-# echo "Starting Blockmess Servers"
+echo "Starting Blockmess Servers"
 
-# ./run-blockmess_server.sh $min_id $3 $4
+./run-blockmess_server-cluster.sh $min_id $3 $4
 
-# sleep 3
+sleep 3
 
-# for (( replicaId=$min_id+1; replicaId <= $max_id; replicaId++ ));
-# do
-#     ./run-blockmess_server.sh $replicaId $3 $4
-# done
+for (( replicaId=$min_id+1; replicaId <= $max_id; replicaId++ ));
+do
+    ./run-blockmess_server-cluster.sh $replicaId $3 $4
+done
 
-# echo "Done"
-# sleep 5
+echo "Done"
+sleep 5
 
 echo "Starting HyFlexChain servers"
 

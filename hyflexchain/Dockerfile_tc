@@ -1,9 +1,4 @@
-FROM ubuntu:22.04
-
-RUN apt update && apt -y upgrade && \
-apt -y install apt-utils iproute2 iputils-ping nload iperf hping3 vim procps \
-inetutils-traceroute iputils-ping tcpdump kmod \
-openjdk-19-jre && apt clean && rm -rf /var/lib/apt/lists/*
+FROM henriquej0904/hyflexchain:base-tc
 
 WORKDIR /app
 

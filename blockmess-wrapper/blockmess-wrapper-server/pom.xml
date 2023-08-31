@@ -190,7 +190,7 @@
         <configuration>
           <images>
             <image>
-              <name>henriquej0904/blockmess-wrapper-server</name>
+              <name>henriquej0904/hyflexchain:blockmess-wrapper-server</name>
               <build>
                 <dockerFile>${project.basedir}/Dockerfile</dockerFile>
               </build>

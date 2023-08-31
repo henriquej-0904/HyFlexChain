@@ -15,7 +15,7 @@ replica_name=replica-$replicaId
 # address=$replica_name
 # contact=replica-0:10000
 address=$2
-contact=$3
+contact=$3:10000
 
 # docker network create $network_name
 
@@ -27,7 +27,7 @@ docker run --rm -d --name $replica_name -h $replica_name  \
 	-v "$(pwd)/blockmess/config:/app/blockmess-config" \
 	-v "$(pwd)/blockmess/keys:/app/keys" \
 	-v "$(pwd)/blockmess/logs:/app/blockmess-logs" \
-	henriquej0904/hyflexchain-tc \
+	henriquej0904/hyflexchain:hyflexchain-tc \
 	hyflexchain-config/init_tc.sh java -Xmx2g -cp hyflexchain.jar:lib-bft-smart/* pt.unl.fct.di.hyflexchain.api.rest.impl.server.HyFlexChainServer \
 	$replicaId $server_port /app/hyflexchain-config \
 	-G KEYSTORE=hyflexchain-config/keys/$replica_name/keystore.pkcs12 \
@@ -36,7 +36,7 @@ docker run --rm -d --name $replica_name -h $replica_name  \
 	-POW BLOCKMESS_ADDRESS=$address \
 	-POW BLOCKMESS_CONTACT=$contact \
 	-BFT_SMART BFT_SMaRt_Replica_Id=$replicaId \
-	-BFT_SMART Blockmess_Connector_Host=localhost \
+	-BFT_SMART Blockmess_Connector_Host=blockmess-server-bft-smart-$replicaId \
 	-BFT_SMART Blockmess_Connector_Port=`expr 15000 + $replicaId`
 	
 

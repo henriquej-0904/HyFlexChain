@@ -1,0 +1,11 @@
+# Base HyFlexChain TC (Traffic Control) version
+
+FROM ubuntu:22.04
+
+RUN apt update && apt -y upgrade && \
+apt -y install apt-utils iproute2 iputils-ping nload iperf hping3 vim procps \
+inetutils-traceroute iputils-ping tcpdump kmod \
+openjdk-19-jre && apt clean && rm -rf /var/lib/apt/lists/*
+
+# tc qdisc add dev eth0 root netem rate 110mbit delay 75ms 20ms
+# docker run -it --network hyflexchain --cap-add NET_ADMIN XXXX

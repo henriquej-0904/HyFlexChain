@@ -3,7 +3,7 @@
   <groupId>blockmess</groupId>
   <artifactId>Blockmess_Simple_PoET</artifactId>
   <versioning>
-    <lastUpdated>20230822215907</lastUpdated>
+    <lastUpdated>20230829184516</lastUpdated>
     <snapshot>
       <localCopy>true</localCopy>
     </snapshot>
@@ -11,12 +11,7 @@
       <snapshotVersion>
         <extension>jar</extension>
         <value>1.0-SNAPSHOT</value>
-        <updated>20230822215907</updated>
-      </snapshotVersion>
-      <snapshotVersion>
-        <extension>pom</extension>
-        <value>1.0-SNAPSHOT</value>
-        <updated>20230822215907</updated>
+        <updated>20230829184516</updated>
       </snapshotVersion>
     </snapshotVersions>
   </versioning>

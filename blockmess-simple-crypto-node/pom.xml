@@ -21,8 +21,8 @@
 
   <repositories>
     <repository>
-        <id>blockmess_lib</id>
-        <url>file:///${project.basedir}/../dependencies/blockmess_lib</url>
+      <id>mydependencies</id>
+      <url>file:///${project.basedir}/../dependencies/</url>
     </repository>
   </repositories>
 

@@ -32,10 +32,10 @@
       <url>https://hyperledger.jfrog.io/artifactory/besu-maven/</url>
     </repository>
 
-    <repository>
+    <!-- <repository>
       <id>bft_smart</id>
       <url>https://maven.scijava.org/content/repositories/public/</url>
-    </repository>
+    </repository> -->
   </repositories>
 
   <dependencies>

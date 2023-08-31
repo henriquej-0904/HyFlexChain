@@ -1,0 +1,18 @@
+FROM ubuntu:22.04
+
+RUN apt update && apt -y upgrade && \
+apt -y install apt-utils iproute2 iputils-ping nload iperf hping3 vim procps \
+inetutils-traceroute iputils-ping tcpdump kmod \
+openjdk-19-jre && apt clean && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+RUN echo "security.provider.13=org.bouncycastle.jce.provider.BouncyCastleProvider" >> /usr/lib/jvm/java-19-openjdk-amd64/conf/security/java.security
+
+COPY lib-bft-smart /app/lib-bft-smart
+
+COPY target/hyflexchain-jar-with-dependencies.jar /app/hyflexchain.jar
+
+# ENTRYPOINT ["java", "-jar", "hyflexchain.jar"]
+# tc qdisc add dev eth0 root netem rate 110mbit delay 75ms 20ms
+# docker run --rm -it -h replica-x --network hyflexchain --cap-add NET_ADMIN teste

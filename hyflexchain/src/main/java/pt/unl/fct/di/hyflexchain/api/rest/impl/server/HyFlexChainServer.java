@@ -11,6 +11,7 @@ import org.glassfish.jersey.server.ResourceConfig;
 
 import pt.unl.fct.di.hyflexchain.api.rest.impl.server.config.MarshallingFeature;
 import pt.unl.fct.di.hyflexchain.api.rest.impl.server.resources.HyFlexChainSCMI_Resource;
+import pt.unl.fct.di.hyflexchain.api.rest.impl.server.resources.HyFlexChainStatsResource;
 import pt.unl.fct.di.hyflexchain.api.rest.impl.server.resources.HyFlexChainTI_Resource;
 import pt.unl.fct.di.hyflexchain.api.rest.impl.server.resources.settings.PrivateSettingsResource;
 import pt.unl.fct.di.hyflexchain.planes.application.ApplicationInterface;
@@ -55,6 +56,7 @@ public class HyFlexChainServer
 			// who own the key pair of this replica.
 			config.register(HyFlexChainSCMI_Resource.class);
 			config.register(PrivateSettingsResource.class);
+			config.register(HyFlexChainStatsResource.class);
             
 			SSLContext sslContext = app.getConfig().getSSLContextServer();
 			JdkHttpServerFactory.createHttpServer(uri, config, sslContext);

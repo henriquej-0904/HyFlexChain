@@ -15,6 +15,7 @@ import pt.unl.fct.di.hyflexchain.planes.data.DataPlane;
 import pt.unl.fct.di.hyflexchain.planes.txmanagement.TransactionManagement;
 import pt.unl.fct.di.hyflexchain.util.ResetInterface;
 import pt.unl.fct.di.hyflexchain.util.config.MultiLedgerConfig;
+import pt.unl.fct.di.hyflexchain.util.stats.BlockStats;
 
 /**
  * This class is responsible for separating the HyFlexChain internals from
@@ -92,6 +93,7 @@ public class ApplicationInterface implements ResetInterface
 	@Override
 	public synchronized void reset() {
 		LOGGER.info("Resetting state...");
+		BlockStats.reset();
 		((ResetInterface) DataPlane.getInstance()).reset();
 		((ResetInterface) TransactionManagement.getInstance()).reset();
 		((ResetInterface) this.lvi).reset();

@@ -31,6 +31,7 @@ import pt.unl.fct.di.hyflexchain.util.config.MultiLedgerConfig;
 import pt.unl.fct.di.hyflexchain.util.crypto.Crypto;
 import pt.unl.fct.di.hyflexchain.util.crypto.HashedObject;
 import pt.unl.fct.di.hyflexchain.util.crypto.HyFlexChainSignature;
+import pt.unl.fct.di.hyflexchain.util.stats.BlockStats;
 
 public class PowConsensus extends ConsensusInterface
 {
@@ -170,7 +171,10 @@ public class PowConsensus extends ConsensusInterface
 							.removePendingTxsAndNotify(txHashes, res);
 
 					if (res)
+					{
+						BlockStats.addLatency(consensus, (int) (after - before));
 						LOG.info("[{}] Block latency (ms): {}", consensus, after - before);
+					}
 				});
 	}
 

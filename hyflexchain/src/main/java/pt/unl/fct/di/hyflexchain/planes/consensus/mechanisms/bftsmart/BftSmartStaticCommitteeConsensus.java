@@ -57,6 +57,7 @@ import pt.unl.fct.di.hyflexchain.util.crypto.Crypto;
 import pt.unl.fct.di.hyflexchain.util.crypto.HashedObject;
 import pt.unl.fct.di.hyflexchain.util.crypto.HyFlexChainSignature;
 import pt.unl.fct.di.hyflexchain.util.crypto.SignatureAlgorithm;
+import pt.unl.fct.di.hyflexchain.util.stats.BlockStats;
 
 public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
     protected static final Logger LOG = LoggerFactory.getLogger(BftSmartStaticCommitteeConsensus.class);
@@ -281,7 +282,10 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
                             .removePendingTxsAndNotify(txHashes, res);
 
                     if (res)
-						LOG.info("[{}] Block latency (ms): {}", consensus, after - before);
+                    {
+                        BlockStats.addLatency(consensus, (int) (after - before));
+                        LOG.info("[{}] Block latency (ms): {}", consensus, after - before);
+                    }
                     else
                     {
                         LOG.info("[{}] Invalided block from committee with {} signatures",

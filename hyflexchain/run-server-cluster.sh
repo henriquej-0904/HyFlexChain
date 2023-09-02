@@ -1,6 +1,6 @@
 #! /bin/bash
 
-# Usage: <replicaId> <address> <contact>
+# Usage: <replicaId>
 
 replicaId=$1
 
@@ -12,16 +12,13 @@ network_name=hyflexchain
 
 replica_name=replica-$replicaId
 
-# address=$replica_name
-# contact=replica-0:10000
-address=$2
-contact=$3:10000
-
-# docker network create $network_name
+address=$replica_name
+contact=replica-0:10000
+# address=$2
+# contact=$3:10000
 
 docker run --rm -d --name $replica_name -h $replica_name  \
-	--network $network_name -p $server_port:$server_port -p $blockmess_port:$blockmess_port \
-	-p $blockmess_port_2:$blockmess_port_2 \
+	--network $network_name -p $server_port:$server_port \
 	--cap-add NET_ADMIN \
 	-v "$(pwd)/hyflexchain-config:/app/hyflexchain-config" \
 	-v "$(pwd)/blockmess/config:/app/blockmess-config" \
@@ -38,6 +35,4 @@ docker run --rm -d --name $replica_name -h $replica_name  \
 	-BFT_SMART BFT_SMaRt_Replica_Id=$replicaId \
 	-BFT_SMART Blockmess_Connector_Host=blockmess-server-bft-smart-$replicaId \
 	-BFT_SMART Blockmess_Connector_Port=`expr 15000 + $replicaId`
-	
-
 

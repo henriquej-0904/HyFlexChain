@@ -1,6 +1,6 @@
 #! /bin/bash
 
-# Usage: <replicaId> <address> <contact>
+# Usage: <replicaId>
 
 # Create a blockmess server
 
@@ -15,16 +15,13 @@ network_name=hyflexchain
 replica_name=blockmess-server-bft-smart-$replicaId
 
 interface=eth0
-# address=$replica_name
-# contact=blockmess-server-bft-smart-0:12000
-address=$2
-contact=$3:12000
-
-# docker network create $network_name
+address=$replica_name
+contact=blockmess-server-bft-smart-0:12000
+# address=$2
+# contact=$3:12000
 
 docker run --rm -d --name $replica_name -h $replica_name  \
 	--network $network_name \
-	-p $blockmess_port:$blockmess_port -p $blockmess_port_2:$blockmess_port_2 \
 	--cap-add NET_ADMIN \
 	-v "$(pwd)/hyflexchain-config:/app/hyflexchain-config" \
 	-v "$(pwd)/blockmess/config:/app/blockmess-config" \
@@ -34,4 +31,3 @@ docker run --rm -d --name $replica_name -h $replica_name  \
 	hyflexchain-config/init_tc.sh \
 	java -cp app.jar -Xmx1g pt.unl.fct.di.blockmess.wrapper.server.tcp.BlockmessWrapperServerTCP \
 	$blockmess_wrapper_port interface=$interface address=$address port=$blockmess_port contact=$contact
-

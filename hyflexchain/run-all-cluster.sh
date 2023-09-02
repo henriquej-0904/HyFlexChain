@@ -1,36 +1,53 @@
 #! /bin/bash
 
-# run multiple servers in the same machine
-# usage: <min_id> <max_id> <address> <contact>
+# run multiple servers in a cluster
 
-min_id=$1
-max_id=$2
-
+NUM_NODES=20
+CONTACT_HOST=$(oarprint host | sort | head -n 1)
+HOSTS=$(oarprint host | sort | head -n 4)
+NUM_HOSTS=$(oarprint host | sort | head -n 4 | wc -l)
+NODES_PER_HOST=$(($NUM_NODES / $NUM_HOSTS))
 
 echo "Starting Blockmess Servers"
 
-./run-blockmess_server-cluster.sh $min_id $3 $4
+NODE_IDX=0
 
-sleep 3
-
-for (( replicaId=$min_id+1; replicaId <= $max_id; replicaId++ ));
+for ((i=0;i<$NODES_PER_HOST;i++));
 do
-    ./run-blockmess_server-cluster.sh $replicaId $3 $4
+    for HOST in $HOSTS;
+    do
+        oarsh $HOST "cd HyFlexChain/hyflexchain && ./run-blockmess_server-cluster.sh $NODE_IDX"
+
+        if [ $NODE_IDX -eq 0 ]; then
+            sleep 7;
+        fi
+
+        NODE_IDX=$(($NODE_IDX + 1));
+    done;
 done
 
 echo "Done"
 sleep 5
 
-echo "Starting HyFlexChain servers"
+#########################################################################
 
-./run-server-cluster.sh $min_id $3 $4
+echo -e "\nStarting HyFlexChain servers"
 
-sleep 3
+NODE_IDX=0
 
-for (( replicaId=$min_id+1; replicaId <= $max_id; replicaId++ ));
+for ((i=0;i<$NODES_PER_HOST;i++));
 do
-    ./run-server-cluster.sh $replicaId $3 $4
+    for HOST in $HOSTS;
+    do
+        oarsh $HOST "cd HyFlexChain/hyflexchain && ./run-server-cluster.sh $NODE_IDX"
+
+        if [ $NODE_IDX -eq 0 ]; then
+            sleep 7;
+        fi
+
+        NODE_IDX=$(($NODE_IDX + 1));
+    done;
 done
 
 echo "Done"
-
+sleep 5

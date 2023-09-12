@@ -81,7 +81,7 @@ class InstallSmartContracts extends WorkloadModuleBase {
  * @return {WorkloadModuleInterface}
  */
 function createWorkloadModule() {
-    return new CreateTransactionPowWorkload();
+    return new InstallSmartContracts();
 }
 
 module.exports.createWorkloadModule = createWorkloadModule;

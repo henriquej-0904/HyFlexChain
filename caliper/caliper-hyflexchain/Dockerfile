@@ -18,7 +18,7 @@ COPY --chown=node:node lib ./lib
 COPY --chown=node:node launch-master.sh ./
 COPY --chown=node:node run-test.sh run-tests.sh ./
 
-ENV CALIPER_BENCHCONFIG=config/benchmark_install_sc.yaml
+ENV CALIPER_BENCHCONFIG=config/cluster/benchmark_install_sc.yaml
 # ENV CALIPER_BENCHCONFIG=config/benchmark_sc_piggybacked_pow.yaml
 # ENV CALIPER_BENCHCONFIG=config/benchmark_sc_piggybacked_bftsmart.yaml
 ENV CALIPER_NETWORKCONFIG=config/networkconfig.json

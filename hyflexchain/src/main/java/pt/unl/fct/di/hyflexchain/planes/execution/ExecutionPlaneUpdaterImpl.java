@@ -49,7 +49,7 @@ public class ExecutionPlaneUpdaterImpl implements ExecutionPlaneUpdater {
         throws InvalidSmartContractException
     {
         if (!isAddressValidForNewContract0(contractAddress))
-                throw new InvalidSmartContractException("Invalid address for smart contract: already used");
+                throw new InvalidSmartContractException("Invalid address for smart contract: already used - " + contractAddress.toHexString());
 
         // create execution context to verify the smart contract
         var context = executionPlane.createExecutionContext(contractCode);

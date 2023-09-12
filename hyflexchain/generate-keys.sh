@@ -5,6 +5,7 @@
 min_id=$1
 max_id=$2
 
+directory_service="./hyflexchain-config/directory_service/static_directory_service.json"
 configFolder="./hyflexchain-config/keys"
 truststore_root_ca=$configFolder/truststore_root_ca.pkcs12
 hyflexchain_root_keystore=$configFolder/hyflexchain_root_keystore.pkcs12
@@ -67,6 +68,7 @@ do
 done
 
 java -cp target/hyflexchain-jar-with-dependencies.jar pt.unl.fct.di.hyflexchain.util.crypto.GenerateAddress $truststore_all $keystorepass PKCS12 > $configFolder/addresses.json
+java -cp target/hyflexchain-jar-with-dependencies.jar pt.unl.fct.di.hyflexchain.planes.network.directory.address.StaticAddressToHostDirectoryService $configFolder/addresses.json > $directory_service
 
 echo "Created configs with success"
 

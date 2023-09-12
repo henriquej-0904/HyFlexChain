@@ -1,9 +1,15 @@
 package pt.unl.fct.di.hyflexchain.planes.network.directory.address;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
@@ -55,6 +61,31 @@ public class StaticAddressToHostDirectoryService implements AddressDirectoryServ
     @Override
     public Optional<Host> lookup(Address key) {
         return Optional.ofNullable(this.map.get(key));
+    }
+
+    /**
+     * Create configuration directory service
+     * @param args
+     * @throws IOException
+     * @throws FileNotFoundException
+     */
+    public static void main(String[] args) throws FileNotFoundException, IOException {
+        File addressesFile = new File(args[0]);
+        try (InputStream in = new FileInputStream(addressesFile)) {
+            byte[] data = in.readAllBytes();
+            Set<String> addresses =
+                Utils.json.readValue(data, new TypeReference<LinkedHashMap<String, String>>() {})
+                .keySet();
+            
+            var it = addresses.iterator();
+            Map<String, Host> result = LinkedHashMap.newLinkedHashMap(addresses.size());
+            for (int i = 0; i < addresses.size(); i++) {
+                Host h = new Host("replica-" + i, 18000 + i);
+                result.put(it.next(), h);
+            }
+
+            Utils.json.writeValue(System.out, result);
+        }
     }
 
 

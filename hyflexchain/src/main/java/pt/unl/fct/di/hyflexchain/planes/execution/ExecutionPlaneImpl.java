@@ -129,7 +129,7 @@ public class ExecutionPlaneImpl implements ExecutionPlane
         if (deployedContract == null)
             throw new InvalidSmartContractException("Cannot execute referenced smart contract: smart contract does not exist.");
 
-        return createExecutionContext(deployedContract.code());
+        return deployedContract.context();
     }
 
     ExecutionContext createExecutionContext(Bytes contractCode) throws InvalidSmartContractException
@@ -173,10 +173,10 @@ public class ExecutionPlaneImpl implements ExecutionPlane
                 throw new InvalidSmartContractException("Invalid address for smart contract: already used");
 
         // create execution context to verify the smart contract
-        createExecutionContext(contractCode);
+        var context = createExecutionContext(contractCode);
 
         // install smart contract
-        installed.put(contractAddress, new DeployedContract(account, contractCode));
+        installed.put(contractAddress, new DeployedContract(account, context));
     }
 
     @Override
@@ -301,7 +301,7 @@ public class ExecutionPlaneImpl implements ExecutionPlane
     /**
      * DeployedContract
      */
-    record DeployedContract(Address account, Bytes code) {
+    record DeployedContract(Address account, ExecutionContext context) {
     }
 
     /**

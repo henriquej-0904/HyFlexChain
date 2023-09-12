@@ -52,10 +52,10 @@ public class ExecutionPlaneUpdaterImpl implements ExecutionPlaneUpdater {
                 throw new InvalidSmartContractException("Invalid address for smart contract: already used");
 
         // create execution context to verify the smart contract
-        executionPlane.createExecutionContext(contractCode);
+        var context = executionPlane.createExecutionContext(contractCode);
 
         // install smart contract
-        installed.put(contractAddress, new DeployedContract(account, contractCode));
+        installed.put(contractAddress, new DeployedContract(account, context));
     }
 
     void revokeSmartContract0(Address account,Address contractAddress)

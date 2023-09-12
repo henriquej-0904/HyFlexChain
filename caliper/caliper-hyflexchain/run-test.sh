@@ -5,7 +5,7 @@ results_folder=$2
 
 mkdir -p $results_folder
 
-docker run --rm -it --network host \
+docker run --rm -d --network host \
     -v "$(pwd)/config:/hyperledger/caliper/workspace/config" \
     -v "$(pwd)/crypto:/hyperledger/caliper/workspace/crypto" \
     -v "$(pwd)/$results_folder:/hyperledger/caliper/workspace/results" \

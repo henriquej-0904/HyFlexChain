@@ -96,6 +96,8 @@ class HyFlexChainConnector extends ConnectorBase {
             )
         });
 
+        this.installed_smart_contracts = new Map();
+
         if (workerInit || !this.hyflexchainConfig.reference_smart_contract)
             return;
 
@@ -117,8 +119,6 @@ class HyFlexChainConnector extends ConnectorBase {
             Logger.error(`Failed to install smart contract.`);
             Logger.error(err);
         };
-
-        this.installed_smart_contracts = new Map();
 
         for (const iterator of this.smart_contracts_map) {
             let k = iterator[0];

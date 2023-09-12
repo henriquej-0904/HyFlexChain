@@ -56,7 +56,7 @@ class InstallSmartContracts extends WorkloadModuleBase {
         const outputTxs = [];
         const tx = new HyFlexChainTransaction(HyFlexChainTransaction.CONTRACT_CREATE, originPubKey, inputTxs, outputTxs);
         tx.nonce = this.txIndex;
-        tx.smartContract = HyFlexChainTransaction.smartContract(randomBytes(32), contractData);
+        tx.smartContract = HyFlexChainTransaction.smartContract(randomBytes(32), this.contractData);
 
         this.txIndex++;
 

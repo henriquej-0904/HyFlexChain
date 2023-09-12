@@ -47,8 +47,7 @@ class InstallSmartContracts extends WorkloadModuleBase {
 
         if (!this.smartContract)
         {
-            const contractData = this.sutAdapter.smart_contracts_map.get("pow");
-            this.smartContract = HyFlexChainTransaction.smartContract(randomBytes(32), contractData);
+            this.contractData = this.sutAdapter.smart_contracts_map.get("pow");
         }
 
         const originPubKey = Buffer.from("01" + this.sutContext.encodedPublicKey, 'hex');
@@ -57,7 +56,7 @@ class InstallSmartContracts extends WorkloadModuleBase {
         const outputTxs = [];
         const tx = new HyFlexChainTransaction(HyFlexChainTransaction.CONTRACT_CREATE, originPubKey, inputTxs, outputTxs);
         tx.nonce = this.txIndex;
-        tx.smartContract = this.smartContract;
+        tx.smartContract = HyFlexChainTransaction.smartContract(randomBytes(32), contractData);
 
         this.txIndex++;
 

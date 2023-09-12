@@ -96,7 +96,7 @@ class HyFlexChainConnector extends ConnectorBase {
             )
         });
 
-        if (workerInit)
+        if (workerInit || !this.hyflexchainConfig.reference_smart_contract)
             return;
 
         const httpsAgent = new https.Agent({

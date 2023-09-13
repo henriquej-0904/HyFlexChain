@@ -1,6 +1,6 @@
 test:
   workers:
-    number: 4
+    number: 1
   rounds:
 
     - label: Submit Transactions 50 tps - PoW

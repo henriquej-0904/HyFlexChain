@@ -1,6 +1,6 @@
 test:
   workers:
-    number: 4
+    number: 1
   rounds:
 
     - label: Submit Transactions 50 tps - PoW
@@ -12,7 +12,7 @@ test:
         opts:
           tps: 50
       workload:
-        module: lib/benchmarks/CreateTransactionPowWithSC.js
+        module: lib/benchmarks/CreateTransactionBftsmartWithSC.js
 
     # - label: Submit Transactions 100 tps - PoW
     #   description: Submit PoW transactions (sc piggybacked)

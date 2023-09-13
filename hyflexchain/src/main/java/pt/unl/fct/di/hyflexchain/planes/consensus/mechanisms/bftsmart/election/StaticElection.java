@@ -34,7 +34,7 @@ public final class StaticElection implements SybilResistantBftCommitteeElection
     @Override
     public Optional<BftCommittee> performCommitteeElection(BftCommitteeElectionCriteria criteria) {
         var committee = this.config.getStaticCommitteeAddresses();
-        committee.subList(0, criteria.getSize());
+        committee = committee.subList(0, criteria.getSize());
 
         return Optional.of(new BftCommittee(CONSENSUS_MECHANISM, criteria,
             new LinkedHashSet<>(committee)));

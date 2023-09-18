@@ -29,5 +29,5 @@ docker run --rm -d --name $replica_name -h $replica_name  \
 	-v "$(pwd)/blockmess/logs:/app/blockmess-logs" \
 	henriquej0904/hyflexchain:blockmess-wrapper-server-tc \
 	hyflexchain-config/init_tc.sh \
-	java -cp app.jar -Xmx2g pt.unl.fct.di.blockmess.wrapper.server.tcp.BlockmessWrapperServerTCP \
+	java -cp app.jar -Xmx1g pt.unl.fct.di.blockmess.wrapper.server.tcp.BlockmessWrapperServerTCP \
 	$blockmess_wrapper_port interface=$interface address=$address port=$blockmess_port contact=$contact

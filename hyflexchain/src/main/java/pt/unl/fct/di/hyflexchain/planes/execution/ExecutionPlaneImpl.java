@@ -25,6 +25,7 @@ import pt.unl.fct.di.hyflexchain.planes.data.transaction.Address;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
 import pt.unl.fct.di.hyflexchain.planes.execution.contracts.TransactionParamsContract;
 import pt.unl.fct.di.hyflexchain.planes.execution.contracts.TransactionParamsContract.TransactionParamsContractResult;
+import pt.unl.fct.di.hyflexchain.util.config.MultiLedgerConfig;
 import pt.unl.fct.di.hyflexchain.planes.execution.contracts.InvalidSmartContractException;
 
 /**
@@ -76,6 +77,21 @@ public class ExecutionPlaneImpl implements ExecutionPlane
         this.installed = new HashMap<>(100);
         this.revoked = new HashSet<>(100);
         this.lock = new ReentrantReadWriteLock();
+
+        try {
+            preInstallSmartContracts();
+        } catch (InvalidSmartContractException e) {
+            e.printStackTrace();
+            throw new Error(e.getMessage(), e);
+        }
+    }
+
+    private void preInstallSmartContracts() throws InvalidSmartContractException
+    {
+        var smartContracts = MultiLedgerConfig.getInstance().getPreInstallSmartContracts();
+        for (var sc : smartContracts.entrySet()) {
+            deploySmartContract0(Address.NULL_ADDRESS, sc.getKey(), sc.getValue());
+        }
     }
 
     private EvmAccount createDefaultAccount(WorldUpdater updater)

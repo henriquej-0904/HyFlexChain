@@ -98,51 +98,59 @@ class HyFlexChainConnector extends ConnectorBase {
 
         this.installed_smart_contracts = new Map();
 
-        if (workerInit || !this.hyflexchainConfig.reference_smart_contract)
+        // if (workerInit || !this.hyflexchainConfig.reference_smart_contract)
+        //     return;
+
+        if (workerInit)
             return;
 
-        const httpsAgent = new https.Agent({
-            rejectUnauthorized: false, // (NOTE: this will disable client verification)
-            ca: fs.readFileSync(this.hyflexchainConfig.truststore_ca)
-        })
+        const pre_installed_smart_contracts =
+            new Map(Object.entries(this.hyflexchainConfig.pre_installed_sc));
 
-        const httpClient = axios.create(
-            {
-                baseURL: this.hyflexchainConfig.url[0],
-                timeout: this.hyflexchainConfig.connection_timeout,
-                httpsAgent: httpsAgent
-                //headers: {'X-Custom-Header': 'foobar'}
-            }
-        );
+        this.installed_smart_contracts = pre_installed_smart_contracts;
 
-        const onFailure = (err) => {
-            Logger.error(`Failed to install smart contract.`);
-            Logger.error(err);
-        };
+        // const httpsAgent = new https.Agent({
+        //     rejectUnauthorized: false, // (NOTE: this will disable client verification)
+        //     ca: fs.readFileSync(this.hyflexchainConfig.truststore_ca)
+        // })
 
-        for (const iterator of this.smart_contracts_map) {
-            let k = iterator[0];
-            let element = iterator[1];
+        // const httpClient = axios.create(
+        //     {
+        //         baseURL: this.hyflexchainConfig.url[0],
+        //         timeout: this.hyflexchainConfig.connection_timeout,
+        //         httpsAgent: httpsAgent
+        //         //headers: {'X-Custom-Header': 'foobar'}
+        //     }
+        // );
+
+        // const onFailure = (err) => {
+        //     Logger.error(`Failed to install smart contract.`);
+        //     Logger.error(err);
+        // };
+
+        // for (const iterator of this.smart_contracts_map) {
+        //     let k = iterator[0];
+        //     let element = iterator[1];
             
-            await httpClient.post("/hyflexchain/scmi/install", element,
-            {
-                headers: {
-                    "Content-Type": "application/octet-stream"
-                }
-            }).then(response => {
-                if (response.status == 200) {
-                    Logger.error(`Installed smart contract: ` + k + ", " + response.data);
-                    this.installed_smart_contracts.set(k, response.data);
-                }
-                else {
-                    onFailure(response.statusText);
-                }
-            }).catch(reason => {
-                onFailure(reason);
-            });
-        }
+        //     await httpClient.post("/hyflexchain/scmi/install", element,
+        //     {
+        //         headers: {
+        //             "Content-Type": "application/octet-stream"
+        //         }
+        //     }).then(response => {
+        //         if (response.status == 200) {
+        //             Logger.error(`Installed smart contract: ` + k + ", " + response.data);
+        //             this.installed_smart_contracts.set(k, response.data);
+        //         }
+        //         else {
+        //             onFailure(response.statusText);
+        //         }
+        //     }).catch(reason => {
+        //         onFailure(reason);
+        //     });
+        // }
         
-        Logger.error("installed contracts: " + JSON.stringify(Object.fromEntries(this.installed_smart_contracts)));
+        // Logger.error("installed contracts: " + JSON.stringify(Object.fromEntries(this.installed_smart_contracts)));
     }
 
     async installSmartContract() {

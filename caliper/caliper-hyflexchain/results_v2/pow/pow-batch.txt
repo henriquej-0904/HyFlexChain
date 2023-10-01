@@ -1,0 +1,72 @@
+c/ smart contracts:
+	5k (2 Tx) ->
+		(latency)	avg = 123.23; std = 3.28%
+		(throughput)	avg = 3.5900; std = 9.14%
+		
+	10k (4 Tx) ->
+		(latency)	avg = 99.750; std = 8.31%
+		(throughput)	avg = 5.8250; std = 6.33%
+		
+	20k (8 Tx) ->
+		(latency)	avg = 92.6000; std = 7.25%
+		(throughput)	avg = 7.65000; std = 8.37%
+		
+	40k (17 Tx) ->
+		(latency)	avg = 94.8800; std = 8.90%
+		(throughput)	avg = 9.01000; std = 9.10%
+		
+	80k (35 Tx) ->
+		(latency)	avg = 86.5700; std = 8.27%
+		(throughput)	avg = 8.63000; std = 8.30%
+	
+	160k (72 Tx) ->
+		(latency)	avg = 165.950; std = 8.30%
+		(throughput)	avg = 5.60000; std = 5.89%
+
+
+##################################################################
+
+referenced smart contracts:
+	5k (9 Tx) ->
+		(latency)	avg = 123.23; std = 3.28%
+		(throughput)	avg = 3.5900; std = 9.14%
+		
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+Antigo
+
+##################################################################
+
+c/ smart contracts:
+	5k ->
+		(latency)	avg = 107.56; std = 4.51%
+		(throughput)	avg = 7.0300; std = 2.99%
+		
+	10k (20 tps) ->
+		(latency)	avg = 96.875; std = 2.82%
+		(throughput)	avg = 8.4100; std = 7.85%
+		
+	20k (30 tps) ->
+		(latency)	avg = 100.128; std = 4.15%
+		(throughput)	avg = 13.4000; std = 4.80%
+		
+	40 (40 tps - 17 txs)
+		
+##################################################################
+
+referenced smart contracts:
+	
+	
+

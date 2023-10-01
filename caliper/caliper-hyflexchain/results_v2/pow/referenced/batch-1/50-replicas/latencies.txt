@@ -1,0 +1,55 @@
+Blockmess: 3000
+
+Aggregated Stats:
+LongSummaryStatistics{count=26828, sum=6890051, min=1, average=256,823133, max=950}
+
+#####################################################
+
+Specific stats for each replica:
+0: LongSummaryStatistics{count=567, sum=90455, min=1, average=159,532628, max=479}
+1: LongSummaryStatistics{count=504, sum=86024, min=1, average=170,682540, max=479}
+2: LongSummaryStatistics{count=652, sum=114850, min=1, average=176,150307, max=243}
+3: LongSummaryStatistics{count=642, sum=116323, min=1, average=181,188474, max=250}
+4: LongSummaryStatistics{count=563, sum=106765, min=1, average=189,635879, max=269}
+5: LongSummaryStatistics{count=601, sum=116193, min=1, average=193,332779, max=480}
+6: LongSummaryStatistics{count=535, sum=105408, min=1, average=197,024299, max=489}
+7: LongSummaryStatistics{count=521, sum=104019, min=1, average=199,652591, max=267}
+8: LongSummaryStatistics{count=583, sum=119874, min=1, average=205,615780, max=479}
+9: LongSummaryStatistics{count=590, sum=130660, min=1, average=221,457627, max=482}
+10: LongSummaryStatistics{count=536, sum=120367, min=1, average=224,565299, max=711}
+11: LongSummaryStatistics{count=548, sum=125048, min=1, average=228,189781, max=478}
+12: LongSummaryStatistics{count=562, sum=130070, min=1, average=231,441281, max=479}
+13: LongSummaryStatistics{count=555, sum=130453, min=1, average=235,050450, max=713}
+14: LongSummaryStatistics{count=578, sum=139956, min=1, average=242,138408, max=714}
+15: LongSummaryStatistics{count=553, sum=134570, min=1, average=243,345389, max=944}
+16: LongSummaryStatistics{count=537, sum=130830, min=1, average=243,631285, max=712}
+17: LongSummaryStatistics{count=587, sum=143580, min=1, average=244,599659, max=722}
+18: LongSummaryStatistics{count=544, sum=135823, min=1, average=249,674632, max=713}
+19: LongSummaryStatistics{count=559, sum=141303, min=1, average=252,778175, max=711}
+20: LongSummaryStatistics{count=519, sum=133465, min=1, average=257,157996, max=711}
+21: LongSummaryStatistics{count=640, sum=165863, min=1, average=259,160938, max=481}
+22: LongSummaryStatistics{count=591, sum=154904, min=1, average=262,104907, max=716}
+23: LongSummaryStatistics{count=609, sum=161141, min=1, average=264,599343, max=716}
+24: LongSummaryStatistics{count=632, sum=169224, min=1, average=267,759494, max=489}
+25: LongSummaryStatistics{count=561, sum=152534, min=1, average=271,896613, max=943}
+26: LongSummaryStatistics{count=582, sum=160552, min=1, average=275,862543, max=713}
+27: LongSummaryStatistics{count=562, sum=155207, min=1, average=276,169039, max=716}
+28: LongSummaryStatistics{count=588, sum=163470, min=1, average=278,010204, max=716}
+29: LongSummaryStatistics{count=620, sum=174422, min=1, average=281,325806, max=480}
+30: LongSummaryStatistics{count=515, sum=145241, min=1, average=282,021359, max=719}
+31: LongSummaryStatistics{count=573, sum=162194, min=1, average=283,061082, max=943}
+32: LongSummaryStatistics{count=554, sum=157902, min=1, average=285,021661, max=714}
+33: LongSummaryStatistics{count=561, sum=160329, min=1, average=285,791444, max=949}
+34: LongSummaryStatistics{count=516, sum=149024, min=1, average=288,806202, max=949}
+35: LongSummaryStatistics{count=565, sum=163202, min=1, average=288,853097, max=949}
+36: LongSummaryStatistics{count=583, sum=169926, min=1, average=291,468268, max=711}
+37: LongSummaryStatistics{count=552, sum=163813, min=1, average=296,762681, max=944}
+38: LongSummaryStatistics{count=577, sum=172469, min=1, average=298,906412, max=712}
+39: LongSummaryStatistics{count=603, sum=180433, min=1, average=299,225539, max=716}
+40: LongSummaryStatistics{count=522, sum=156206, min=1, average=299,245211, max=944}
+41: LongSummaryStatistics{count=575, sum=172178, min=1, average=299,440000, max=715}
+42: LongSummaryStatistics{count=554, sum=168688, min=1, average=304,490975, max=946}
+43: LongSummaryStatistics{count=594, sum=182309, min=1, average=306,917508, max=948}
+44: LongSummaryStatistics{count=604, sum=192904, min=1, average=319,377483, max=713}
+45: LongSummaryStatistics{count=548, sum=175384, min=1, average=320,043796, max=950}
+46: LongSummaryStatistics{count=611, sum=204496, min=1, average=334,690671, max=715}

@@ -52,39 +52,3 @@ referenced smart contracts:
 		(throughput)	avg = 9.40000; std = 5.96%
 	
 
-
-
-
-
-
-
-
-
-
-
-
-Antigo
-
-##################################################################
-
-c/ smart contracts:
-	5k ->
-		(latency)	avg = 107.56; std = 4.51%
-		(throughput)	avg = 7.0300; std = 2.99%
-		
-	10k (20 tps) ->
-		(latency)	avg = 96.875; std = 2.82%
-		(throughput)	avg = 8.4100; std = 7.85%
-		
-	20k (30 tps) ->
-		(latency)	avg = 100.128; std = 4.15%
-		(throughput)	avg = 13.4000; std = 4.80%
-		
-	40 (40 tps - 17 txs)
-		
-##################################################################
-
-referenced smart contracts:
-	
-	
-

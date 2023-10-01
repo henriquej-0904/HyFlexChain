@@ -152,14 +152,14 @@
                     </tr>
 
                     <tr>
-                         <td>Submit Transactions 40 tps - PoW</td> <td>1200</td> <td>1</td> <td>40.0</td> <td>204.12</td> <td>138.75</td> <td>164.04</td> <td>5.3</td>
+                         <td>Submit Transactions 40 tps - PoW</td> <td>2401</td> <td>0</td> <td>40.0</td> <td>237.45</td> <td>163.52</td> <td>197.10</td> <td>10.0</td>
                     </tr>
                 </table>
             </div>
             <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="Submit Transactions 40 tps - PoW">
                 <h2>Benchmark round: Submit Transactions 40 tps - PoW</h2>
                 <p>Submit PoW transactions (sc piggybacked)</p>
-                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">txDuration: 30
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">txDuration: 60
 rateControl:
   type: fixed-rate
   opts:
@@ -171,7 +171,7 @@ rateControl:
                                      <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
                                 </tr>
                                 <tr>
-                                     <td>Submit Transactions 40 tps - PoW</td> <td>1200</td> <td>1</td> <td>40.0</td> <td>204.12</td> <td>138.75</td> <td>164.04</td> <td>5.3</td>
+                                     <td>Submit Transactions 40 tps - PoW</td> <td>2401</td> <td>0</td> <td>40.0</td> <td>237.45</td> <td>163.52</td> <td>197.10</td> <td>10.0</td>
                                 </tr>
                             </table>
                         <h3>Resource utilization for Submit Transactions 40 tps - PoW</h3>
@@ -180,19 +180,19 @@ rateControl:
                                 <tr>
                                 <table>
                                     <tr>
-                                         <th>Name</th> <th>CPU%(max)</th> <th>CPU%(avg)</th> <th>Memory(max) [GB]</th> <th>Memory(avg) [GB]</th> <th>Traffic In [MB]</th> <th>Traffic Out [MB]</th> <th>Disc Write [B]</th> <th>Disc Read [B]</th>
+                                         <th>Name</th> <th>CPU%(max)</th> <th>CPU%(avg)</th> <th>Memory(max) [GB]</th> <th>Memory(avg) [GB]</th> <th>Traffic In [MB]</th> <th>Traffic Out [MB]</th> <th>Disc Write [MB]</th> <th>Disc Read [B]</th>
                                     </tr>
                                     <tr>
-                                         <td>&#x2F;replica-4</td> <td>2.17796875</td> <td>0.16328125</td> <td>0.959</td> <td>0.596</td> <td>17.6</td> <td>18.3</td> <td>0.00</td> <td>0.00</td>
+                                         <td>&#x2F;replica-12</td> <td>5.4015625</td> <td>0.653125</td> <td>0.884</td> <td>0.563</td> <td>9.03</td> <td>9.21</td> <td>8.10</td> <td>0.00</td>
                                     </tr>
                                     <tr>
-                                         <td>&#x2F;replica-12</td> <td>2.30515625</td> <td>0.2765625</td> <td>0.772</td> <td>0.599</td> <td>18.0</td> <td>22.8</td> <td>0.00</td> <td>0.00</td>
+                                         <td>&#x2F;replica-8</td> <td>2.5021875</td> <td>0.5175</td> <td>0.832</td> <td>0.550</td> <td>9.21</td> <td>9.99</td> <td>8.10</td> <td>0.00</td>
                                     </tr>
                                     <tr>
-                                         <td>&#x2F;replica-8</td> <td>2.85078125</td> <td>0.23578125</td> <td>0.973</td> <td>0.630</td> <td>17.8</td> <td>14.6</td> <td>0.00</td> <td>0.00</td>
+                                         <td>&#x2F;replica-4</td> <td>3.5646875</td> <td>0.6715625</td> <td>0.750</td> <td>0.592</td> <td>9.24</td> <td>8.79</td> <td>8.10</td> <td>0.00</td>
                                     </tr>
                                     <tr>
-                                         <td>&#x2F;replica-0</td> <td>2.98</td> <td>0.38953125</td> <td>1.42</td> <td>1.32</td> <td>52.2</td> <td>78.6</td> <td>0.00</td> <td>0.00</td>
+                                         <td>&#x2F;replica-0</td> <td>5.294375</td> <td>1.116875</td> <td>1.56</td> <td>1.38</td> <td>29.2</td> <td>25.1</td> <td>8.10</td> <td>0.00</td>
                                     </tr>
                                 </table>
                                 </tr>
@@ -200,82 +200,82 @@ rateControl:
                             <div class="charting">
                                 <div class="chart">
                                     <canvas id="MonitorDocker_Submit Transactions 40 tps - PoW_horizontalBar0">
-                                        <script>plotChart("MonitorDocker_Submit Transactions 40 tps - PoW_horizontalBar0", "{&quot;type&quot;:&quot;horizontalBar&quot;,&quot;title&quot;:&quot;CPU%(max)&quot;,&quot;legend&quot;:false,&quot;labels&quot;:[&quot;&#x2F;replica-4&quot;,&quot;&#x2F;replica-12&quot;,&quot;&#x2F;replica-8&quot;,&quot;&#x2F;replica-0&quot;],&quot;datasets&quot;:[{&quot;backgroundColor&quot;:[&quot;rgb(255,71,0,0.6)&quot;,&quot;rgb(179,50,0,0.6)&quot;,&quot;rgb(255,209,191,0.6)&quot;,&quot;rgb(255,163,128,0.6)&quot;],&quot;data&quot;:[2.17796875,2.30515625,2.85078125,2.98]}]}")</script>
+                                        <script>plotChart("MonitorDocker_Submit Transactions 40 tps - PoW_horizontalBar0", "{&quot;type&quot;:&quot;horizontalBar&quot;,&quot;title&quot;:&quot;CPU%(max)&quot;,&quot;legend&quot;:false,&quot;labels&quot;:[&quot;&#x2F;replica-12&quot;,&quot;&#x2F;replica-8&quot;,&quot;&#x2F;replica-4&quot;,&quot;&#x2F;replica-0&quot;],&quot;datasets&quot;:[{&quot;backgroundColor&quot;:[&quot;rgb(255,71,0,0.6)&quot;,&quot;rgb(179,50,0,0.6)&quot;,&quot;rgb(255,209,191,0.6)&quot;,&quot;rgb(255,163,128,0.6)&quot;],&quot;data&quot;:[5.4015625,2.5021875,3.5646875,5.294375]}]}")</script>
                                     </canvas>
                                 </div>
                                 <div class="chart">
                                     <canvas id="MonitorDocker_Submit Transactions 40 tps - PoW_horizontalBar1">
-                                        <script>plotChart("MonitorDocker_Submit Transactions 40 tps - PoW_horizontalBar1", "{&quot;type&quot;:&quot;horizontalBar&quot;,&quot;title&quot;:&quot;CPU%(avg)&quot;,&quot;legend&quot;:false,&quot;labels&quot;:[&quot;&#x2F;replica-4&quot;,&quot;&#x2F;replica-12&quot;,&quot;&#x2F;replica-8&quot;,&quot;&#x2F;replica-0&quot;],&quot;datasets&quot;:[{&quot;backgroundColor&quot;:[&quot;rgb(255,71,0,0.6)&quot;,&quot;rgb(179,50,0,0.6)&quot;,&quot;rgb(255,209,191,0.6)&quot;,&quot;rgb(255,163,128,0.6)&quot;],&quot;data&quot;:[0.16328125,0.2765625,0.23578125,0.38953125]}]}")</script>
+                                        <script>plotChart("MonitorDocker_Submit Transactions 40 tps - PoW_horizontalBar1", "{&quot;type&quot;:&quot;horizontalBar&quot;,&quot;title&quot;:&quot;CPU%(avg)&quot;,&quot;legend&quot;:false,&quot;labels&quot;:[&quot;&#x2F;replica-12&quot;,&quot;&#x2F;replica-8&quot;,&quot;&#x2F;replica-4&quot;,&quot;&#x2F;replica-0&quot;],&quot;datasets&quot;:[{&quot;backgroundColor&quot;:[&quot;rgb(255,71,0,0.6)&quot;,&quot;rgb(179,50,0,0.6)&quot;,&quot;rgb(255,209,191,0.6)&quot;,&quot;rgb(255,163,128,0.6)&quot;],&quot;data&quot;:[0.653125,0.5175,0.6715625,1.116875]}]}")</script>
                                     </canvas>
                                 </div>
                                 <div class="chart">
                                     <canvas id="MonitorDocker_Submit Transactions 40 tps - PoW_horizontalBar2">
-                                        <script>plotChart("MonitorDocker_Submit Transactions 40 tps - PoW_horizontalBar2", "{&quot;type&quot;:&quot;horizontalBar&quot;,&quot;title&quot;:&quot;Memory(max) [GB]&quot;,&quot;legend&quot;:false,&quot;labels&quot;:[&quot;&#x2F;replica-4&quot;,&quot;&#x2F;replica-12&quot;,&quot;&#x2F;replica-8&quot;,&quot;&#x2F;replica-0&quot;],&quot;datasets&quot;:[{&quot;backgroundColor&quot;:[&quot;rgb(255,71,0,0.6)&quot;,&quot;rgb(179,50,0,0.6)&quot;,&quot;rgb(255,209,191,0.6)&quot;,&quot;rgb(255,163,128,0.6)&quot;],&quot;data&quot;:[&quot;0.959&quot;,&quot;0.772&quot;,&quot;0.973&quot;,&quot;1.42&quot;]}]}")</script>
+                                        <script>plotChart("MonitorDocker_Submit Transactions 40 tps - PoW_horizontalBar2", "{&quot;type&quot;:&quot;horizontalBar&quot;,&quot;title&quot;:&quot;Memory(max) [GB]&quot;,&quot;legend&quot;:false,&quot;labels&quot;:[&quot;&#x2F;replica-12&quot;,&quot;&#x2F;replica-8&quot;,&quot;&#x2F;replica-4&quot;,&quot;&#x2F;replica-0&quot;],&quot;datasets&quot;:[{&quot;backgroundColor&quot;:[&quot;rgb(255,71,0,0.6)&quot;,&quot;rgb(179,50,0,0.6)&quot;,&quot;rgb(255,209,191,0.6)&quot;,&quot;rgb(255,163,128,0.6)&quot;],&quot;data&quot;:[&quot;0.884&quot;,&quot;0.832&quot;,&quot;0.750&quot;,&quot;1.56&quot;]}]}")</script>
                                     </canvas>
                                 </div>
                                 <div class="chart">
                                     <canvas id="MonitorDocker_Submit Transactions 40 tps - PoW_horizontalBar3">
-                                        <script>plotChart("MonitorDocker_Submit Transactions 40 tps - PoW_horizontalBar3", "{&quot;type&quot;:&quot;horizontalBar&quot;,&quot;title&quot;:&quot;Memory(avg) [GB]&quot;,&quot;legend&quot;:false,&quot;labels&quot;:[&quot;&#x2F;replica-4&quot;,&quot;&#x2F;replica-12&quot;,&quot;&#x2F;replica-8&quot;,&quot;&#x2F;replica-0&quot;],&quot;datasets&quot;:[{&quot;backgroundColor&quot;:[&quot;rgb(255,71,0,0.6)&quot;,&quot;rgb(179,50,0,0.6)&quot;,&quot;rgb(255,209,191,0.6)&quot;,&quot;rgb(255,163,128,0.6)&quot;],&quot;data&quot;:[&quot;0.596&quot;,&quot;0.599&quot;,&quot;0.630&quot;,&quot;1.32&quot;]}]}")</script>
+                                        <script>plotChart("MonitorDocker_Submit Transactions 40 tps - PoW_horizontalBar3", "{&quot;type&quot;:&quot;horizontalBar&quot;,&quot;title&quot;:&quot;Memory(avg) [GB]&quot;,&quot;legend&quot;:false,&quot;labels&quot;:[&quot;&#x2F;replica-12&quot;,&quot;&#x2F;replica-8&quot;,&quot;&#x2F;replica-4&quot;,&quot;&#x2F;replica-0&quot;],&quot;datasets&quot;:[{&quot;backgroundColor&quot;:[&quot;rgb(255,71,0,0.6)&quot;,&quot;rgb(179,50,0,0.6)&quot;,&quot;rgb(255,209,191,0.6)&quot;,&quot;rgb(255,163,128,0.6)&quot;],&quot;data&quot;:[&quot;0.563&quot;,&quot;0.550&quot;,&quot;0.592&quot;,&quot;1.38&quot;]}]}")</script>
                                     </canvas>
                                 </div>
                                 <div class="chart">
                                     <canvas id="MonitorDocker_Submit Transactions 40 tps - PoW_horizontalBar4">
-                                        <script>plotChart("MonitorDocker_Submit Transactions 40 tps - PoW_horizontalBar4", "{&quot;type&quot;:&quot;horizontalBar&quot;,&quot;title&quot;:&quot;Traffic In [MB]&quot;,&quot;legend&quot;:false,&quot;labels&quot;:[&quot;&#x2F;replica-4&quot;,&quot;&#x2F;replica-12&quot;,&quot;&#x2F;replica-8&quot;,&quot;&#x2F;replica-0&quot;],&quot;datasets&quot;:[{&quot;backgroundColor&quot;:[&quot;rgb(255,71,0,0.6)&quot;,&quot;rgb(179,50,0,0.6)&quot;,&quot;rgb(255,209,191,0.6)&quot;,&quot;rgb(255,163,128,0.6)&quot;],&quot;data&quot;:[&quot;17.6&quot;,&quot;18.0&quot;,&quot;17.8&quot;,&quot;52.2&quot;]}]}")</script>
+                                        <script>plotChart("MonitorDocker_Submit Transactions 40 tps - PoW_horizontalBar4", "{&quot;type&quot;:&quot;horizontalBar&quot;,&quot;title&quot;:&quot;Traffic In [MB]&quot;,&quot;legend&quot;:false,&quot;labels&quot;:[&quot;&#x2F;replica-12&quot;,&quot;&#x2F;replica-8&quot;,&quot;&#x2F;replica-4&quot;,&quot;&#x2F;replica-0&quot;],&quot;datasets&quot;:[{&quot;backgroundColor&quot;:[&quot;rgb(255,71,0,0.6)&quot;,&quot;rgb(179,50,0,0.6)&quot;,&quot;rgb(255,209,191,0.6)&quot;,&quot;rgb(255,163,128,0.6)&quot;],&quot;data&quot;:[&quot;9.03&quot;,&quot;9.21&quot;,&quot;9.24&quot;,&quot;29.2&quot;]}]}")</script>
                                     </canvas>
                                 </div>
                                 <div class="chart">
                                     <canvas id="MonitorDocker_Submit Transactions 40 tps - PoW_horizontalBar5">
-                                        <script>plotChart("MonitorDocker_Submit Transactions 40 tps - PoW_horizontalBar5", "{&quot;type&quot;:&quot;horizontalBar&quot;,&quot;title&quot;:&quot;Traffic Out [MB]&quot;,&quot;legend&quot;:false,&quot;labels&quot;:[&quot;&#x2F;replica-4&quot;,&quot;&#x2F;replica-12&quot;,&quot;&#x2F;replica-8&quot;,&quot;&#x2F;replica-0&quot;],&quot;datasets&quot;:[{&quot;backgroundColor&quot;:[&quot;rgb(255,71,0,0.6)&quot;,&quot;rgb(179,50,0,0.6)&quot;,&quot;rgb(255,209,191,0.6)&quot;,&quot;rgb(255,163,128,0.6)&quot;],&quot;data&quot;:[&quot;18.3&quot;,&quot;22.8&quot;,&quot;14.6&quot;,&quot;78.6&quot;]}]}")</script>
+                                        <script>plotChart("MonitorDocker_Submit Transactions 40 tps - PoW_horizontalBar5", "{&quot;type&quot;:&quot;horizontalBar&quot;,&quot;title&quot;:&quot;Traffic Out [MB]&quot;,&quot;legend&quot;:false,&quot;labels&quot;:[&quot;&#x2F;replica-12&quot;,&quot;&#x2F;replica-8&quot;,&quot;&#x2F;replica-4&quot;,&quot;&#x2F;replica-0&quot;],&quot;datasets&quot;:[{&quot;backgroundColor&quot;:[&quot;rgb(255,71,0,0.6)&quot;,&quot;rgb(179,50,0,0.6)&quot;,&quot;rgb(255,209,191,0.6)&quot;,&quot;rgb(255,163,128,0.6)&quot;],&quot;data&quot;:[&quot;9.21&quot;,&quot;9.99&quot;,&quot;8.79&quot;,&quot;25.1&quot;]}]}")</script>
                                     </canvas>
                                 </div>
                                 <div class="chart">
                                     <canvas id="MonitorDocker_Submit Transactions 40 tps - PoW_horizontalBar6">
-                                        <script>plotChart("MonitorDocker_Submit Transactions 40 tps - PoW_horizontalBar6", "{&quot;type&quot;:&quot;horizontalBar&quot;,&quot;title&quot;:&quot;Disc Write [B]&quot;,&quot;legend&quot;:false,&quot;labels&quot;:[&quot;&#x2F;replica-4&quot;,&quot;&#x2F;replica-12&quot;,&quot;&#x2F;replica-8&quot;,&quot;&#x2F;replica-0&quot;],&quot;datasets&quot;:[{&quot;backgroundColor&quot;:[&quot;rgb(255,71,0,0.6)&quot;,&quot;rgb(179,50,0,0.6)&quot;,&quot;rgb(255,209,191,0.6)&quot;,&quot;rgb(255,163,128,0.6)&quot;],&quot;data&quot;:[&quot;0.00&quot;,&quot;0.00&quot;,&quot;0.00&quot;,&quot;0.00&quot;]}]}")</script>
+                                        <script>plotChart("MonitorDocker_Submit Transactions 40 tps - PoW_horizontalBar6", "{&quot;type&quot;:&quot;horizontalBar&quot;,&quot;title&quot;:&quot;Disc Write [MB]&quot;,&quot;legend&quot;:false,&quot;labels&quot;:[&quot;&#x2F;replica-12&quot;,&quot;&#x2F;replica-8&quot;,&quot;&#x2F;replica-4&quot;,&quot;&#x2F;replica-0&quot;],&quot;datasets&quot;:[{&quot;backgroundColor&quot;:[&quot;rgb(255,71,0,0.6)&quot;,&quot;rgb(179,50,0,0.6)&quot;,&quot;rgb(255,209,191,0.6)&quot;,&quot;rgb(255,163,128,0.6)&quot;],&quot;data&quot;:[&quot;8.10&quot;,&quot;8.10&quot;,&quot;8.10&quot;,&quot;8.10&quot;]}]}")</script>
                                     </canvas>
                                 </div>
                                 <div class="chart">
                                     <canvas id="MonitorDocker_Submit Transactions 40 tps - PoW_horizontalBar7">
-                                        <script>plotChart("MonitorDocker_Submit Transactions 40 tps - PoW_horizontalBar7", "{&quot;type&quot;:&quot;horizontalBar&quot;,&quot;title&quot;:&quot;Disc Read [B]&quot;,&quot;legend&quot;:false,&quot;labels&quot;:[&quot;&#x2F;replica-4&quot;,&quot;&#x2F;replica-12&quot;,&quot;&#x2F;replica-8&quot;,&quot;&#x2F;replica-0&quot;],&quot;datasets&quot;:[{&quot;backgroundColor&quot;:[&quot;rgb(255,71,0,0.6)&quot;,&quot;rgb(179,50,0,0.6)&quot;,&quot;rgb(255,209,191,0.6)&quot;,&quot;rgb(255,163,128,0.6)&quot;],&quot;data&quot;:[&quot;0.00&quot;,&quot;0.00&quot;,&quot;0.00&quot;,&quot;0.00&quot;]}]}")</script>
+                                        <script>plotChart("MonitorDocker_Submit Transactions 40 tps - PoW_horizontalBar7", "{&quot;type&quot;:&quot;horizontalBar&quot;,&quot;title&quot;:&quot;Disc Read [B]&quot;,&quot;legend&quot;:false,&quot;labels&quot;:[&quot;&#x2F;replica-12&quot;,&quot;&#x2F;replica-8&quot;,&quot;&#x2F;replica-4&quot;,&quot;&#x2F;replica-0&quot;],&quot;datasets&quot;:[{&quot;backgroundColor&quot;:[&quot;rgb(255,71,0,0.6)&quot;,&quot;rgb(179,50,0,0.6)&quot;,&quot;rgb(255,209,191,0.6)&quot;,&quot;rgb(255,163,128,0.6)&quot;],&quot;data&quot;:[&quot;0.00&quot;,&quot;0.00&quot;,&quot;0.00&quot;,&quot;0.00&quot;]}]}")</script>
                                     </canvas>
                                 </div>
                                 <div class="chart">
                                     <canvas id="MonitorDocker_Submit Transactions 40 tps - PoW_polarArea0">
-                                        <script>plotChart("MonitorDocker_Submit Transactions 40 tps - PoW_polarArea0", "{&quot;type&quot;:&quot;polarArea&quot;,&quot;title&quot;:&quot;CPU%(max)&quot;,&quot;legend&quot;:true,&quot;labels&quot;:[&quot;&#x2F;replica-4&quot;,&quot;&#x2F;replica-12&quot;,&quot;&#x2F;replica-8&quot;,&quot;&#x2F;replica-0&quot;],&quot;datasets&quot;:[{&quot;backgroundColor&quot;:[&quot;rgb(255,71,0,0.6)&quot;,&quot;rgb(179,50,0,0.6)&quot;,&quot;rgb(255,209,191,0.6)&quot;,&quot;rgb(255,163,128,0.6)&quot;],&quot;data&quot;:[2.17796875,2.30515625,2.85078125,2.98]}]}")</script>
+                                        <script>plotChart("MonitorDocker_Submit Transactions 40 tps - PoW_polarArea0", "{&quot;type&quot;:&quot;polarArea&quot;,&quot;title&quot;:&quot;CPU%(max)&quot;,&quot;legend&quot;:true,&quot;labels&quot;:[&quot;&#x2F;replica-12&quot;,&quot;&#x2F;replica-8&quot;,&quot;&#x2F;replica-4&quot;,&quot;&#x2F;replica-0&quot;],&quot;datasets&quot;:[{&quot;backgroundColor&quot;:[&quot;rgb(255,71,0,0.6)&quot;,&quot;rgb(179,50,0,0.6)&quot;,&quot;rgb(255,209,191,0.6)&quot;,&quot;rgb(255,163,128,0.6)&quot;],&quot;data&quot;:[5.4015625,2.5021875,3.5646875,5.294375]}]}")</script>
                                     </canvas>
                                 </div>
                                 <div class="chart">
                                     <canvas id="MonitorDocker_Submit Transactions 40 tps - PoW_polarArea1">
-                                        <script>plotChart("MonitorDocker_Submit Transactions 40 tps - PoW_polarArea1", "{&quot;type&quot;:&quot;polarArea&quot;,&quot;title&quot;:&quot;CPU%(avg)&quot;,&quot;legend&quot;:true,&quot;labels&quot;:[&quot;&#x2F;replica-4&quot;,&quot;&#x2F;replica-12&quot;,&quot;&#x2F;replica-8&quot;,&quot;&#x2F;replica-0&quot;],&quot;datasets&quot;:[{&quot;backgroundColor&quot;:[&quot;rgb(255,71,0,0.6)&quot;,&quot;rgb(179,50,0,0.6)&quot;,&quot;rgb(255,209,191,0.6)&quot;,&quot;rgb(255,163,128,0.6)&quot;],&quot;data&quot;:[0.16328125,0.2765625,0.23578125,0.38953125]}]}")</script>
+                                        <script>plotChart("MonitorDocker_Submit Transactions 40 tps - PoW_polarArea1", "{&quot;type&quot;:&quot;polarArea&quot;,&quot;title&quot;:&quot;CPU%(avg)&quot;,&quot;legend&quot;:true,&quot;labels&quot;:[&quot;&#x2F;replica-12&quot;,&quot;&#x2F;replica-8&quot;,&quot;&#x2F;replica-4&quot;,&quot;&#x2F;replica-0&quot;],&quot;datasets&quot;:[{&quot;backgroundColor&quot;:[&quot;rgb(255,71,0,0.6)&quot;,&quot;rgb(179,50,0,0.6)&quot;,&quot;rgb(255,209,191,0.6)&quot;,&quot;rgb(255,163,128,0.6)&quot;],&quot;data&quot;:[0.653125,0.5175,0.6715625,1.116875]}]}")</script>
                                     </canvas>
                                 </div>
                                 <div class="chart">
                                     <canvas id="MonitorDocker_Submit Transactions 40 tps - PoW_polarArea2">
-                                        <script>plotChart("MonitorDocker_Submit Transactions 40 tps - PoW_polarArea2", "{&quot;type&quot;:&quot;polarArea&quot;,&quot;title&quot;:&quot;Memory(max) [GB]&quot;,&quot;legend&quot;:true,&quot;labels&quot;:[&quot;&#x2F;replica-4&quot;,&quot;&#x2F;replica-12&quot;,&quot;&#x2F;replica-8&quot;,&quot;&#x2F;replica-0&quot;],&quot;datasets&quot;:[{&quot;backgroundColor&quot;:[&quot;rgb(255,71,0,0.6)&quot;,&quot;rgb(179,50,0,0.6)&quot;,&quot;rgb(255,209,191,0.6)&quot;,&quot;rgb(255,163,128,0.6)&quot;],&quot;data&quot;:[&quot;0.959&quot;,&quot;0.772&quot;,&quot;0.973&quot;,&quot;1.42&quot;]}]}")</script>
+                                        <script>plotChart("MonitorDocker_Submit Transactions 40 tps - PoW_polarArea2", "{&quot;type&quot;:&quot;polarArea&quot;,&quot;title&quot;:&quot;Memory(max) [GB]&quot;,&quot;legend&quot;:true,&quot;labels&quot;:[&quot;&#x2F;replica-12&quot;,&quot;&#x2F;replica-8&quot;,&quot;&#x2F;replica-4&quot;,&quot;&#x2F;replica-0&quot;],&quot;datasets&quot;:[{&quot;backgroundColor&quot;:[&quot;rgb(255,71,0,0.6)&quot;,&quot;rgb(179,50,0,0.6)&quot;,&quot;rgb(255,209,191,0.6)&quot;,&quot;rgb(255,163,128,0.6)&quot;],&quot;data&quot;:[&quot;0.884&quot;,&quot;0.832&quot;,&quot;0.750&quot;,&quot;1.56&quot;]}]}")</script>
                                     </canvas>
                                 </div>
                                 <div class="chart">
                                     <canvas id="MonitorDocker_Submit Transactions 40 tps - PoW_polarArea3">
-                                        <script>plotChart("MonitorDocker_Submit Transactions 40 tps - PoW_polarArea3", "{&quot;type&quot;:&quot;polarArea&quot;,&quot;title&quot;:&quot;Memory(avg) [GB]&quot;,&quot;legend&quot;:true,&quot;labels&quot;:[&quot;&#x2F;replica-4&quot;,&quot;&#x2F;replica-12&quot;,&quot;&#x2F;replica-8&quot;,&quot;&#x2F;replica-0&quot;],&quot;datasets&quot;:[{&quot;backgroundColor&quot;:[&quot;rgb(255,71,0,0.6)&quot;,&quot;rgb(179,50,0,0.6)&quot;,&quot;rgb(255,209,191,0.6)&quot;,&quot;rgb(255,163,128,0.6)&quot;],&quot;data&quot;:[&quot;0.596&quot;,&quot;0.599&quot;,&quot;0.630&quot;,&quot;1.32&quot;]}]}")</script>
+                                        <script>plotChart("MonitorDocker_Submit Transactions 40 tps - PoW_polarArea3", "{&quot;type&quot;:&quot;polarArea&quot;,&quot;title&quot;:&quot;Memory(avg) [GB]&quot;,&quot;legend&quot;:true,&quot;labels&quot;:[&quot;&#x2F;replica-12&quot;,&quot;&#x2F;replica-8&quot;,&quot;&#x2F;replica-4&quot;,&quot;&#x2F;replica-0&quot;],&quot;datasets&quot;:[{&quot;backgroundColor&quot;:[&quot;rgb(255,71,0,0.6)&quot;,&quot;rgb(179,50,0,0.6)&quot;,&quot;rgb(255,209,191,0.6)&quot;,&quot;rgb(255,163,128,0.6)&quot;],&quot;data&quot;:[&quot;0.563&quot;,&quot;0.550&quot;,&quot;0.592&quot;,&quot;1.38&quot;]}]}")</script>
                                     </canvas>
                                 </div>
                                 <div class="chart">
                                     <canvas id="MonitorDocker_Submit Transactions 40 tps - PoW_polarArea4">
-                                        <script>plotChart("MonitorDocker_Submit Transactions 40 tps - PoW_polarArea4", "{&quot;type&quot;:&quot;polarArea&quot;,&quot;title&quot;:&quot;Traffic In [MB]&quot;,&quot;legend&quot;:true,&quot;labels&quot;:[&quot;&#x2F;replica-4&quot;,&quot;&#x2F;replica-12&quot;,&quot;&#x2F;replica-8&quot;,&quot;&#x2F;replica-0&quot;],&quot;datasets&quot;:[{&quot;backgroundColor&quot;:[&quot;rgb(255,71,0,0.6)&quot;,&quot;rgb(179,50,0,0.6)&quot;,&quot;rgb(255,209,191,0.6)&quot;,&quot;rgb(255,163,128,0.6)&quot;],&quot;data&quot;:[&quot;17.6&quot;,&quot;18.0&quot;,&quot;17.8&quot;,&quot;52.2&quot;]}]}")</script>
+                                        <script>plotChart("MonitorDocker_Submit Transactions 40 tps - PoW_polarArea4", "{&quot;type&quot;:&quot;polarArea&quot;,&quot;title&quot;:&quot;Traffic In [MB]&quot;,&quot;legend&quot;:true,&quot;labels&quot;:[&quot;&#x2F;replica-12&quot;,&quot;&#x2F;replica-8&quot;,&quot;&#x2F;replica-4&quot;,&quot;&#x2F;replica-0&quot;],&quot;datasets&quot;:[{&quot;backgroundColor&quot;:[&quot;rgb(255,71,0,0.6)&quot;,&quot;rgb(179,50,0,0.6)&quot;,&quot;rgb(255,209,191,0.6)&quot;,&quot;rgb(255,163,128,0.6)&quot;],&quot;data&quot;:[&quot;9.03&quot;,&quot;9.21&quot;,&quot;9.24&quot;,&quot;29.2&quot;]}]}")</script>
                                     </canvas>
                                 </div>
                                 <div class="chart">
                                     <canvas id="MonitorDocker_Submit Transactions 40 tps - PoW_polarArea5">
-                                        <script>plotChart("MonitorDocker_Submit Transactions 40 tps - PoW_polarArea5", "{&quot;type&quot;:&quot;polarArea&quot;,&quot;title&quot;:&quot;Traffic Out [MB]&quot;,&quot;legend&quot;:true,&quot;labels&quot;:[&quot;&#x2F;replica-4&quot;,&quot;&#x2F;replica-12&quot;,&quot;&#x2F;replica-8&quot;,&quot;&#x2F;replica-0&quot;],&quot;datasets&quot;:[{&quot;backgroundColor&quot;:[&quot;rgb(255,71,0,0.6)&quot;,&quot;rgb(179,50,0,0.6)&quot;,&quot;rgb(255,209,191,0.6)&quot;,&quot;rgb(255,163,128,0.6)&quot;],&quot;data&quot;:[&quot;18.3&quot;,&quot;22.8&quot;,&quot;14.6&quot;,&quot;78.6&quot;]}]}")</script>
+                                        <script>plotChart("MonitorDocker_Submit Transactions 40 tps - PoW_polarArea5", "{&quot;type&quot;:&quot;polarArea&quot;,&quot;title&quot;:&quot;Traffic Out [MB]&quot;,&quot;legend&quot;:true,&quot;labels&quot;:[&quot;&#x2F;replica-12&quot;,&quot;&#x2F;replica-8&quot;,&quot;&#x2F;replica-4&quot;,&quot;&#x2F;replica-0&quot;],&quot;datasets&quot;:[{&quot;backgroundColor&quot;:[&quot;rgb(255,71,0,0.6)&quot;,&quot;rgb(179,50,0,0.6)&quot;,&quot;rgb(255,209,191,0.6)&quot;,&quot;rgb(255,163,128,0.6)&quot;],&quot;data&quot;:[&quot;9.21&quot;,&quot;9.99&quot;,&quot;8.79&quot;,&quot;25.1&quot;]}]}")</script>
                                     </canvas>
                                 </div>
                                 <div class="chart">
                                     <canvas id="MonitorDocker_Submit Transactions 40 tps - PoW_polarArea6">
-                                        <script>plotChart("MonitorDocker_Submit Transactions 40 tps - PoW_polarArea6", "{&quot;type&quot;:&quot;polarArea&quot;,&quot;title&quot;:&quot;Disc Write [B]&quot;,&quot;legend&quot;:true,&quot;labels&quot;:[&quot;&#x2F;replica-4&quot;,&quot;&#x2F;replica-12&quot;,&quot;&#x2F;replica-8&quot;,&quot;&#x2F;replica-0&quot;],&quot;datasets&quot;:[{&quot;backgroundColor&quot;:[&quot;rgb(255,71,0,0.6)&quot;,&quot;rgb(179,50,0,0.6)&quot;,&quot;rgb(255,209,191,0.6)&quot;,&quot;rgb(255,163,128,0.6)&quot;],&quot;data&quot;:[&quot;0.00&quot;,&quot;0.00&quot;,&quot;0.00&quot;,&quot;0.00&quot;]}]}")</script>
+                                        <script>plotChart("MonitorDocker_Submit Transactions 40 tps - PoW_polarArea6", "{&quot;type&quot;:&quot;polarArea&quot;,&quot;title&quot;:&quot;Disc Write [MB]&quot;,&quot;legend&quot;:true,&quot;labels&quot;:[&quot;&#x2F;replica-12&quot;,&quot;&#x2F;replica-8&quot;,&quot;&#x2F;replica-4&quot;,&quot;&#x2F;replica-0&quot;],&quot;datasets&quot;:[{&quot;backgroundColor&quot;:[&quot;rgb(255,71,0,0.6)&quot;,&quot;rgb(179,50,0,0.6)&quot;,&quot;rgb(255,209,191,0.6)&quot;,&quot;rgb(255,163,128,0.6)&quot;],&quot;data&quot;:[&quot;8.10&quot;,&quot;8.10&quot;,&quot;8.10&quot;,&quot;8.10&quot;]}]}")</script>
                                     </canvas>
                                 </div>
                                 <div class="chart">
                                     <canvas id="MonitorDocker_Submit Transactions 40 tps - PoW_polarArea7">
-                                        <script>plotChart("MonitorDocker_Submit Transactions 40 tps - PoW_polarArea7", "{&quot;type&quot;:&quot;polarArea&quot;,&quot;title&quot;:&quot;Disc Read [B]&quot;,&quot;legend&quot;:true,&quot;labels&quot;:[&quot;&#x2F;replica-4&quot;,&quot;&#x2F;replica-12&quot;,&quot;&#x2F;replica-8&quot;,&quot;&#x2F;replica-0&quot;],&quot;datasets&quot;:[{&quot;backgroundColor&quot;:[&quot;rgb(255,71,0,0.6)&quot;,&quot;rgb(179,50,0,0.6)&quot;,&quot;rgb(255,209,191,0.6)&quot;,&quot;rgb(255,163,128,0.6)&quot;],&quot;data&quot;:[&quot;0.00&quot;,&quot;0.00&quot;,&quot;0.00&quot;,&quot;0.00&quot;]}]}")</script>
+                                        <script>plotChart("MonitorDocker_Submit Transactions 40 tps - PoW_polarArea7", "{&quot;type&quot;:&quot;polarArea&quot;,&quot;title&quot;:&quot;Disc Read [B]&quot;,&quot;legend&quot;:true,&quot;labels&quot;:[&quot;&#x2F;replica-12&quot;,&quot;&#x2F;replica-8&quot;,&quot;&#x2F;replica-4&quot;,&quot;&#x2F;replica-0&quot;],&quot;datasets&quot;:[{&quot;backgroundColor&quot;:[&quot;rgb(255,71,0,0.6)&quot;,&quot;rgb(179,50,0,0.6)&quot;,&quot;rgb(255,209,191,0.6)&quot;,&quot;rgb(255,163,128,0.6)&quot;],&quot;data&quot;:[&quot;0.00&quot;,&quot;0.00&quot;,&quot;0.00&quot;,&quot;0.00&quot;]}]}")</script>
                                     </canvas>
                                 </div>
                             </div>
@@ -289,7 +289,7 @@ rateControl:
 rounds:
   - label: Submit Transactions 40 tps - PoW
     description: Submit PoW transactions (sc piggybacked)
-    txDuration: 30
+    txDuration: 60
     rateControl:
       type: fixed-rate
       opts:

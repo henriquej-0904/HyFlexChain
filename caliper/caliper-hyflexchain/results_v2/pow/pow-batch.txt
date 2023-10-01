@@ -28,11 +28,29 @@ c/ smart contracts:
 
 referenced smart contracts:
 	5k (9 Tx) ->
-		(latency)	avg = 123.23; std = 3.28%
-		(throughput)	avg = 3.5900; std = 9.14%
+		(latency)	avg = 95.880; std = 2.04%
+		(throughput)	avg = 11.460; std = 8.55%
 		
+	10k (18 Tx) ->
+		(latency)	avg = 90.980; std = 8.45%
+		(throughput)	avg = 12.570; std = 9.86%
+		
+	20k (36 Tx) ->
+		(latency)	avg = 90.300; std = 6.22%
+		(throughput)	avg = 14.460; std = 2.61%
+		
+	40k (17 Tx) ->
+		(latency)	avg = 86.5600; std = 6.61%
+		(throughput)	avg = 14.6100; std = 8.08%
+		
+	80k (17 Tx) ->
+		(latency)	avg = 102.670; std = 7.75%
+		(throughput)	avg = 12.9600; std = 7.18%
+		
+	160k (72 Tx) ->
+		(latency)	avg = 184.040; std = 5.06%
+		(throughput)	avg = 9.40000; std = 5.96%
 	
-
 
 
 

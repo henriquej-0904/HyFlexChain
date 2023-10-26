@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction.Version;
+import pt.unl.fct.di.hyflexchain.planes.data.transaction.wrapper.TxWrapper;
 import pt.unl.fct.di.hyflexchain.planes.txmanagement.TransactionManagement;
 
 /**
@@ -14,7 +15,7 @@ import pt.unl.fct.di.hyflexchain.planes.txmanagement.TransactionManagement;
  */
 public class TransactionInterfaceV2_0 implements TransactionInterface {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(TransactionInterfaceV1_0.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(TransactionInterfaceV2_0.class);
 
     @Override
 	public void verifyTx(HyFlexChainTransaction tx) throws InvalidTransactionException
@@ -24,7 +25,7 @@ public class TransactionInterfaceV2_0 implements TransactionInterface {
 			version = HyFlexChainTransaction.Version.valueOf(tx.getVersion());
 		} catch (Exception e) {
 			var exc = InvalidTransactionException.invalidVersion(tx.getVersion());
-			LOGGER.info(exc.getMessage());
+			LOGGER.error(exc.getMessage(), e);
 			throw exc;
 		}
 
@@ -35,9 +36,9 @@ public class TransactionInterfaceV2_0 implements TransactionInterface {
 			throw exc;
 		}
 
-		if (tx.getSender() == null || tx.getHash() == null ||
+		if (tx.getSender() == null ||
 			tx.getSignatureType() == null || tx.getSignature() == null
-            || tx.getData() == null)
+            || tx.getSmartContract() == null || tx.getTransactionType() == null || tx.getData() == null)
 		{
 			var exc = new InvalidTransactionException("At least one field is null");
 			LOGGER.info(exc.getMessage());
@@ -46,16 +47,16 @@ public class TransactionInterfaceV2_0 implements TransactionInterface {
 	}
 
 	@Override
-	public String sendTransaction(HyFlexChainTransaction tx) throws InvalidTransactionException
+	public String sendTransaction(TxWrapper tx) throws InvalidTransactionException
 	{
-		verifyTx(tx);
+		verifyTx(tx.tx());
 		return TransactionManagement.getInstance().dispatchTransaction(tx);	
 	}
 
 	@Override
-	public String sendTransactionAndWait(HyFlexChainTransaction tx) throws InvalidTransactionException
+	public String sendTransactionAndWait(TxWrapper tx) throws InvalidTransactionException
 	{
-		verifyTx(tx);
+		verifyTx(tx.tx());
 		return TransactionManagement.getInstance().dispatchTransactionAndWait(tx);
 	}
 	

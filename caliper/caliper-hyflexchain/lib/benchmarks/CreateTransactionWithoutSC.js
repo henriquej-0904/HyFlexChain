@@ -39,13 +39,13 @@ class CreateTransactionWithoutScWorkload extends WorkloadModuleBase {
      * @return {Promise<TxStatus[]>}
      */
     async submitTransaction() {
-        const originPubKey = "EC;" + this.sutContext.encodedPublicKey;
-        const destPubKey = "EC;" + this.getRandPubKey();
+        const originPubKey = "0x01" + this.sutContext.encodedPublicKey;
+        const destAddress = this.getRandDestAddress();
         const val = Util.getRandomInt32();
 
-        const inputTxs = [HyFlexChainTransaction.createInputTx(this.getRandPubKey(), "some hash", 0)];
-        const outputTxs = [HyFlexChainTransaction.createOutputTx(destPubKey, val)];
-        const tx = new HyFlexChainTransaction(originPubKey, inputTxs, outputTxs);
+        const inputTxs = [HyFlexChainTransaction.createInputTx(this.getRandDestAddress(), "some hash", 0)];
+        const outputTxs = [HyFlexChainTransaction.createOutputTx(destAddress, val)];
+        const tx = new HyFlexChainTransaction(HyFlexChainTransaction.TRANSFER, originPubKey, inputTxs, outputTxs);
         tx.nonce = this.txIndex;
 
         this.txIndex++;
@@ -54,15 +54,14 @@ class CreateTransactionWithoutScWorkload extends WorkloadModuleBase {
     }
 
     /**
-     * Get a rand pub key from the array of public keys
-     * @return {string} random public key
+     * Get a rand replica address from the array of destination addresses
+     * @return {string} random replica address
      */
-    getRandPubKey()
+    getRandDestAddress()
     {
-        
-        const pubKeys = this.sutContext.encodedPublicKeys;
-        const i = Util.getRandomIntExcept(0, pubKeys.length, this.workerIndex);
-        return "EC;" + pubKeys[i];
+        const destAddresses = this.sutContext.destAddresses;
+        const i = Util.getRandomInt(0, destAddresses.length);
+        return destAddresses[i];
     }
 }
 

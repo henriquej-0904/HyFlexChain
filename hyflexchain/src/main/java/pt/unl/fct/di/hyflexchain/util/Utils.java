@@ -13,15 +13,29 @@ import java.text.SimpleDateFormat;
 import java.util.Base64;
 import java.util.Calendar;
 
+import org.apache.tuweni.bytes.Bytes;
 import org.slf4j.Logger;
 
+import com.fasterxml.jackson.core.JacksonException;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+
+import pt.unl.fct.di.hyflexchain.util.serializer.AutoSerializer;
 
 public class Utils
 {
-    public static final JsonMapper json = (JsonMapper)
-        new JsonMapper().registerModule(new Jdk8Module());
+    public static final JsonMapper json = JsonConfig.createJsonSerializer();
+
+    public static final AutoSerializer serializer =
+        new AutoSerializer.Builder().build();
 
     public static ByteBuffer toBytes(int value)
     {
@@ -141,6 +155,69 @@ public class Utils
     public static String toHex(byte[] data)
     {
         return toHex(data, data.length);
+    }
+
+    public static Error toError(Throwable t)
+    {
+        return new Error(t.getMessage(), t);
+    }
+
+    public static class JsonConfig
+    {
+
+        public static JsonMapper createJsonSerializer()
+        {
+            return (JsonMapper) new JsonMapper()
+                .registerModules(
+                    new Jdk8Module(),
+                    new SimpleModule("Module to serialize Bytes instances")
+                        .addSerializer(Bytes.class, new BytesJsonSerializer())
+                        .addDeserializer(Bytes.class, new BytesJsonDeserializer())
+                );
+        }
+
+        public static class BytesJsonSerializer extends StdSerializer<Bytes>
+        {
+
+            public BytesJsonSerializer() {
+                super(Bytes.class);
+            }
+
+            public BytesJsonSerializer(Class<Bytes> t) {
+                super(t);
+            }
+
+            @Override
+            public void serialize(Bytes value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+                gen.writeString(value.toBase64String());
+            }
+
+            @Override
+            public Class<Bytes> handledType() {
+                return Bytes.class;
+            }
+            
+        }
+
+        public static class BytesJsonDeserializer extends StdDeserializer<Bytes>
+        {
+            public BytesJsonDeserializer() {
+                super(Bytes.class);
+            }
+
+            @Override
+            public Bytes deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JacksonException {
+                JsonNode node = p.getCodec().readTree(p);
+                String base64Bytes = node.asText();
+                return Bytes.fromBase64String(base64Bytes);
+            }
+
+            @Override
+            public Class<Bytes> handledType() {
+                return Bytes.class;
+            }
+            
+        }
     }
 }
 

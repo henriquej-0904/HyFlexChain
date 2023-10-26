@@ -12,7 +12,12 @@ public enum ConsensusMechanism
 	/**
 	 * Proof of Work
 	 */
-	PoW ("pow");
+	PoW ("pow"),
+
+	/**
+	 * BFT-SMaRt
+	 */
+	BFT_SMaRt ("bft_smart");
 
 	private String consensus;
 

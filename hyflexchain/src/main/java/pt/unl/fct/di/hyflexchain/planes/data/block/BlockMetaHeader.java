@@ -1,19 +1,24 @@
 package pt.unl.fct.di.hyflexchain.planes.data.block;
 
-import java.security.MessageDigest;
+import java.io.IOException;
+import java.util.Arrays;
 
+import org.apache.tuweni.bytes.Bytes;
+
+import io.netty.buffer.ByteBuf;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
+import pt.unl.fct.di.hyflexchain.planes.consensus.committees.CommitteeId;
+import pt.unl.fct.di.hyflexchain.util.BytesOps;
 import pt.unl.fct.di.hyflexchain.util.Utils;
+import pt.unl.fct.di.hyflexchain.util.crypto.HyFlexChainSignature;
+import pt.unl.fct.di.hyflexchain.util.serializer.ISerializer;
 
 /**
  * The MetaHeader of a block.
  */
-public class BlockMetaHeader
+public class BlockMetaHeader implements BytesOps
 {
-	/**
-	 * The hash of this block
-	 */
-	protected String hash;
+	public static final Serializer SERIALIZER = new Serializer();
 
 	/**
 	 * The version of this meta header
@@ -33,17 +38,12 @@ public class BlockMetaHeader
 	/**
 	 * The list of validators that participated in the consensus of this block
 	 */
-	protected String[] validators;
+	protected HyFlexChainSignature[] validators;
 
 	/**
 	 * The id of the committee assigned to the consensus of this block
 	 */
-	protected String committeeId;
-
-	/**
-	 * The hash of the block where the committee was created
-	 */
-	protected String committeeBlockHash;
+	protected CommitteeId committeeId;
 
 	/**
 	 * Create a new Meta Header for a block.
@@ -53,18 +53,14 @@ public class BlockMetaHeader
 	 * @param difficultyTarget The proof-of-work algorithm difficulty target for this block
 	 * @param validators The list of validators that participated in the consensus of this block
 	 * @param committeeId The id of the committee assigned to the consensus of this block
-	 * @param committeeBlockHash The hash of the block where the committee was created
 	 */
-	public BlockMetaHeader(String hash, String version, ConsensusMechanism consensus,
-			int difficultyTarget, String[] validators, String committeeId,
-			String committeeBlockHash) {
-		this.hash = hash;
+	public BlockMetaHeader(String version, ConsensusMechanism consensus,
+			int difficultyTarget, HyFlexChainSignature[] validators, CommitteeId committeeId) {
 		this.version = version;
 		this.consensus = consensus;
 		this.difficultyTarget = difficultyTarget;
 		this.validators = validators;
 		this.committeeId = committeeId;
-		this.committeeBlockHash = committeeBlockHash;
 	}
 
 	/**
@@ -73,17 +69,14 @@ public class BlockMetaHeader
 	 * @param difficultyTarget The proof-of-work algorithm difficulty target for this block
 	 * @param validators The list of validators that participated in the consensus of this block
 	 * @param committeeId The id of the committee assigned to the consensus of this block
-	 * @param committeeBlockHash The hash of the block where the committee was created
 	 */
 	public BlockMetaHeader(ConsensusMechanism consensus,
-			int difficultyTarget, String[] validators, String committeeId,
-			String committeeBlockHash) {
+			int difficultyTarget, HyFlexChainSignature[] validators, CommitteeId committeeId) {
 		this.version = Version.V1_0.getVersion();
 		this.consensus = consensus;
 		this.difficultyTarget = difficultyTarget;
 		this.validators = validators;
 		this.committeeId = committeeId;
-		this.committeeBlockHash = committeeBlockHash;
 	}
 
 	/**
@@ -112,22 +105,6 @@ public class BlockMetaHeader
 		public String getVersion() {
 			return version;
 		}
-	}
-
-	/**
-	 * The hash of this block
-	 * @return the hash
-	 */
-	public String getHash() {
-		return hash;
-	}
-
-	/**
-	 * The hash of this block
-	 * @param hash the hash to set
-	 */
-	public void setHash(String hash) {
-		this.hash = hash;
 	}
 
 	/**
@@ -182,7 +159,7 @@ public class BlockMetaHeader
 	 * The list of validators that participated in the consensus of this block
 	 * @return the validators
 	 */
-	public String[] getValidators() {
+	public HyFlexChainSignature[] getValidators() {
 		return validators;
 	}
 
@@ -190,7 +167,7 @@ public class BlockMetaHeader
 	 * The list of validators that participated in the consensus of this block
 	 * @param validators the validators to set
 	 */
-	public void setValidators(String[] validators) {
+	public void setValidators(HyFlexChainSignature[] validators) {
 		this.validators = validators;
 	}
 
@@ -198,7 +175,7 @@ public class BlockMetaHeader
 	 * The id of the committee assigned to the consensus of this block
 	 * @return the committeeId
 	 */
-	public String getCommitteeId() {
+	public CommitteeId getCommitteeId() {
 		return committeeId;
 	}
 
@@ -206,44 +183,81 @@ public class BlockMetaHeader
 	 * The id of the committee assigned to the consensus of this block
 	 * @param committeeId the committeeId to set
 	 */
-	public void setCommitteeId(String committeeId) {
+	public void setCommitteeId(CommitteeId committeeId) {
 		this.committeeId = committeeId;
 	}
 
-	/**
-	 * The hash of the block where the committee was created
-	 * @return the committeeBlockHash
-	 */
-	public String getCommitteeBlockHash() {
-		return committeeBlockHash;
+	@Override
+	public int serializedSize() {
+		return BytesOps.serializedSize(version)
+			+ BytesOps.serializedSize(consensus.getConsensus())
+			+ Integer.BYTES
+			+ BytesOps.serializedSize(validators)
+			+ committeeId.serializedSize();
 	}
 
-	/**
-	 * The hash of the block where the committee was created
-	 * @param committeeBlockHash the committeeBlockHash to set
-	 */
-	public void setCommitteeBlockHash(String committeeBlockHash) {
-		this.committeeBlockHash = committeeBlockHash;
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		BlockMetaHeader other = (BlockMetaHeader) obj;
+		if (version == null) {
+			if (other.version != null)
+				return false;
+		} else if (!version.equals(other.version))
+			return false;
+		if (consensus != other.consensus)
+			return false;
+		if (difficultyTarget != other.difficultyTarget)
+			return false;
+		if (!Arrays.equals(validators, other.validators))
+			return false;
+		if (!committeeId.equals(other.committeeId))
+			return false;
+		return true;
 	}
 
-	public MessageDigest calcHash(MessageDigest msgDigest)
+	public static class Serializer implements ISerializer<BlockMetaHeader>
 	{
-		msgDigest.update(version.getBytes());
-		msgDigest.update(consensus.toString().getBytes());
-		msgDigest.update(Utils.toBytes(difficultyTarget));
+		protected static final ISerializer<String> stringSerializer =
+			Utils.serializer.getSerializer(String.class);
 
-		if ( !(validators == null || validators.length == 0) )
-		{
-			for (String validator : validators) {
-				msgDigest.update(validator.getBytes());
-			}
+		protected static final ISerializer<HyFlexChainSignature[]> signatureArraySerializer =
+			Utils.serializer.getArraySerializer(HyFlexChainSignature.class, HyFlexChainSignature.SERIALIZER);
+
+
+		@Override
+		public void serialize(BlockMetaHeader t, ByteBuf out) throws IOException {
+			stringSerializer.serialize(t.version, out);
+			stringSerializer.serialize(t.consensus.getConsensus(), out);
+			out.writeInt(t.difficultyTarget);
+			signatureArraySerializer.serialize(t.validators, out);
+			CommitteeId.SERIALIZER.serialize(t.committeeId, out);
 		}
 
-		msgDigest.update(committeeId.getBytes());
-		msgDigest.update(committeeBlockHash.getBytes());
+		@Override
+		public BlockMetaHeader deserialize(ByteBuf in) throws IOException {
+			var res = new BlockMetaHeader();
 
-		return msgDigest;
+			res.version = stringSerializer.deserialize(in);
+
+			try {
+				res.consensus = ConsensusMechanism.parse(stringSerializer.deserialize(in));
+			} catch (Exception e) {
+				throw new IOException(e.getMessage(), e);
+			}
+
+			res.difficultyTarget = in.readInt();
+			res.validators = signatureArraySerializer.deserialize(in);
+			res.committeeId = CommitteeId.SERIALIZER.deserialize(in);
+			
+			return res;
+		}
+		
 	}
-
 	
 }

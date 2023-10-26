@@ -1,0 +1,2 @@
+1 tx smart contract: 2073 - block: 2208
+1 txx sem sc: 360 - block: 471

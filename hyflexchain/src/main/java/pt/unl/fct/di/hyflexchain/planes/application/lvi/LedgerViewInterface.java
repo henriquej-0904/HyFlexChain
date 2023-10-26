@@ -2,14 +2,22 @@ package pt.unl.fct.di.hyflexchain.planes.application.lvi;
 
 import java.util.EnumMap;
 import java.util.List;
+import java.util.Map.Entry;
+
+import org.apache.tuweni.bytes.Bytes;
+
 import java.util.Optional;
+
+import pt.unl.fct.di.hyflexchain.planes.application.lvi.consensus.LedgerViewConsensusInterface;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.consensus.committees.Committee;
+import pt.unl.fct.di.hyflexchain.planes.consensus.committees.CommitteeId;
 import pt.unl.fct.di.hyflexchain.planes.data.block.BlockState;
 import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
 import pt.unl.fct.di.hyflexchain.planes.data.ledger.LedgerState;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.TransactionState;
+import pt.unl.fct.di.hyflexchain.util.crypto.HashedObject;
 
 /**
  * The Ledger View Interface is responsible for exposing the Ledger State.
@@ -23,6 +31,8 @@ public interface LedgerViewInterface {
 		return SimpleLVI.getInstance();
 	}
 
+	LedgerViewConsensusInterface getLVI(ConsensusMechanism consensus);
+
 	//#region Transactions
 
 	/**
@@ -31,7 +41,7 @@ public interface LedgerViewInterface {
 	 * @param consensus The consensus mechanism
 	 * @return The transaction.
 	 */
-	Optional<HyFlexChainTransaction> getTransaction(String id, ConsensusMechanism consensus);
+	Optional<HyFlexChainTransaction> getTransaction(Bytes id, ConsensusMechanism consensus);
 
 	/**
 	 * Get the state of a transaction.
@@ -39,7 +49,7 @@ public interface LedgerViewInterface {
 	 * @param consensus The consensus mechanism
 	 * @return The state of the transaction.
 	 */
-	TransactionState getTransactionState(String id, ConsensusMechanism consensus);
+	TransactionState getTransactionState(Bytes id, ConsensusMechanism consensus);
 
 	/**
 	 * Get all transactions where the specified account is the origin.
@@ -96,7 +106,7 @@ public interface LedgerViewInterface {
 	 * @param consensus The consensus mechanism
 	 * @return The block.
 	 */
-	Optional<HyFlexChainBlock> getBlock(String id, ConsensusMechanism consensus);
+	Optional<HyFlexChainBlock> getBlock(Bytes id, ConsensusMechanism consensus);
 
 	/**
 	 * Get the state of a block.
@@ -104,7 +114,7 @@ public interface LedgerViewInterface {
 	 * @param consensus The consensus mechanism
 	 * @return The state of the block.
 	 */
-	Optional<BlockState> getBlockState(String id, ConsensusMechanism consensus);
+	Optional<BlockState> getBlockState(Bytes id, ConsensusMechanism consensus);
 
 	/**
 	 * Get all blocks according to the specified filter.
@@ -112,14 +122,14 @@ public interface LedgerViewInterface {
 	 * @param consensus The consensus mechanism
 	 * @return All filtered blocks.
 	 */
-	List<HyFlexChainBlock> getBlocks(BlockFilter filter, ConsensusMechanism consensus);
+	List<HashedObject<HyFlexChainBlock>> getBlocks(BlockFilter filter, ConsensusMechanism consensus);
 
 	/**
 	 * Get the hash of the last block.
 	 * @param consensus The consensus mechanism
 	 * @return The hash of the last block.
 	 */
-	String getLastBlockHash(ConsensusMechanism consensus);
+	Bytes getLastBlockHash(ConsensusMechanism consensus);
 
 	/**
 	 * Get the number of blocks in the blockchain.
@@ -155,15 +165,22 @@ public interface LedgerViewInterface {
 	 * @param consensus The consensus mechanism of the committee
 	 * @return The currently active committee.
 	 */
-	Committee getActiveCommittee(ConsensusMechanism consensus);
+	Optional<Entry<CommitteeId, ? extends Committee>> getActiveCommittee(ConsensusMechanism consensus);
 
 	/**
-	 * Get a ledger view of previous committees.
+	 * Get a ledger view of previous defined committees.
 	 * 
 	 * @param lastN The previous N committees
 	 * @param consensus The consensus mechanism
 	 * @return Previous Committees.
 	 */
-	List<Committee> getLedgerViewPreviousCommittees(int lastN, ConsensusMechanism consensus);
+	List<? extends Committee> getLedgerViewPreviousCommittees(int lastN, ConsensusMechanism consensus);
+
+	/**
+	 * Get the next committee after the currently active one.
+	 * @param consensus
+	 * @return
+	 */
+	Optional<Entry<CommitteeId, ? extends Committee>> getNextCommittee(ConsensusMechanism consensus);
 
 }

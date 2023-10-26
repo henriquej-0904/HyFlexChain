@@ -1,5 +1,7 @@
 package pt.unl.fct.di.hyflexchain.util.config;
 
+import java.io.File;
+
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 
 /**
@@ -26,6 +28,16 @@ public class LedgerConfig {
 		this.consensus = consensus;
 	}
 
+	public MultiLedgerConfig getMultiLedgerConfig()
+    {
+        return this.allConfigs;
+    }
+
+	public File getConfigFolder()
+	{
+		return new File(getConfigValue(CONFIG.CONFIG_FOLDER.toString()));
+	}
+
 	
 	/**
 	 * Get the value of the specified key
@@ -35,6 +47,42 @@ public class LedgerConfig {
 	public String getConfigValue(String key)
 	{
 		return this.allConfigs.getConfigValue(key, this.consensus);
+	}
+
+	/**
+	 * Get the value of the specified key
+	 * @param key The key to search for the value
+	 * @return The value associated with the specified key or null.
+	 */
+	public String getConfigValueOrThrowError(String key)
+	{
+		var res = this.allConfigs.getConfigValue(key, this.consensus);
+
+		if (res == null)
+			throw new Error(String.format(
+				"%s is not defined in %s config.", key, this.consensus));
+
+		return res;
+	}
+
+	public int getConfigIntValueOrThrowError(String key)
+	{
+		try {
+			return Integer.parseInt(getConfigValueOrThrowError(key));
+		} catch (Exception e) {
+			throw new Error(String.format(
+				"%s is not defined in %s config.", key, this.consensus), e);
+		}
+	}
+
+	public boolean getConfigBooleanValueOrThrowError(String key)
+	{
+		try {
+			return Boolean.parseBoolean(getConfigValueOrThrowError(key));
+		} catch (Exception e) {
+			throw new Error(String.format(
+				"%s is not defined in %s config.", key, this.consensus), e);
+		}
 	}
 
 	/**
@@ -83,7 +131,12 @@ public class LedgerConfig {
 		/**
 		 * The maximum time to wait when creating a block of transactions.
 		 */
-		CREATE_BLOCK_TIME
+		CREATE_BLOCK_TIME,
+
+		/**
+		 * The configuration folder for this consensus mechanism.
+		 */
+		CONFIG_FOLDER
 	}
 	
 

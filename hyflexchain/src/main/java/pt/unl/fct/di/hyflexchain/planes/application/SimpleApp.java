@@ -11,16 +11,17 @@ import java.security.SignatureException;
 import java.util.Scanner;
 
 import org.apache.commons.cli.ParseException;
+import org.apache.tuweni.bytes.Bytes;
 import org.slf4j.LoggerFactory;
 
 import pt.unl.fct.di.hyflexchain.planes.application.ti.InvalidTransactionException;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.Address;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
-import pt.unl.fct.di.hyflexchain.planes.data.transaction.TransactionId;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.TxInput;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.UTXO;
-import pt.unl.fct.di.hyflexchain.util.Crypto;
+import pt.unl.fct.di.hyflexchain.planes.data.transaction.wrapper.TxWrapper;
+import pt.unl.fct.di.hyflexchain.util.crypto.Crypto;
 
 public class SimpleApp extends ApplicationInterface
 {
@@ -58,12 +59,12 @@ public class SimpleApp extends ApplicationInterface
 		tx.setNonce(nonce++);
 		tx.setInputTxs(new TxInput[]{
 			new TxInput(
-				new TransactionId(new Address("sender"), "hash"),
+				Bytes.random(256/8).toArrayUnsafe(),
 				0
 			)
 		});
 		tx.setOutputTxs(new UTXO[]{
-			new UTXO(new Address("address"), 45)
+			new UTXO(address, 45)
 		});
 
 		byte[] bytes = new byte[20];
@@ -72,11 +73,9 @@ public class SimpleApp extends ApplicationInterface
 
 		try {
 			tx.sign(this.keyPair.getPrivate(), tx.getSignatureType());
-		} catch (InvalidKeyException | NoSuchAlgorithmException | SignatureException e) {
+		} catch (InvalidKeyException | SignatureException e) {
 			e.printStackTrace();
 		}
-		
-		tx.setHash(tx.hash());
 
 		return tx;
 	}
@@ -88,7 +87,7 @@ public class SimpleApp extends ApplicationInterface
 		System.out.println("Submiting tx and waiting for block finalization");
 
 		try {
-			this.ti.sendTransactionAndWait(tx);
+			this.ti.sendTransactionAndWait(TxWrapper.from(tx));
 		} catch (InvalidTransactionException e) {
 			e.printStackTrace();
 		}
@@ -101,7 +100,7 @@ public class SimpleApp extends ApplicationInterface
 		for (int i = 0; i < n; i++) {
 			HyFlexChainTransaction tx = createTx();
 			try {
-				this.ti.sendTransaction(tx);
+				this.ti.sendTransaction(TxWrapper.from(tx));
 			} catch (InvalidTransactionException e) {
 				e.printStackTrace();
 			}

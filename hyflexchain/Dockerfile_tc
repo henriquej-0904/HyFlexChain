@@ -1,0 +1,13 @@
+FROM henriquej0904/hyflexchain:base-tc
+
+WORKDIR /app
+
+RUN echo "security.provider.13=org.bouncycastle.jce.provider.BouncyCastleProvider" >> /usr/lib/jvm/java-19-openjdk-amd64/conf/security/java.security
+
+COPY lib-bft-smart /app/lib-bft-smart
+
+COPY target/hyflexchain-jar-with-dependencies.jar /app/hyflexchain.jar
+
+# ENTRYPOINT ["java", "-jar", "hyflexchain.jar"]
+# tc qdisc add dev eth0 root netem rate 110mbit delay 75ms 20ms
+# docker run --rm -it -h replica-x --network hyflexchain --cap-add NET_ADMIN teste

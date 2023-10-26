@@ -1,0 +1,53 @@
+test:
+  workers:
+    number: 1
+  rounds:
+
+    - label: Install Smart Contracts 200 tps - PoW
+      description: Submit PoW transactions (sc piggybacked)
+      txDuration: 60
+      # txNumber: 5000
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 200
+      workload:
+        module: lib/benchmarks/InstallSmartContracts.js
+
+    # - label: Submit Transactions 100 tps - PoW
+    #   description: Submit PoW transactions (sc piggybacked)
+    #   txDuration: 60
+    #   # txNumber: 5000
+    #   rateControl:
+    #     type: fixed-rate
+    #     opts:
+    #       tps: 100
+    #   workload:
+    #     module: lib/benchmarks/CreateTransactionPowWithSC.js
+
+    # - label: Submit Transactions 200 tps - PoW
+    #   description: Submit PoW transactions (sc piggybacked)
+    #   txDuration: 60
+    #   # txNumber: 20000
+    #   rateControl:
+    #     type: fixed-rate
+    #     opts:
+    #       tps: 200
+    #   workload:
+    #     module: lib/benchmarks/CreateTransactionPowWithSC.js
+  
+# monitors:
+#   resource:
+#   - module: docker
+#     options:
+#       interval: 5
+#       containers:
+#       - /replica-0
+#       - /replica-1
+#       - /replica-2
+#       - /replica-3
+#       charting:
+#         bar:
+#           metrics: [Memory(avg), CPU%(avg)]
+#         polar:
+#           metrics: [all]

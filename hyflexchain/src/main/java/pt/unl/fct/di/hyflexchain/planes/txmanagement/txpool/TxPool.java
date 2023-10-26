@@ -1,6 +1,8 @@
 package pt.unl.fct.di.hyflexchain.planes.txmanagement.txpool;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,16 +10,20 @@ import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.apache.tuweni.bytes.Bytes;
 import org.slf4j.Logger;
+import org.thavam.util.concurrent.blockingMap.BlockingHashMap;
+import org.thavam.util.concurrent.blockingMap.BlockingMap;
 
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
-import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
+import pt.unl.fct.di.hyflexchain.planes.data.transaction.SerializedTx;
+import pt.unl.fct.di.hyflexchain.util.ResetInterface;
 
 /**
  * A transaction pool of pending transactions for a specific consensus
  * mechanism.
  */
-public class TxPool
+public class TxPool implements ResetInterface
 {
 	public static final int WAIT_MILLIS = 10;
 	public static final int PENDING_INIT_SIZE = 1000;
@@ -28,15 +34,17 @@ public class TxPool
 	private final ConsensusMechanism consensus;
 
 	/**
-	 * A map of transactions that were already
-	 * proposed and are waiting to be finalized
+	 * A map of tx hash and result. It represents the
+	 * result of a processed transaction.
 	 */
-	private final Map<String, HyFlexChainTransaction> waitingForFinalization;
+	private BlockingMap<Bytes, Boolean> finished;
+
+	private final Map<Bytes, SerializedTx> waitingForFinalization;
 
 	/**
 	 * A map of pending transactions with insertion order.
 	 */
-	private final LinkedHashMap<String, HyFlexChainTransaction> pending;
+	private final LinkedHashMap<Bytes, SerializedTx> pending;
 
 	private final Lock lock;
 
@@ -46,10 +54,22 @@ public class TxPool
 	 */
 	public TxPool(ConsensusMechanism consensus) {
 		this.consensus = consensus;
+		this.waitingForFinalization = new HashMap<>(PENDING_INIT_SIZE);
 		this.pending = new LinkedHashMap<>(PENDING_INIT_SIZE);
-		this.waitingForFinalization = new LinkedHashMap<>(PENDING_INIT_SIZE);
+		this.finished = new BlockingHashMap<>();
 
 		this.lock = new ReentrantLock();
+	}
+
+	@Override
+	public void reset() {
+		this.lock.lock();
+
+		this.waitingForFinalization.clear();
+		this.pending.clear();
+		this.finished = new BlockingHashMap<>();
+		
+		this.lock.unlock();
 	}
 
 	/**
@@ -74,11 +94,11 @@ public class TxPool
 	 * @param tx The tx to add.
 	 * @return true if the tx was added.
 	 */
-	public boolean addTxIfAbsent(HyFlexChainTransaction tx)
+	public boolean addTxIfAbsent(SerializedTx tx)
 	{
 		this.lock.lock();
 
-		boolean inserted = this.pending.putIfAbsent(tx.getHash(), tx) == null;
+		boolean inserted = this.pending.putIfAbsent(tx.hash(), tx) == null;
 
 		this.lock.unlock();
 
@@ -90,12 +110,13 @@ public class TxPool
 	 * <p> This method returns when the transaction was ordered.
 	 * @param tx The tx to add.
 	 * @return true if it was sucessfully ordered.
+	 * @throws InterruptedException
 	 */
-	public boolean addTxIfAbsentAndWait(HyFlexChainTransaction tx, Logger log)
+	public boolean addTxIfAbsentAndWait(SerializedTx tx, Logger log) throws InterruptedException
 	{
 		this.lock.lock();
 
-		boolean inserted = this.pending.putIfAbsent(tx.getHash(), tx) == null;
+		boolean inserted = this.pending.putIfAbsent(tx.hash(), tx) == null;
 
 		this.lock.unlock();
 
@@ -104,18 +125,10 @@ public class TxPool
 			return false;
 		}
 
-		log.info("Submited tx [{}]: {}", consensus.getConsensus(), tx.getHash());
+		log.info("Submited tx [{}] with {} bytes size & hash: {}", consensus.getConsensus(),
+		tx.serialized().length ,tx.hash());
 
-		synchronized(tx)
-		{
-			try {
-				tx.wait();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-
-		return inserted;
+		return this.finished.take(tx.hash());
 	}
 
 	/**
@@ -125,7 +138,7 @@ public class TxPool
 	 * @param n The minimum number of transactions
 	 * @return A list of transactions.
 	 */
-	public LinkedHashMap<String, HyFlexChainTransaction> waitForMinPendingTxs(int n)
+	public List<SerializedTx> waitForMinPendingTxs(int n)
 	{
 		while (true) {
 			while (this.pending.size() < n) {
@@ -146,18 +159,16 @@ public class TxPool
 				continue;
 			}
 
-			LinkedHashMap<String, HyFlexChainTransaction> list =
-				new LinkedHashMap<>(n);
+			List<SerializedTx> list = new ArrayList<>(n);
 
 			var it = this.pending.entrySet().iterator();
 			for (int i = 0; i < n && it.hasNext(); i++) {
 				var tx = it.next();
 				it.remove();
 
-				list.put(tx.getKey(), tx.getValue());
+				list.add(tx.getValue());
+				waitingForFinalization.put(tx.getKey(), tx.getValue());
 			}
-
-			this.waitingForFinalization.putAll(list);
 
 			this.lock.unlock();
 
@@ -185,7 +196,7 @@ public class TxPool
 	 * @param millis The maximum time to wait in ms
 	 * @return A list of transactions.
 	 */
-	public LinkedHashMap<String, HyFlexChainTransaction> waitForMinPendingTxs(int n, long millis)
+	public List<SerializedTx> waitForMinPendingTxs(int n, long millis)
 	{
 		while (true) {
 			while (
@@ -212,18 +223,16 @@ public class TxPool
 				continue;
 			}
 
-			LinkedHashMap<String, HyFlexChainTransaction> list =
-				new LinkedHashMap<>(n);
+			List<SerializedTx> list = new ArrayList<>(n);
 
 			var it = this.pending.entrySet().iterator();
 			for (int i = 0; i < n && it.hasNext(); i++) {
 				var tx = it.next();
 				it.remove();
 
-				list.put(tx.getKey(), tx.getValue());
+				list.add(tx.getValue());
+				waitingForFinalization.put(tx.getKey(), tx.getValue());
 			}
-
-			this.waitingForFinalization.putAll(list);
 
 			this.lock.unlock();
 
@@ -231,12 +240,58 @@ public class TxPool
 		}
 	}
 
-	public Optional<HyFlexChainTransaction> getPendingTx(String txHash)
+	/**
+	 * Get a list of n transactions.
+	 * The map is sorted by the insertion order of transactions.
+	 * This method waits for the specified number of txs to be available
+	 * or when the specified time expires with at least 1 transaction.
+	 * @param n The minimum number of transactions
+	 * @param millis The maximum time to wait in ms
+	 * @return A list of transactions.
+	 */
+	public List<SerializedTx> getAllPendingTxs()
+	{
+		while (true) {
+			while (this.pending.isEmpty())
+			{
+				// wait for min number of txs in tx pool
+		
+				try {
+					Thread.sleep(WAIT_MILLIS);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+
+			this.lock.lock();
+
+			if (this.pending.isEmpty())
+			{
+				this.lock.unlock();
+				continue;
+			}
+
+			List<SerializedTx> list = new ArrayList<>(pending.size());
+
+			pending.forEach((txHash, tx) -> {
+				list.add(tx);
+				waitingForFinalization.put(txHash, tx);
+			});
+
+			this.pending.clear();
+
+			this.lock.unlock();
+
+			return list;
+		}
+	}
+
+	public Optional<SerializedTx> getPendingTx(Bytes txHash)
 	{
 		return Optional.ofNullable(this.pending.get(txHash));
 	}
 
-	public boolean txExists(String txHash)
+	public boolean txExists(Bytes txHash)
 	{
 		return this.pending.containsKey(txHash) ||
 			this.waitingForFinalization.containsKey(txHash);
@@ -245,36 +300,49 @@ public class TxPool
 	/**
 	 * Remove all the specified pending transactions
 	 * and notify all threads that are waiting.
-	 * @param mapTxRes A map of Transaction hash, Result.
+	 * @param txs The processed transactions
+	 * @param result The result
 	 */
-	public void removePendingTxsAndNotify(Map<String, Boolean> mapTxRes)
+	public void removePendingTxsAndNotify(Collection<Bytes> txs, boolean result)
 	{
-		List<HyFlexChainTransaction> txs
-			= new ArrayList<>(mapTxRes.size());
-
-		// remove txs
+		List<Bytes> txsToNotify = new ArrayList<>(txs.size());
 
 		this.lock.lock();
 
-		for (var txRes : mapTxRes.entrySet()) {
-			var tx = this.pending.remove(txRes.getKey());
-			if (tx != null)
-				txs.add(tx);
-
-			tx = this.waitingForFinalization.remove(txRes.getKey());
-			if (tx != null)
-				txs.add(tx);
+		for (var txHash : txs) {
+			if (pending.remove(txHash) != null ||
+				waitingForFinalization.remove(txHash) != null)
+				txsToNotify.add(txHash);
 		}
 
 		this.lock.unlock();
 
 		// notify waiting threads
 
-		for (HyFlexChainTransaction tx : txs) {
-			synchronized(tx)
-			{
-				tx.notifyAll();
-			}
+		for (var txHash : txsToNotify) {
+			finished.put(txHash, result);
 		}
+	}
+
+	/**
+	 * Remove the specified pending transaction
+	 * and notify all threads that are waiting.
+	 * @param txHash The hash of the transaction
+	 * @param result The result of the transaction:
+	 * true if successfull.
+	 */
+	public void removePendingTxAndNotify(Bytes txHash, boolean result)
+	{
+		// remove tx
+
+		this.lock.lock();
+
+		this.pending.remove(txHash);
+		this.waitingForFinalization.remove(txHash);
+
+		this.lock.unlock();
+
+		// notify waiting threads
+		this.finished.put(txHash, result);
 	}
 }

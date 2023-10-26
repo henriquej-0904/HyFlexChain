@@ -2,14 +2,25 @@
     "caliper": {
         "blockchain": "./index.js"
     },
-    "blockmess": {
+    "hyflexchain": {
         "url": [
-            "http://localhost:10800/api/rest",
-            "http://localhost:10801/api/rest",
-            "http://localhost:10802/api/rest",
-            "http://localhost:10803/api/rest"
+            "https://localhost:18000/api/rest",
+            "https://localhost:18001/api/rest",
+            "https://localhost:18002/api/rest",
+            "https://localhost:18003/api/rest",
+            "https://localhost:18004/api/rest"
         ],
-        "connection_timeout" : "60000",
-        "blockmess_config_folder" : ""
+        "connection_timeout" : "800000",
+        "truststore_ca" : "./crypto/hyflexchain_root_cert.pem",
+        "replica_addresses" : "./crypto/addresses.json",
+        "reference_smart_contract" : false,
+        "smart_contracts" : {
+            "pow": "./config/smart-contracts/pow.sc",
+            "bftsmart": "./config/smart-contracts/bftsmart.sc"
+        },
+        "pre_installed_sc" : {
+            "pow": "0xa6af3f6ee988e822a73f39a132579b889017df41f71f4da7553f55980c9934f9",
+            "bftsmart": "0x56ded8985ffc4f3376f0abf979a53568a85fdb2fd1381f0541d6b63f308c2290"
+        }
     }
 }

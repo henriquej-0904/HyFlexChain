@@ -14,6 +14,12 @@
                 },
                 {
                 	"path": "smart-contracts-besu-evm"
+                },
+                {
+                	"path": "blockmess-wrapper/blockmess-wrapper-server"
+                },
+                {
+                	"path": "blockmess-wrapper/blockmess-wrapper-client"
                 }
 
 		

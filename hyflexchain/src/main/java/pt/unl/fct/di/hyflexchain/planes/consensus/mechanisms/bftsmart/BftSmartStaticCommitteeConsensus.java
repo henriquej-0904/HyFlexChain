@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -134,7 +135,7 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
 
         new Thread(
                 new BftSmartConsensusThread(this, config.getLedgerConfig(),
-                        () -> this.staticCommittee),
+                        () -> Optional.of(this.staticCommittee)),
                 "BFT-SMaRt-Consensus-Thread")
                 .start();
     }
@@ -260,10 +261,12 @@ public final class BftSmartStaticCommitteeConsensus extends ConsensusInterface {
 		
 		MerkleTree merkleTree = MerkleTree.createMerkleTree(txHashes);
 
-		LOG.info("Propose block -> merkle tree: " + merkleTree.getMerkleRootHash());
-
         try {
             SerializedBlock proposedBlock = createSerializedBlockProposal(txs, merkleTree);
+
+            LOG.info("Propose block {} bytes w/ {} txs -> merkle tree: {}",
+                proposedBlock.block.length, txs.size(), merkleTree.getMerkleRootHash());
+
             var listener = createReplyListener();
 
             final long before = System.currentTimeMillis();

@@ -165,7 +165,7 @@ public interface LedgerViewInterface {
 	 * @param consensus The consensus mechanism of the committee
 	 * @return The currently active committee.
 	 */
-	Entry<CommitteeId, ? extends Committee> getActiveCommittee(ConsensusMechanism consensus);
+	Optional<Entry<CommitteeId, ? extends Committee>> getActiveCommittee(ConsensusMechanism consensus);
 
 	/**
 	 * Get a ledger view of previous defined committees.

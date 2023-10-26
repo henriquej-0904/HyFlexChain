@@ -25,7 +25,7 @@ docker run --rm -d --name $replica_name -h $replica_name  \
 	-v "$(pwd)/blockmess/keys:/app/keys" \
 	-v "$(pwd)/blockmess/logs:/app/blockmess-logs" \
 	henriquej0904/hyflexchain:hyflexchain-tc \
-	hyflexchain-config/init_tc.sh java -Xmx2g -cp hyflexchain.jar:lib-bft-smart/* pt.unl.fct.di.hyflexchain.api.rest.impl.server.HyFlexChainServer \
+	hyflexchain-config/init_tc.sh java -Xmx6g -cp hyflexchain.jar:lib-bft-smart/* pt.unl.fct.di.hyflexchain.api.rest.impl.server.HyFlexChainServer \
 	$replicaId $server_port /app/hyflexchain-config \
 	-G KEYSTORE=hyflexchain-config/keys/$replica_name/keystore.pkcs12 \
 	-G KEYSTORE_ALIAS=$replica_name \

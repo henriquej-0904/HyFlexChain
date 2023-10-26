@@ -1,4 +1,4 @@
-    /* "smart-contracts/TransactionParams.sol":77:1593  contract TransactionParams {... */
+    /* "smart-contracts/TransactionParams.sol":77:1604  contract TransactionParams {... */
   mstore(0x40, 0x80)
   callvalue
   dup1
@@ -20,7 +20,7 @@ tag_1:
 stop
 
 sub_0: assembly {
-        /* "smart-contracts/TransactionParams.sol":77:1593  contract TransactionParams {... */
+        /* "smart-contracts/TransactionParams.sol":77:1604  contract TransactionParams {... */
       mstore(0x40, 0x80)
       callvalue
       dup1
@@ -43,7 +43,7 @@ sub_0: assembly {
       0x00
       dup1
       revert
-        /* "smart-contracts/TransactionParams.sol":854:1587  function getTransactionParams(... */
+        /* "smart-contracts/TransactionParams.sol":854:1598  function getTransactionParams(... */
     tag_3:
       tag_4
       0x04
@@ -78,9 +78,9 @@ sub_0: assembly {
     tag_7:
         /* "smart-contracts/TransactionParams.sol":1097:1110  string memory */
       0x60
-        /* "smart-contracts/TransactionParams.sol":1185:1208  string memory consensus */
+        /* "smart-contracts/TransactionParams.sol":1190:1213  string memory consensus */
       0x00
-        /* "smart-contracts/TransactionParams.sol":1185:1235  string memory consensus = "\"consensus\": \"pow\"" */
+        /* "smart-contracts/TransactionParams.sol":1190:1246  string memory consensus = "\"consensus\": \"bft_smart\"" */
       mload(0x40)
       dup1
       0x40
@@ -88,20 +88,20 @@ sub_0: assembly {
       0x40
       mstore
       dup1
-      0x12
+      0x18
       dup2
       mstore
       0x20
       add
-      0x22636f6e73656e737573223a2022706f77220000000000000000000000000000
+      0x22636f6e73656e737573223a20226266745f736d617274220000000000000000
       dup2
       mstore
       pop
       swap1
       pop
-        /* "smart-contracts/TransactionParams.sol":1249:1274  string memory batchMetric */
+        /* "smart-contracts/TransactionParams.sol":1260:1285  string memory batchMetric */
       0x00
-        /* "smart-contracts/TransactionParams.sol":1249:1298  string memory batchMetric = "\"batchMetric\": 10" */
+        /* "smart-contracts/TransactionParams.sol":1260:1309  string memory batchMetric = "\"batchMetric\": 10" */
       mload(0x40)
       dup1
       0x40
@@ -120,9 +120,9 @@ sub_0: assembly {
       pop
       swap1
       pop
-        /* "smart-contracts/TransactionParams.sol":1312:1339  string memory signatureType */
+        /* "smart-contracts/TransactionParams.sol":1323:1350  string memory signatureType */
       0x00
-        /* "smart-contracts/TransactionParams.sol":1312:1392  string memory signatureType = "\"signatureType\": \"SHA256withECDSA-secp521r1\"" */
+        /* "smart-contracts/TransactionParams.sol":1323:1403  string memory signatureType = "\"signatureType\": \"SHA256withECDSA-secp521r1\"" */
       mload(0x40)
       dup1
       0x60
@@ -141,9 +141,9 @@ sub_0: assembly {
       codecopy
       swap1
       pop
-        /* "smart-contracts/TransactionParams.sol":1560:1569  consensus */
+        /* "smart-contracts/TransactionParams.sol":1571:1580  consensus */
       dup3
-        /* "smart-contracts/TransactionParams.sol":1541:1575  string.concat("{", consensus, "}") */
+        /* "smart-contracts/TransactionParams.sol":1552:1586  string.concat("{", consensus, "}") */
       add(0x20, mload(0x40))
       tag_11
       swap2
@@ -162,13 +162,13 @@ sub_0: assembly {
       swap1
       0x40
       mstore
-        /* "smart-contracts/TransactionParams.sol":1534:1575  return string.concat("{", consensus, "}") */
+        /* "smart-contracts/TransactionParams.sol":1545:1586  return string.concat("{", consensus, "}") */
       swap4
       pop
       pop
       pop
       pop
-        /* "smart-contracts/TransactionParams.sol":854:1587  function getTransactionParams(... */
+        /* "smart-contracts/TransactionParams.sol":854:1598  function getTransactionParams(... */
       swap6
       swap5
       pop
@@ -1721,5 +1721,5 @@ sub_0: assembly {
     stop
     data_7b569dbbaaa3e5a7fb6b62dc82ac66c82e25684699742f9d4922140d015bd2c9 227369676e617475726554797065223a20225348413235367769746845434453412d73656370353231723122
 
-    auxdata: 0xa26469706673582212201159e01ecd0c155835a8798d2c44beb979a60ffd7a7da3fa42f644567c5e16a364736f6c63430008140033
+    auxdata: 0xa2646970667358221220d62921fd5787af02944533a9d3a4af5c833d40a1bdb0db697dbf7083008807e464736f6c63430008140033
 }

@@ -1,7 +1,9 @@
 package pt.unl.fct.di.hyflexchain.planes.consensus.mechanisms.bftsmart.submit;
 
 import java.net.URI;
+import java.time.Duration;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.function.Supplier;
 
@@ -34,7 +36,10 @@ public class BftSmartConsensusThread implements Runnable {
 
 	private final ConsensusInterface consensus;
 
-	private final Supplier<Triple<CommitteeId, BftCommittee, Map<Address, Host>>> activeCommittee;
+	private final Supplier<Optional<Triple<CommitteeId, BftCommittee, Map<Address, Host>>>> activeCommittee;
+
+
+	private boolean isCommitteeActive;
 
 	private BftCommittee committee;
 
@@ -47,7 +52,7 @@ public class BftSmartConsensusThread implements Runnable {
 	 * @param nTxsInBlock
 	 */
 	public BftSmartConsensusThread(ConsensusInterface consensus, LedgerConfig config,
-		Supplier<Triple<CommitteeId, BftCommittee, Map<Address, Host>>> activeCommittee) {
+		Supplier<Optional<Triple<CommitteeId, BftCommittee, Map<Address, Host>>>> activeCommittee) {
 		this.rand = new Random(System.currentTimeMillis());
 		this.hyflexchainClient = new HyFlexChainHttpClient(config.getMultiLedgerConfig().getSSLContextClient());
 		this.selfAddress = config.getMultiLedgerConfig().getSelfAddress();
@@ -55,9 +60,10 @@ public class BftSmartConsensusThread implements Runnable {
 		this.nTxsInBlock = config.getNumTxsInBlock();
 		this.blockCreateTime = config.getCreateBlockTime();
 		this.activeCommittee = activeCommittee;
+		this.isCommitteeActive = false;
 	}
 
-	protected void updateCommittee()
+	/* protected void updateCommittee()
 	{
 		var newCommittee = this.activeCommittee.get();
 		var currentCommittee = newCommittee.getMiddle();
@@ -66,6 +72,29 @@ public class BftSmartConsensusThread implements Runnable {
 			this.committee = currentCommittee;
 			this.committeeMembers = newCommittee.getRight().values().toArray(Host[]::new);
 			this.isInCommittee = currentCommittee.getCommittee().contains(this.selfAddress);
+		}
+	} */
+
+	protected void updateCommittee()
+	{
+		var newCommittee = this.activeCommittee.get();
+
+		if (newCommittee.isEmpty())
+		{
+			this.committee = null;
+			this.committeeMembers = null;
+			this.isInCommittee = false;
+			this.isCommitteeActive = false;
+			return;
+		}
+
+		var currentCommittee = newCommittee.get().getMiddle();
+		if (currentCommittee != this.committee)
+		{
+			this.committee = currentCommittee;
+			this.committeeMembers = newCommittee.get().getRight().values().toArray(Host[]::new);
+			this.isInCommittee = currentCommittee.getCommittee().contains(this.selfAddress);
+			this.isCommitteeActive = true;
 		}
 	}
 
@@ -87,13 +116,18 @@ public class BftSmartConsensusThread implements Runnable {
 
 				updateCommittee();
 
+				if (!this.isCommitteeActive)
+				{
+					Thread.sleep(Duration.ofMillis(100));
+				}
+
 				if (this.isInCommittee)
 				{
 					// submit transactions to ordering
 
 					var txs = txPool.waitForMinPendingTxs(this.nTxsInBlock, this.blockCreateTime);
 
-					LOG.info("BFT-SMART: Order block of transactions");
+					// LOG.info("BFT-SMART: Order block of {} transactions", txs.size());
 
 					this.consensus.orderTxs(txs);
 				}

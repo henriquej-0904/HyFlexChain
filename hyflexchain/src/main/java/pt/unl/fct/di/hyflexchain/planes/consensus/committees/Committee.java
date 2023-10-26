@@ -98,4 +98,15 @@ public abstract class Committee
 		
 		return map;
 	}
+
+	public int getReplicaId(Address address)
+	{
+		var it = this.committee.iterator();
+		for (int i = 0; it.hasNext(); i++) {
+			if (address.equals(it.next()))
+				return i;
+		}
+
+		return -1;
+	}
 }

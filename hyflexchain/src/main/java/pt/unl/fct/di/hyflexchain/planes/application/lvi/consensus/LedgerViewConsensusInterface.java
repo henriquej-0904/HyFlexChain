@@ -132,7 +132,7 @@ public interface LedgerViewConsensusInterface
 	 * Get the currently active committee.
 	 * @return The currently active committee.
 	 */
-	Entry<CommitteeId, ? extends Committee> getActiveCommittee();
+	Optional<Entry<CommitteeId, ? extends Committee>> getActiveCommittee();
 
 	/**
 	 * Get a ledger view of previous committees.

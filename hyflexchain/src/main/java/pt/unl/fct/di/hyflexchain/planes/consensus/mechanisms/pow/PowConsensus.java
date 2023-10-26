@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -14,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import applicationInterface.ApplicationInterface;
 import io.netty.buffer.Unpooled;
+import ledger.blocks.BlockmessBlock;
 import pt.unl.fct.di.hyflexchain.planes.application.lvi.LedgerViewInterface;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusInterface;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
@@ -68,6 +70,8 @@ public class PowConsensus extends ConsensusInterface
 
 	protected BlockmessConnector blockmess;
 
+	protected boolean test_latency;
+
     public PowConsensus(LedgerViewInterface lvi)
 	{
 		super(ConsensusMechanism.PoW, lvi);
@@ -77,6 +81,10 @@ public class PowConsensus extends ConsensusInterface
 	public void init() {
 
 		var config = MultiLedgerConfig.getInstance();
+
+		test_latency = config.getConfigValue("test_latency") != null
+			&& config.getConfigValue("test_latency").equals("true");
+		LOG.info("test_latency: " + config.getConfigValue("test_latency"));
 
 		this.blockmess = new BlockmessConnector();
 		
@@ -160,6 +168,9 @@ public class PowConsensus extends ConsensusInterface
 		byte[] requestBytes = createSerializedBlockProposal(txs, merkleTree);
 
 		final long before = System.currentTimeMillis();
+		
+		if (test_latency)
+			LOG.error("[block_time_sent]: {} {}", merkleTree.getMerkleRootHash().toHexString(), before);
 
 		blockmess.invokeAsyncOperation(requestBytes,
 				(reply) -> {
@@ -414,6 +425,37 @@ public class PowConsensus extends ConsensusInterface
                 return FALSE;
             }
         }
+
+		@Override
+		public void notifyNonFinalizedBlock(BlockmessBlock block) {
+			if (!test_latency)
+				return;
+			
+			long time = System.currentTimeMillis();
+			for (var data : block.getContentList().getContentList()) {
+				var header =  hasHyflexchainBlock(data.getContent());
+				if (header.isEmpty())
+					continue;
+				
+				LOG.error("[block_time_received]: {} {}", header.get().getMerkleRoot().toHexString(), time);
+			}
+		}
+
+		private Optional<BlockHeader> hasHyflexchainBlock(byte[] data)
+		{
+			try {
+    
+				var buff = Unpooled.wrappedBuffer(data);
+
+				// discard block size bytes
+				buff.skipBytes(Integer.BYTES);
+
+				return Optional.of(BlockHeader.SERIALIZER.deserialize(buff));
+                
+            } catch (Exception e) {
+                return Optional.empty();
+            }
+		}
         
     }
 }

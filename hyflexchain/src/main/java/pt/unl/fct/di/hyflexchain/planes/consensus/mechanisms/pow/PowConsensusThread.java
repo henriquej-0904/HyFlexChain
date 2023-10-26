@@ -36,6 +36,7 @@ public class PowConsensusThread implements Runnable {
 		try {
 			while (true) {
 				var txs = txPool.waitForMinPendingTxs(this.nTxsInBlock, this.blockCreateTime);
+				// LOG.info("PoW: Order block of {} transactions", txs.size());
 				this.consensus.orderTxs(txs);
 			}
 		} catch (Exception e) {

@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.stream.Collectors;
 
 import org.apache.tuweni.bytes.Bytes;
 import org.slf4j.Logger;
@@ -17,10 +16,8 @@ import org.thavam.util.concurrent.blockingMap.BlockingHashMap;
 import org.thavam.util.concurrent.blockingMap.BlockingMap;
 
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
-import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.SerializedTx;
 import pt.unl.fct.di.hyflexchain.util.ResetInterface;
-import pt.unl.fct.di.hyflexchain.util.crypto.HashedObject;
 
 /**
  * A transaction pool of pending transactions for a specific consensus
@@ -128,7 +125,8 @@ public class TxPool implements ResetInterface
 			return false;
 		}
 
-		log.info("Submited tx [{}]: {}", consensus.getConsensus(), tx.hash());
+		log.info("Submited tx [{}] with {} bytes size & hash: {}", consensus.getConsensus(),
+		tx.serialized().length ,tx.hash());
 
 		return this.finished.take(tx.hash());
 	}

@@ -20,8 +20,8 @@ public class PowLVI extends LedgerViewConsensusImpl {
 	}
 
 	@Override
-	public Entry<CommitteeId, Committee> getActiveCommittee() {
-		return COMMITTEE;
+	public Optional<Entry<CommitteeId, ? extends Committee>> getActiveCommittee() {
+		return Optional.of(COMMITTEE);
 	}
 
 	@Override

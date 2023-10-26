@@ -110,7 +110,7 @@ public class LedgerViewConsensusImpl implements LedgerViewConsensusInterface, Re
 	}
 
 	@Override
-	public Entry<CommitteeId, ? extends Committee> getActiveCommittee() {
+	public Optional<Entry<CommitteeId, ? extends Committee>> getActiveCommittee() {
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Unimplemented method 'getActiveCommittee'");
 	}

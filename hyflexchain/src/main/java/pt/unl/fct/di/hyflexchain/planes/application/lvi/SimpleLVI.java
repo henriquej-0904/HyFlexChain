@@ -130,7 +130,7 @@ public class SimpleLVI implements LedgerViewInterface, ResetInterface {
 	}
 
 	@Override
-	public Entry<CommitteeId, ? extends Committee> getActiveCommittee(ConsensusMechanism consensus) {
+	public Optional<Entry<CommitteeId, ? extends Committee>> getActiveCommittee(ConsensusMechanism consensus) {
 		return getLVI(consensus).getActiveCommittee();
 	}
 

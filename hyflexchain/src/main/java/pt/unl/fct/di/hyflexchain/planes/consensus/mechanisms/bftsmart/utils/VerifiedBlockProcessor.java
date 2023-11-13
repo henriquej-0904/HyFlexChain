@@ -2,6 +2,8 @@ package pt.unl.fct.di.hyflexchain.planes.consensus.mechanisms.bftsmart.utils;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import org.apache.tuweni.bytes.Bytes;
 
@@ -26,6 +28,10 @@ public class VerifiedBlockProcessor implements ResetInterface {
 
     private final DataPlane ledger;
 
+    private final Predicate<HyFlexChainBlock> isLastBlockFromCommittee;
+
+    private final Consumer<CommitteeId> finishedCommitteeEpoch;
+
     /**
      * A map in which the key is the committee ID and the value is a
      * map with the previous block hash
@@ -39,10 +45,13 @@ public class VerifiedBlockProcessor implements ResetInterface {
      * @param consensus
      */
     public VerifiedBlockProcessor(LedgerViewInterface lvi, DataPlane ledger,
-        ConsensusMechanism consensus) {
+        ConsensusMechanism consensus, Predicate<HyFlexChainBlock> isLastBlockFromCommittee,
+        Consumer<CommitteeId> finishedCommitteeEpoch) {
         this.consensus = consensus;
         this.lvi = lvi;
         this.ledger = ledger;
+        this.isLastBlockFromCommittee = isLastBlockFromCommittee;
+        this.finishedCommitteeEpoch = finishedCommitteeEpoch;
         this.pendingBlocks = HashMap.newHashMap(10);
     }
 
@@ -88,7 +97,7 @@ public class VerifiedBlockProcessor implements ResetInterface {
         // if found next block
         if (lvi.getLastBlockHash(consensus).equals(previousHash))
         {
-            ledger.writeOrderedBlock(block, consensus);
+            writeToLedger(block);
             updateLedger(pendingBlocksForCommittee, block.hash());
         }
         else
@@ -112,8 +121,20 @@ public class VerifiedBlockProcessor implements ResetInterface {
         HashedObject<HyFlexChainBlock> block;
 
         while ( (block = pendingBlocks.remove(lastBlockHash)) != null ) {
-            ledger.writeOrderedBlock(block, consensus);
+            writeToLedger(block);
             lastBlockHash = block.hash();
+        }
+    }
+
+    private void writeToLedger(HashedObject<HyFlexChainBlock> block)
+    {
+        ledger.writeOrderedBlock(block, consensus);
+
+        if (this.isLastBlockFromCommittee.test(block.obj()))
+        {
+            var committeeId = block.obj().header().getMetaHeader().getCommitteeId();
+            this.finishedCommitteeEpoch.accept(committeeId);
+            removePendingBlocks(committeeId);
         }
     }
 }

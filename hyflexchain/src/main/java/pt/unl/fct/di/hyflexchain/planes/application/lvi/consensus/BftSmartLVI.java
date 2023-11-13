@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.Map.Entry;
 
 import org.apache.commons.collections4.map.LinkedMap;
+import org.apache.tuweni.bytes.Bytes;
 
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.consensus.committees.Committee;
@@ -35,7 +36,7 @@ public class BftSmartLVI extends LedgerViewConsensusImpl {
 		this.nextCommittees = new LinkedMap<>(10);
 
 		nextCommittees.put(CommitteeId.FIRST_COMMITTEE_ID,
-			new StaticElection(config).performCommitteeElection(config.getStaticElectionCriteria())
+			new StaticElection(config, 0).performCommitteeElection(config.getStaticElectionCriteria())
 				.get());
 
 		currentCommittee = Optional.empty();
@@ -48,7 +49,34 @@ public class BftSmartLVI extends LedgerViewConsensusImpl {
 				),
 				c
 			));
+
+		if (!config.dynamicCommittees())
+			return;
+
+		if (config.dynamicCommittees() && config.electDynamicCommittees())
+			return;
+
+		// get committee samples from configuration
+		loadNextCommitteeSamples();
     }
+
+	private void loadNextCommitteeSamples()
+	{
+		int samples = this.config.getCommitteeSamples() - 1;
+
+		if (samples <= 0)
+			return;
+
+		var committeeCriteria = this.config.getStaticElectionCriteria();
+		for (int i = 1; i <= samples; i++)
+		{
+			var committee = new StaticElection(this.config, i)
+				.performCommitteeElection(committeeCriteria)
+				.get();
+
+			this.nextCommittees.put(new CommitteeId(committee.getId(), Bytes.EMPTY), committee);
+		}
+	}
 
     @Override
 	public void reset() {
@@ -57,7 +85,7 @@ public class BftSmartLVI extends LedgerViewConsensusImpl {
 		this.previousCommittees.clear();
 		this.nextCommittees.clear();
 		this.nextCommittees.put(CommitteeId.FIRST_COMMITTEE_ID,
-			new StaticElection(config).performCommitteeElection(config.getStaticElectionCriteria())
+			new StaticElection(config, 0).performCommitteeElection(config.getStaticElectionCriteria())
 				.get());
 
 		this.currentCommittee = Optional.empty();
@@ -70,6 +98,15 @@ public class BftSmartLVI extends LedgerViewConsensusImpl {
 				),
 				c
 			));
+
+		if (!config.dynamicCommittees())
+			return;
+
+		if (config.dynamicCommittees() && config.electDynamicCommittees())
+			return;
+
+		// get committee samples from configuration
+		loadNextCommitteeSamples();
 	}
 
 	@Override
@@ -88,18 +125,18 @@ public class BftSmartLVI extends LedgerViewConsensusImpl {
 		synchronized(this.previousCommittees)
 		{
 			int high = this.previousCommittees.size() - 1;
-		int low = high - lastN + 1;
+			int low = high - lastN + 1;
 
-		if (low < 0)
-			low = 0;
+			if (low < 0)
+				low = 0;
 
-		int size = high - low + 1;
-		var list = new ArrayList<BftCommittee>(size);
+			int size = high - low + 1;
+			var list = new ArrayList<BftCommittee>(size);
 
-		for (int i = high; i <= low; i--)
-			list.add(this.previousCommittees.getValue(i));
+			for (int i = high; i <= low; i--)
+				list.add(this.previousCommittees.getValue(i));
 
-		return list;
+			return list;
 		}
 	}
 

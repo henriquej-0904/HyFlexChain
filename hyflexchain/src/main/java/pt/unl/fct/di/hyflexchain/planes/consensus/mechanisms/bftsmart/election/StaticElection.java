@@ -19,11 +19,14 @@ public final class StaticElection implements SybilResistantBftCommitteeElection
 
     private BFT_SMaRtConfig config;
 
+    private int committeeIndex;
+
     /**
      * @param config
      */
-    public StaticElection(BFT_SMaRtConfig config) {
+    public StaticElection(BFT_SMaRtConfig config, int committeeIndex) {
         this.config = config;
+        this.committeeIndex = committeeIndex;
     }
 
     @Override
@@ -34,7 +37,8 @@ public final class StaticElection implements SybilResistantBftCommitteeElection
     @Override
     public Optional<BftCommittee> performCommitteeElection(BftCommitteeElectionCriteria criteria) {
         var committee = this.config.getStaticCommitteeAddresses();
-        committee = committee.subList(0, criteria.getSize());
+        committee = committee.subList(committeeIndex * criteria.getSize(),
+            (committeeIndex + 1) * criteria.getSize());
 
         return Optional.of(new BftCommittee(CONSENSUS_MECHANISM, criteria,
             new LinkedHashSet<>(committee)));

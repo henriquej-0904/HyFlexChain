@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Stream;
 
 import org.apache.tuweni.bytes.Bytes;
 import org.slf4j.Logger;
@@ -87,6 +88,19 @@ public class TxPool implements ResetInterface
 	public int size()
 	{
 		return this.pending.size();
+	}
+
+	/**
+	 * Add pending txs only if it does not already exists.
+	 * @param txs The txs to add.
+	 */
+	public void addTxsIfAbsent(Stream<SerializedTx> txs)
+	{
+		this.lock.lock();
+
+		txs.forEach(tx -> this.pending.putIfAbsent(tx.hash(), tx));
+
+		this.lock.unlock();
 	}
 
 	/**

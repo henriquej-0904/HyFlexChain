@@ -101,6 +101,16 @@ public class BFT_SMaRtConfig
         return this.config.getConfigBooleanValueOrThrowError(Configs.COMMITTEE_DYNAMIC.name);
     }
 
+    public boolean electDynamicCommittees()
+    {
+        return this.config.getConfigBooleanValueOrThrowError(Configs.COMMITTEE_ELECTION.name);
+    }
+
+    public int getCommitteeSamples()
+    {
+        return this.config.getConfigIntValueOrThrowError(Configs.COMMITTEE_SAMPLES.name);
+    }
+
     public int getCommitteeElectionParamRecipientNodesOfLastFinalizedBlocks()
     {
         return this.config.getConfigIntValueOrThrowError(Configs.COMMITTEE_ELECTION_RECIPIENT_NODES_LAST_N_FINALIZED_BLOCKS.name);
@@ -134,6 +144,10 @@ public class BFT_SMaRtConfig
         ADDRESSES_CONFIG_FILE ("ADDRESSES_CONFIG_FILE"),
 
         COMMITTEE_DYNAMIC("COMMITTEE_DYNAMIC"),
+
+        COMMITTEE_ELECTION("COMMITTEE_ELECTION"),
+
+        COMMITTEE_SAMPLES("COMMITTEE_SAMPLES"),
 
         COMMITTEE_N ("COMMITTEE_N"),
 

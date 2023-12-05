@@ -1,6 +1,7 @@
 package pt.unl.fct.di.hyflexchain.planes.consensus.committees.election;
 
-import pt.unl.fct.di.hyflexchain.planes.application.lvi.LedgerViewInterface;
+import java.util.Optional;
+
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.consensus.committees.Committee;
 import pt.unl.fct.di.hyflexchain.planes.consensus.committees.CommitteeElectionCriteria;
@@ -20,13 +21,19 @@ public interface SybilResistantCommitteeElection
 
 
 	/**
-	 * Perform a commitee election procedure based on the current
-	 * Ledger view, consensus mechanism and election criteria.
-	 * @param lvi The current Ledger view
-	 * @param criteria Other election criteria
+	 * Perform a committee election procedure based on the election criteria.
+	 * @param criteria The election criteria
 	 * @return The elected committee.
 	 */
-	T performCommitteeElection(LedgerViewInterface lvi, Criteria criteria);
+	Optional<T> performCommitteeElection(Criteria criteria);
+
+	/**
+	 * Perform a specified number of committee elections based on the election criteria.
+	 * @param criteria The election criteria
+	 * @param n The number of committees to elect
+	 * @return The elected committees.
+	 */
+	// Optional<T[]> performCommitteeElections(Criteria criteria, int n);
 
 
 	/**

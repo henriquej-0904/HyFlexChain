@@ -1,8 +1,11 @@
 package pt.unl.fct.di.hyflexchain.planes.txmanagement;
 
+import java.util.Collection;
+
 import pt.unl.fct.di.hyflexchain.planes.application.ti.InvalidTransactionException;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
+import pt.unl.fct.di.hyflexchain.planes.data.transaction.wrapper.TxWrapper;
 import pt.unl.fct.di.hyflexchain.planes.txmanagement.txpool.TxPool;
 
 /**
@@ -40,7 +43,7 @@ public interface TransactionManagement {
 	 * appended to the Ledger.
 	 * @param tx The transaction
 	 */
-	String dispatchTransaction(HyFlexChainTransaction tx) throws InvalidTransactionException;
+	String dispatchTransaction(TxWrapper tx) throws InvalidTransactionException;
 
 	/**
 	 * Receives a transaction to be verified
@@ -48,10 +51,12 @@ public interface TransactionManagement {
 	 * Eventually, it will be inserted on a block and ordered
 	 * through a consensus mechanism. After that, the block is
 	 * appended to the Ledger. <p>
-	 * This method differs from {@link #dispatchTransaction(HyFlexChainTransaction)}
+	 * This method differs from {@link #dispatchTransaction(TxWrapper)}
 	 * in the sense that it waits for the transaction to be
 	 * finalized.
 	 * @param tx The transaction
 	 */
-	String dispatchTransactionAndWait(HyFlexChainTransaction tx) throws InvalidTransactionException;
+	String dispatchTransactionAndWait(TxWrapper tx) throws InvalidTransactionException;
+
+	void executeTransactions(Collection<HyFlexChainTransaction> txs) throws InvalidTransactionException;
 }

@@ -26,7 +26,6 @@ public class TransactionInterfaceInstance {
 					break;
 			}
 
-			instance = new TransactionInterfaceV1_0();
 			return instance;
 		}
 	}

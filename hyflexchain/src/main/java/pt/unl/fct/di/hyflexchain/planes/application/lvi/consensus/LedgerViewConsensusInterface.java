@@ -3,14 +3,20 @@ package pt.unl.fct.di.hyflexchain.planes.application.lvi.consensus;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.tuweni.bytes.Bytes;
+
+import java.util.Map.Entry;
+
 import pt.unl.fct.di.hyflexchain.planes.application.lvi.BlockFilter;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.consensus.committees.Committee;
+import pt.unl.fct.di.hyflexchain.planes.consensus.committees.CommitteeId;
 import pt.unl.fct.di.hyflexchain.planes.data.block.BlockState;
 import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
 import pt.unl.fct.di.hyflexchain.planes.data.ledger.LedgerState;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.TransactionState;
+import pt.unl.fct.di.hyflexchain.util.crypto.HashedObject;
 
 /**
  * The Ledger View Interface is responsible for exposing the Ledger State.
@@ -34,14 +40,14 @@ public interface LedgerViewConsensusInterface
 	 * @param id The id of the transaction
 	 * @return The transaction.
 	 */
-	Optional<HyFlexChainTransaction> getTransaction(String id);
+	Optional<HyFlexChainTransaction> getTransaction(Bytes id);
 
 	/**
 	 * Get the state of a transaction.
 	 * @param id The id of the transaction
 	 * @return The state of the transaction.
 	 */
-	TransactionState getTransactionState(String id);
+	TransactionState getTransactionState(Bytes id);
 
 	/**
 	 * Get all transactions where the specified account is the origin.
@@ -92,21 +98,21 @@ public interface LedgerViewConsensusInterface
 	 * @param id The id of the block
 	 * @return The block.
 	 */
-	Optional<HyFlexChainBlock> getBlock(String id);
+	Optional<HyFlexChainBlock> getBlock(Bytes id);
 
 	/**
 	 * Get the state of a block.
 	 * @param id The id of the block
 	 * @return The state of the block.
 	 */
-	Optional<BlockState> getBlockState(String id);
+	Optional<BlockState> getBlockState(Bytes id);
 
 	/**
 	 * Get all blocks according to the specified filter.
 	 * @param filter The filter
 	 * @return All filtered blocks.
 	 */
-	List<HyFlexChainBlock> getBlocks(BlockFilter filter);
+	List<HashedObject<HyFlexChainBlock>> getBlocks(BlockFilter filter);
 
 	//#endregion
 
@@ -126,7 +132,7 @@ public interface LedgerViewConsensusInterface
 	 * Get the currently active committee.
 	 * @return The currently active committee.
 	 */
-	Committee getActiveCommittee();
+	Optional<Entry<CommitteeId, ? extends Committee>> getActiveCommittee();
 
 	/**
 	 * Get a ledger view of previous committees.
@@ -134,5 +140,11 @@ public interface LedgerViewConsensusInterface
 	 * @param lastN The previous N committees
 	 * @return Previous Committees.
 	 */
-	List<Committee> getLedgerViewPreviousCommittees(int lastN);
+	List<? extends Committee> getLedgerViewPreviousCommittees(int lastN);
+
+	/**
+	 * Get the next committee after the current one.
+	 * @return
+	 */
+	Optional<Entry<CommitteeId, ? extends Committee>> getNextCommittee();
 }

@@ -2,18 +2,25 @@ package pt.unl.fct.di.hyflexchain.planes.consensus.mechanisms.bftsmart.utils;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+
+import org.apache.tuweni.bytes.Bytes;
 
 import pt.unl.fct.di.hyflexchain.planes.application.lvi.LedgerViewInterface;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
+import pt.unl.fct.di.hyflexchain.planes.consensus.committees.CommitteeId;
 import pt.unl.fct.di.hyflexchain.planes.data.DataPlane;
 import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
+import pt.unl.fct.di.hyflexchain.util.ResetInterface;
+import pt.unl.fct.di.hyflexchain.util.crypto.HashedObject;
 
 /**
  * A class that implements a Data Structure to temporary
  * save verified blocks. When there are consecutive blocks
  * they are written to the ledger.
  */
-public class VerifiedBlockProcessor {
+public class VerifiedBlockProcessor implements ResetInterface {
     
     private final ConsensusMechanism consensus;
     
@@ -21,12 +28,16 @@ public class VerifiedBlockProcessor {
 
     private final DataPlane ledger;
 
+    private final Predicate<HyFlexChainBlock> isLastBlockFromCommittee;
+
+    private final Consumer<CommitteeId> finishedCommitteeEpoch;
+
     /**
      * A map in which the key is the committee ID and the value is a
      * map with the previous block hash
      * of the associated block
      */
-    private final Map<String, Map<String, HyFlexChainBlock>> pendingBlocks;
+    private final Map<CommitteeId, Map<Bytes, HashedObject<HyFlexChainBlock>>> pendingBlocks;
 
     /**
      * @param lvi
@@ -34,84 +45,96 @@ public class VerifiedBlockProcessor {
      * @param consensus
      */
     public VerifiedBlockProcessor(LedgerViewInterface lvi, DataPlane ledger,
-        ConsensusMechanism consensus) {
+        ConsensusMechanism consensus, Predicate<HyFlexChainBlock> isLastBlockFromCommittee,
+        Consumer<CommitteeId> finishedCommitteeEpoch) {
         this.consensus = consensus;
         this.lvi = lvi;
         this.ledger = ledger;
+        this.isLastBlockFromCommittee = isLastBlockFromCommittee;
+        this.finishedCommitteeEpoch = finishedCommitteeEpoch;
         this.pendingBlocks = HashMap.newHashMap(10);
     }
 
-    protected Map<String, HyFlexChainBlock> getPendingBlocks(int committeeId,
-        String committeeBlockHash)
-    {
-        return this.pendingBlocks.get(committeeBlockHash + "_" + committeeId);
+    @Override
+    public void reset() {
+        this.pendingBlocks.clear();
     }
 
-    protected Map<String, HyFlexChainBlock> removePendingBlocks(int committeeId,
-        String committeeBlockHash)
+    protected Map<Bytes, HashedObject<HyFlexChainBlock>> getPendingBlocks(CommitteeId committeeId)
     {
-        return this.pendingBlocks.remove(committeeBlockHash + "_" + committeeId);
+        return this.pendingBlocks.get(committeeId);
     }
 
-    protected Map<String, HyFlexChainBlock> getOrCreatePendingBlocks(int committeeId,
-        String committeeBlockHash)
+    protected Map<Bytes, HashedObject<HyFlexChainBlock>> removePendingBlocks(CommitteeId committeeId)
     {
-        return this.pendingBlocks.computeIfAbsent(committeeBlockHash + "_" + committeeId,
+        return this.pendingBlocks.remove(committeeId);
+    }
+
+    protected Map<Bytes, HashedObject<HyFlexChainBlock>> getOrCreatePendingBlocks(CommitteeId committeeId)
+    {
+        return this.pendingBlocks.computeIfAbsent(committeeId,
             (k) -> HashMap.newHashMap(20));
     }
 
-    public boolean alreadyProcessed(HyFlexChainBlock block)
+    public boolean alreadyProcessed(HashedObject<HyFlexChainBlock> block)
     {
-        var pendingBlocksForCommittee = getPendingBlocks(block.header().getMetaHeader().getCommitteeId(),
-            block.header().getMetaHeader().getCommitteeBlockHash());
+        var pendingBlocksForCommittee = getPendingBlocks(block.obj().header().getMetaHeader().getCommitteeId());
 
         if (pendingBlocksForCommittee == null)
-            return lvi.getBlockState(block.header().getMetaHeader().getHash(), consensus).isPresent();
+            return lvi.getBlockState(block.hash(), consensus).isPresent();
         
-        return pendingBlocksForCommittee.containsKey(block.header().getPrevHash())
-            || lvi.getBlockState(block.header().getMetaHeader().getHash(), consensus).isPresent();
+        return pendingBlocksForCommittee.containsKey(block.obj().header().getPrevHash())
+            || lvi.getBlockState(block.hash(), consensus).isPresent();
     }
 
-    public void processBlock(HyFlexChainBlock block)
+    public void processBlock(HashedObject<HyFlexChainBlock> block)
     {
-        final String hash = block.header().getMetaHeader().getHash();
-        final String previousHash = block.header().getPrevHash();
+        final Bytes previousHash = block.obj().header().getPrevHash();
+        final CommitteeId committeeId = block.obj().header().getMetaHeader().getCommitteeId();
 
-        final int committeeId = block.header().getMetaHeader().getCommitteeId();
-        final String committeeBlockHash = block.header().getMetaHeader().getCommitteeBlockHash();
-        final var pendingBlocksForCommittee = getOrCreatePendingBlocks(committeeId, committeeBlockHash);
+        final var pendingBlocksForCommittee = getOrCreatePendingBlocks(committeeId);
 
         // if found next block
         if (lvi.getLastBlockHash(consensus).equals(previousHash))
         {
-            ledger.writeOrderedBlock(block, consensus);
-            updateLedger(pendingBlocksForCommittee, hash);
+            writeToLedger(block);
+            updateLedger(pendingBlocksForCommittee, block.hash());
         }
         else
             pendingBlocksForCommittee.put(previousHash, block);
     }
 
-    public void processLastBlock(HyFlexChainBlock block)
+    public void processLastBlock(HashedObject<HyFlexChainBlock> block)
     {
         processBlock(block);
 
-        final int committeeId = block.header().getMetaHeader().getCommitteeId();
-        final String committeeBlockHash = block.header().getMetaHeader().getCommitteeBlockHash();
-        final var pendingBlocksForCommittee = getPendingBlocks(committeeId, committeeBlockHash);
+        final CommitteeId committeeId = block.obj().header().getMetaHeader().getCommitteeId();
+
+        final var pendingBlocksForCommittee = getPendingBlocks(committeeId);
 
         if (pendingBlocksForCommittee.isEmpty())
-            removePendingBlocks(committeeId, committeeBlockHash);
+            removePendingBlocks(committeeId);
     }
 
-    private void updateLedger(Map<String, HyFlexChainBlock> pendingBlocks, String lastBlockHash)
+    private void updateLedger(Map<Bytes, HashedObject<HyFlexChainBlock>> pendingBlocks, Bytes lastBlockHash)
     {
-        HyFlexChainBlock block;
+        HashedObject<HyFlexChainBlock> block;
 
         while ( (block = pendingBlocks.remove(lastBlockHash)) != null ) {
-            ledger.writeOrderedBlock(block, consensus);
-            lastBlockHash = block.header().getMetaHeader().getHash();
+            writeToLedger(block);
+            lastBlockHash = block.hash();
         }
     }
 
+    private void writeToLedger(HashedObject<HyFlexChainBlock> block)
+    {
+        ledger.writeOrderedBlock(block, consensus);
 
+        if (this.isLastBlockFromCommittee.test(block.obj()))
+        {
+            var committeeId = block.obj().header().getMetaHeader().getCommitteeId();
+            this.finishedCommitteeEpoch.accept(committeeId);
+            removePendingBlocks(committeeId);
+        }
+    }
 }

@@ -18,9 +18,22 @@ class Context
     constructor(workerArgs, workerIndex, crypto)
     {
         this.url = workerArgs.getUrl();
-        this.keyPair = crypto.decodeKeyPair(workerArgs.getKeyPair());
-        this.encodedPublicKeys = workerArgs.getPublicKeys();
-        this.encodedPublicKey = this.encodedPublicKeys[workerIndex];
+
+        const encodedWorkerKeyPair = workerArgs.getKeyPair();
+        this.encodedPublicKey = encodedWorkerKeyPair[0];
+        this.keyPair = crypto.decodeKeyPair(encodedWorkerKeyPair);
+
+        this.destAddresses = workerArgs.getDestAddresses()
+            .map(a => Buffer.from(a.substring(2), "hex"));
+
+        const installedContracts = new Map(Object.entries(workerArgs.getInstalledContracts()));
+        // console.log(installedContracts);
+        this.installedContracts = new Map();
+        installedContracts.forEach((v, k) => {
+            this.installedContracts.set(k, Buffer.from(v.substring(2), "hex"));
+        });
+
+        // console.log(Object.fromEntries(this.installedContracts));
     }
 
     /**
@@ -48,11 +61,16 @@ class Context
     }
 
     /**
-     * @returns {string[]} the encoded public keys of all workers
+     * @returns {Buffer[]} the destination addresses for generated transactions
      */
-    getEncodedPublicKeys()
+    getDestAddresses()
     {
-        return this.publicKeys;
+        return this.destAddresses;
+    }
+
+    getInstalledContracts()
+    {
+        return this.installedContracts;
     }
 }
 

@@ -1,28 +1,39 @@
 package pt.unl.fct.di.hyflexchain.planes.consensus.mechanisms.pow;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Map;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.apache.tuweni.bytes.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
 import applicationInterface.ApplicationInterface;
+import io.netty.buffer.Unpooled;
+import ledger.blocks.BlockmessBlock;
 import pt.unl.fct.di.hyflexchain.planes.application.lvi.LedgerViewInterface;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusInterface;
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
+import pt.unl.fct.di.hyflexchain.planes.consensus.committees.CommitteeId;
 import pt.unl.fct.di.hyflexchain.planes.data.DataPlane;
 import pt.unl.fct.di.hyflexchain.planes.data.block.BlockBody;
 import pt.unl.fct.di.hyflexchain.planes.data.block.BlockHeader;
 import pt.unl.fct.di.hyflexchain.planes.data.block.BlockMetaHeader;
 import pt.unl.fct.di.hyflexchain.planes.data.block.HyFlexChainBlock;
+import pt.unl.fct.di.hyflexchain.planes.data.block.MerkleTree;
+import pt.unl.fct.di.hyflexchain.planes.data.transaction.SerializedTx;
 import pt.unl.fct.di.hyflexchain.planes.txmanagement.TransactionManagement;
 import pt.unl.fct.di.hyflexchain.util.Utils;
 import pt.unl.fct.di.hyflexchain.util.config.MultiLedgerConfig;
-import pt.unl.fct.di.hyflexchain.util.crypto.HyflexchainSignature;
+import pt.unl.fct.di.hyflexchain.util.crypto.Crypto;
+import pt.unl.fct.di.hyflexchain.util.crypto.HashedObject;
+import pt.unl.fct.di.hyflexchain.util.crypto.HyFlexChainSignature;
+import pt.unl.fct.di.hyflexchain.util.stats.BlockStats;
 
 public class PowConsensus extends ConsensusInterface
 {
@@ -32,13 +43,34 @@ public class PowConsensus extends ConsensusInterface
 	private static final byte[] FALSE = new byte[] {0};
 
 	private static final int DIFF_TARGET = 0;
-	private static final HyflexchainSignature[] VALIDATORS = new HyflexchainSignature[0];
-	private static final int COMMITTEE_ID = 0;
-	private static final String COMMITTEE_BLOCK_HASH = "";
+	private static final HyFlexChainSignature[] VALIDATORS = new HyFlexChainSignature[0];
+	private static final CommitteeId COMMITTEE_ID = PowCommittee.COMMITTEE_ID;
 
 	protected static final ConsensusMechanism POW = ConsensusMechanism.PoW;
 
+	protected static final BlockMetaHeader PROPOSAL_BLOCK_META_HEADER =
+		new BlockMetaHeader(POW, DIFF_TARGET, VALIDATORS, COMMITTEE_ID);
+
+	protected static final BlockMetaHeader BLOCK_META_HEADER =
+		new BlockMetaHeader(POW, DIFF_TARGET, VALIDATORS, COMMITTEE_ID);
+
+	protected static final byte[] PROPOSAL_BLOCK_META_HEADER_SERIALIZED =
+		new byte[PROPOSAL_BLOCK_META_HEADER.serializedSize()];
+
+	protected static final byte[] BLOCK_META_HEADER_SERIALIZED = PROPOSAL_BLOCK_META_HEADER_SERIALIZED;
+
+	static {
+		try {
+			BlockMetaHeader.SERIALIZER.serialize(PROPOSAL_BLOCK_META_HEADER,
+				Unpooled.wrappedBuffer(PROPOSAL_BLOCK_META_HEADER_SERIALIZED).setIndex(0, 0));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 	protected BlockmessConnector blockmess;
+
+	protected boolean test_latency;
 
     public PowConsensus(LedgerViewInterface lvi)
 	{
@@ -50,6 +82,10 @@ public class PowConsensus extends ConsensusInterface
 
 		var config = MultiLedgerConfig.getInstance();
 
+		test_latency = config.getConfigValue("test_latency") != null
+			&& config.getConfigValue("test_latency").equals("true");
+		LOG.info("test_latency: " + config.getConfigValue("test_latency"));
+
 		this.blockmess = new BlockmessConnector();
 		
 		new Thread(
@@ -57,6 +93,9 @@ public class PowConsensus extends ConsensusInterface
 			"PoW-Consensus-Thread")
 		.start();
 	}
+
+	@Override
+	public void reset() {}
 
 	/* @Override
 	public void orderBlock(HyFlexChainBlock block)
@@ -86,46 +125,125 @@ public class PowConsensus extends ConsensusInterface
 		}
 	} */
 
-	@Override
-	public void orderTxs(BlockBody txs)
-	{
-		LOG.info("Order block body -> merkle tree: " + txs.getMerkleTree().getRoot().hash());
+	// @Override
+	// public void orderTxs(BlockBody txs)
+	// {
+	// 	LOG.info("Order block body -> merkle tree: " + txs.getMerkleTree().getRoot().hash());
 
-		try {
-			byte[] requestBytes = Utils.json.writeValueAsBytes(txs);
-			blockmess.invokeAsyncOperation(requestBytes,
-			(reply) -> {
+	// 	try {
+	// 		byte[] requestBytes = Utils.json.writeValueAsBytes(txs);
+	// 		blockmess.invokeAsyncOperation(requestBytes,
+	// 		(reply) -> {
+
+	// 				boolean res = Arrays.equals(TRUE, reply.getLeft());
+
+	// 				Map<String, Boolean> mapTxRes =
+	// 					txs.findTransactions().keySet().stream()
+	// 					.collect(Collectors.toUnmodifiableMap(
+	// 						(tx) -> tx, (tx) -> res)
+	// 					);
+
+	// 				TransactionManagement.getInstance().getTxPool(POW)
+	// 					.removePendingTxsAndNotify(mapTxRes);
+
+	// 				// LOG.info("blockmess reply: {}", reply);
+	// 		});
+	// 	} catch (JsonProcessingException e) {
+	// 		e.printStackTrace();
+	// 	}
+	// }
+
+	@Override
+	public void orderTxs(Collection<SerializedTx> txs) {
+
+		List<Bytes> txHashes = txs.stream()
+			.map(SerializedTx::hash)
+			.map(Bytes::wrap)
+			.collect(Collectors.toCollection(() -> new ArrayList<>(txs.size())));
+		
+		MerkleTree merkleTree = MerkleTree.createMerkleTree(txHashes);
+
+		LOG.info("Propose block -> merkle tree: " + merkleTree.getMerkleRootHash());
+
+		byte[] requestBytes = createSerializedBlockProposal(txs, merkleTree);
+
+		final long before = System.currentTimeMillis();
+		
+		if (test_latency)
+			LOG.error("[block_time_sent]: {} {}", merkleTree.getMerkleRootHash().toHexString(), before);
+
+		blockmess.invokeAsyncOperation(requestBytes,
+				(reply) -> {
+					final long after = System.currentTimeMillis();
 
 					boolean res = Arrays.equals(TRUE, reply.getLeft());
 
-					Map<String, Boolean> mapTxRes =
-						txs.findTransactions().keySet().stream()
-						.collect(Collectors.toUnmodifiableMap(
-							(tx) -> tx, (tx) -> res)
-						);
-
 					TransactionManagement.getInstance().getTxPool(POW)
-						.removePendingTxsAndNotify(mapTxRes);
+							.removePendingTxsAndNotify(txHashes, res);
 
-					// LOG.info("blockmess reply: {}", reply);
-			});
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
-		}
+					if (res)
+					{
+						BlockStats.addLatency(consensus, (int) (after - before));
+						LOG.info("[{}] Block latency (ms): {}", consensus, after - before);
+					}
+				});
 	}
 
-	public HyFlexChainBlock createBlock(BlockBody body) {
-		BlockMetaHeader metaHeader = new BlockMetaHeader(ConsensusMechanism.PoW, DIFF_TARGET, VALIDATORS,
-				COMMITTEE_ID, COMMITTEE_BLOCK_HASH);
+	protected byte[] createSerializedBlockProposal(Collection<SerializedTx> txs, MerkleTree merkleTree)
+	{
+		var header = BlockHeader.create(PROPOSAL_BLOCK_META_HEADER, Bytes.EMPTY, merkleTree.getMerkleRootHash(), 0);
 
-		BlockHeader header = BlockHeader.create(metaHeader, lvi.getLastBlockHash(POW),
-				body.getMerkleTree().getRoot().hash(),
-				lvi.getBlockchainSize(POW) + 1);
+		int headerSize = header.serializedSize(PROPOSAL_BLOCK_META_HEADER_SERIALIZED.length);
+		int bodySize = BlockBody.serializedSize(txs);
 
-		HyFlexChainBlock block = new HyFlexChainBlock(header, body);
-		block.calcAndSetHash();
+		int size = HyFlexChainBlock.serializedSize(headerSize, bodySize);
+		
+		byte[] block = new byte[size];
+		var buff = Unpooled.wrappedBuffer(block).setIndex(0, 0);
+
+		buff.writeInt(headerSize + bodySize);
+		buff.writeBytes(PROPOSAL_BLOCK_META_HEADER_SERIALIZED);
+		try {
+			BlockHeader.SERIALIZER.serializeAllButMetaHeader(header, buff);
+			BlockBody.SERIALIZER.serialize(txs, buff);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
 		return block;
+	}
+
+	protected HashedObject<HyFlexChainBlock> createBlock(final BlockBody body,
+		final MerkleTree merkleTree, final Bytes serializedBody) throws IOException {
+
+		final BlockHeader header = BlockHeader.create(BLOCK_META_HEADER, lvi.getLastBlockHash(POW),
+				merkleTree.getMerkleRootHash(), lvi.getBlockchainSize(POW) + 1);
+
+		final int headerSizeWithoutMetaHeader = header.serializedSize(0);
+
+		final HyFlexChainBlock block = new HyFlexChainBlock(
+			BLOCK_META_HEADER_SERIALIZED.length + headerSizeWithoutMetaHeader + serializedBody.size(),
+			header, body);
+
+		// hash block
+		final var md = Crypto.getSha256Digest();
+
+		// hash block size
+		md.update(Utils.toBytes(block.size()));
+
+		// since block meta header is always the same
+		md.update(BLOCK_META_HEADER_SERIALIZED);
+
+		// serialize and hash header
+		// size = bytes only from header excluding meta header
+		final byte[] headerBytes = new byte[headerSizeWithoutMetaHeader];
+		BlockHeader.SERIALIZER.serializeAllButMetaHeader(header, Unpooled.wrappedBuffer(headerBytes).setIndex(0, 0));
+		md.update(headerBytes);
+
+		// hash body
+		serializedBody.update(md);
+
+		return new HashedObject<>(Bytes.wrap(md.digest()), block);
 	}
 
 	@Override
@@ -135,8 +253,7 @@ public class PowConsensus extends ConsensusInterface
 		return super.verifyMetaHeader(block) &&
 			metaHeader.getDifficultyTarget() == DIFF_TARGET &&
 			Arrays.equals(VALIDATORS, metaHeader.getValidators()) &&
-			metaHeader.getCommitteeId() == COMMITTEE_ID &&
-			metaHeader.getCommitteeBlockHash().equalsIgnoreCase(COMMITTEE_BLOCK_HASH);
+			metaHeader.getCommitteeId().equals(COMMITTEE_ID);
 	}
 	
 
@@ -219,6 +336,36 @@ public class PowConsensus extends ConsensusInterface
             }
         } */
 
+		// @Override
+        // public byte[] processOperation(byte[] operation) {
+
+		// 	// LOG.info("Blockmess processOperation");
+
+        //     try {
+    
+		// 		BlockBody blockBody = Utils.json.readValue(operation, BlockBody.class);
+				
+		// 		if (!verifyBody(blockBody))
+		// 		{
+		// 			LOG.info("Invalid block body -> merkle tree: " + blockBody.getMerkleTree().getRoot().hash());
+		// 			return FALSE;
+		// 		}
+
+		// 		// process new valid block
+		// 		var block = createBlock(blockBody);
+		// 		DataPlane.getInstance().writeOrderedBlock(block, POW);
+    
+		// 		LOG.info("Appended valid block with size=" + operation.length + " & hash: " +
+		// 			block.header().getMetaHeader().getHash());
+
+		// 		return TRUE;
+                
+        //     } catch (Exception e) {
+        //         Utils.logError(e, LOG);
+        //         return null;
+        //     }
+        // }
+
 		@Override
         public byte[] processOperation(byte[] operation) {
 
@@ -226,28 +373,89 @@ public class PowConsensus extends ConsensusInterface
 
             try {
     
-				BlockBody blockBody = Utils.json.readValue(operation, BlockBody.class);
+				var buff = Unpooled.wrappedBuffer(operation);
+
+				// discard block size bytes
+				buff.skipBytes(Integer.BYTES);
+
+				BlockHeader header = BlockHeader.SERIALIZER.deserialize(buff);
+
+				int bodyStartIndex = buff.readerIndex();
+
+				BlockBody blockBody = BlockBody.SERIALIZER.deserialize(buff);
+
+				// corrupted msg
+				if (buff.readerIndex() != operation.length)
+				{
+					LOG.info("Received corrupted block proposal: unknown {} bytes at the end.",
+						operation.length - buff.readerIndex());
+					return FALSE;
+				}
 				
 				if (!verifyBody(blockBody))
 				{
-					LOG.info("Invalid block body -> merkle tree: " + blockBody.getMerkleTree().getRoot().hash());
+					LOG.info("Invalid block body");
+					return FALSE;
+				}
+
+				MerkleTree merkleTree = MerkleTree.createMerkleTree(blockBody.findTransactions().keySet());
+
+				if (!merkleTree.getMerkleRootHash().equals(header.getMerkleRoot()))
+				{
+					LOG.info("Invalid block merkle root");
 					return FALSE;
 				}
 
 				// process new valid block
-				var block = createBlock(blockBody);
+				var block = createBlock(blockBody, merkleTree,
+					Bytes.wrap(operation, bodyStartIndex, operation.length - bodyStartIndex));
+
+				TransactionManagement.getInstance().executeTransactions(
+					block.obj().body().findTransactions().values());
+
 				DataPlane.getInstance().writeOrderedBlock(block, POW);
     
-				LOG.info("Appended valid block with size=" + operation.length + " & hash: " +
-					block.header().getMetaHeader().getHash());
+				LOG.info("[{}] Appended valid block with size={} & hash={}", consensus,
+					block.obj().serializedSize(), block.hash());
 
 				return TRUE;
                 
             } catch (Exception e) {
                 Utils.logError(e, LOG);
-                return null;
+                return FALSE;
             }
         }
+
+		@Override
+		public void notifyNonFinalizedBlock(BlockmessBlock block) {
+			if (!test_latency)
+				return;
+			
+			long time = System.currentTimeMillis();
+			for (var data : block.getContentList().getContentList()) {
+				var header =  hasHyflexchainBlock(data.getContent());
+				if (header.isEmpty())
+					continue;
+				
+				LOG.error("[block_time_received]: {} {}", header.get().getMerkleRoot().toHexString(), time);
+			}
+		}
+
+		private Optional<BlockHeader> hasHyflexchainBlock(byte[] data)
+		{
+			try {
+    
+				var buff = Unpooled.wrappedBuffer(data);
+
+				// discard block size bytes
+				buff.skipBytes(Integer.BYTES);
+
+				return Optional.of(BlockHeader.SERIALIZER.deserialize(buff));
+                
+            } catch (Exception e) {
+                return Optional.empty();
+            }
+		}
         
     }
 }

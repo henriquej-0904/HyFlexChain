@@ -2,14 +2,6 @@ test:
   workers:
     number: 2
   rounds:
-    # - label: Prepare System
-    #   txDuration: 250
-    #   rateControl:
-    #     type: fixed-load
-    #     opts:
-    #       transactionLoad: 5
-    #   workload:
-    #     module: lib/benchmarks/CreateTransactionPowWithSC.js
 
     - label: Submit 5000 Transactions 50 tps
       description: Test description for transfering money between accounts.

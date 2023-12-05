@@ -1,6 +1,5 @@
 package pt.unl.fct.di.hyflexchain.planes.consensus.mechanisms.bftsmart.replylistener;
 
-import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -15,6 +14,8 @@ import bftsmart.tom.AsynchServiceProxy;
 import bftsmart.tom.RequestContext;
 import bftsmart.tom.core.messages.TOMMessage;
 import bftsmart.tom.core.messages.TOMMessageType;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.Address;
 import pt.unl.fct.di.hyflexchain.util.reply.MultiSignedReply;
 import pt.unl.fct.di.hyflexchain.util.reply.SignedReply;
@@ -40,6 +41,8 @@ public class BftSmartReplyListener implements ReplyListener
 
     protected Consumer<MultiSignedReply> postAction;
 
+    protected boolean complete;
+
     /**
      * Create a new Reply Listener for BFT-SMaRt that waits for
      * the specified number of replies.
@@ -61,6 +64,8 @@ public class BftSmartReplyListener implements ReplyListener
         this.minReplies = minReplies;
         this.replies = new LinkedList<>();
         this.requestId = -1;
+
+        this.complete = false;
     }
 
     /**
@@ -102,24 +107,27 @@ public class BftSmartReplyListener implements ReplyListener
     @Override
     public void replyReceived(RequestContext arg0, TOMMessage arg1)
     {
-        LOG.info("Received BFT-SMART reply!");
+        if (this.complete)
+            return;
+
+        // LOG.info("Received BFT-SMART reply!");
 
         if (this.requestId == -1)
             this.requestId = arg0.getOperationId();
 
-        ByteBuffer replyBytes = ByteBuffer.wrap(arg1.getContent());
-
-        if (replyBytes.capacity() == 0)
+        if (arg1.getContent().length == 0)
         {
             LOG.info("Invalid bft-smart replica reply: empty");
             return;
         }
 
-        if (replyBytes.capacity() == 1)
+        if (arg1.getContent().length == 1)
         {
             LOG.info("Invalid bft-smart replica reply: invalid transactions");
             return;
         }
+
+        ByteBuf replyBytes = Unpooled.wrappedBuffer(arg1.getContent());
 
         try {
             SignedReply reply = SignedReply.SERIALIZER.deserialize(replyBytes);
@@ -144,6 +152,7 @@ public class BftSmartReplyListener implements ReplyListener
             {
                 proxy.cleanAsynchRequest(this.requestId);
                 this.postAction.accept(this.topReply);
+                this.complete = true;
             }
 
         } catch (Exception e) {

@@ -32,10 +32,10 @@
       <url>https://hyperledger.jfrog.io/artifactory/besu-maven/</url>
     </repository>
 
-    <repository>
+    <!-- <repository>
       <id>bft_smart</id>
       <url>https://maven.scijava.org/content/repositories/public/</url>
-    </repository>
+    </repository> -->
   </repositories>
 
   <dependencies>
@@ -62,10 +62,17 @@
       <artifactId>resolver</artifactId>
       <version>20050927</version>
     </dependency>
-    <dependency>
+    <!-- <dependency>
       <groupId>org.glassfish.jersey.media</groupId>
       <artifactId>jersey-media-json-jackson</artifactId>
+    </dependency> -->
+    <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.jaxrs/jackson-jaxrs-json-provider -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.jakarta.rs</groupId>
+      <artifactId>jackson-jakarta-rs-json-provider</artifactId>
+      <version>2.15.2</version>
     </dependency>
+
 
     <dependency>
       <groupId>org.glassfish.jersey.containers</groupId>
@@ -84,6 +91,13 @@
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
     </dependency>
+    <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-collections4 -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-collections4</artifactId>
+      <version>4.4</version>
+    </dependency>
+
     <!-- https://mvnrepository.com/artifact/commons-codec/commons-codec -->
     <dependency>
       <groupId>commons-codec</groupId>
@@ -166,6 +180,18 @@
     </dependency>
 
     <dependency>
+      <groupId>org.eclipse.collections</groupId>
+      <artifactId>eclipse-collections-api</artifactId>
+      <version>11.1.0</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.eclipse.collections</groupId>
+      <artifactId>eclipse-collections</artifactId>
+      <version>11.1.0</version>
+    </dependency>
+
+    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.11</version>
@@ -215,11 +241,11 @@
         <artifactId>jaxb-runtime</artifactId>
         <version>3.0.1</version>
       </dependency>
-      <dependency>
+      <!-- <dependency>
         <groupId>org.glassfish.jersey.media</groupId>
         <artifactId>jersey-media-json-jackson</artifactId>
         <version>3.0.1</version>
-      </dependency>
+      </dependency> -->
       <dependency>
         <groupId>org.glassfish.jersey.containers</groupId>
         <artifactId>jersey-container-jdk-http</artifactId>

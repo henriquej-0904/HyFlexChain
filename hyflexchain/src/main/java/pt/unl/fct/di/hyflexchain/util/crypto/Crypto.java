@@ -35,16 +35,11 @@ import pt.unl.fct.di.hyflexchain.util.Utils;
 
 public class Crypto {
 
-    public static final File CONFIG_FOLDER = new File("tls-config");
-
     public static final SignatureAlgorithm DEFAULT_SIGNATURE_TRANSFORMATION = SignatureAlgorithm.SHA256withECDSA;
 	public static final String DEFAULT_PROVIDER = "BC";
 
     public static final String DEFAULT_ASYMMETRIC_ALGORITHM = CryptoAlgorithm.EC.getName();
     public static final AlgorithmParameterSpec DEFAULT_ASYMMETRIC_GEN_KEY_SPEC = new ECGenParameterSpec("secp256r1");
-
-
-    public static final String KEYSTORE_PWD = "keystorepwd";
 
     public static String sign(PrivateKey key, byte[]... data) throws InvalidKeyException, SignatureException
     {
@@ -93,10 +88,6 @@ public class Crypto {
         }
     }
 
-    public static KeyStore getTrustStore() {
-        return Crypto.getKeyStorePkcs12(new File(CONFIG_FOLDER, "truststore.pkcs12"), Crypto.KEYSTORE_PWD);
-    }
-
     public static SSLContext getSSLContext(KeyStore keystore, KeyStore truststore, String password)
 	{
         try {
@@ -140,6 +131,15 @@ public class Crypto {
         try {
             return Signature.getInstance(sigAlg, DEFAULT_PROVIDER);
         } catch (NoSuchProviderException e) {
+            throw new Error(e);
+        }
+    }
+
+    public static Signature createSignatureInstance(SignatureAlgorithm sigAlg)
+    {
+        try {
+            return Signature.getInstance(sigAlg.getName(), DEFAULT_PROVIDER);
+        } catch (NoSuchProviderException | NoSuchAlgorithmException e) {
             throw new Error(e);
         }
     }

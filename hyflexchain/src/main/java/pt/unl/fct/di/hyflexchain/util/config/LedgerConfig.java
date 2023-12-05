@@ -75,6 +75,16 @@ public class LedgerConfig {
 		}
 	}
 
+	public boolean getConfigBooleanValueOrThrowError(String key)
+	{
+		try {
+			return Boolean.parseBoolean(getConfigValueOrThrowError(key));
+		} catch (Exception e) {
+			throw new Error(String.format(
+				"%s is not defined in %s config.", key, this.consensus), e);
+		}
+	}
+
 	/**
 	 * Get the value of the specified key
 	 * @param key The key to search for the value

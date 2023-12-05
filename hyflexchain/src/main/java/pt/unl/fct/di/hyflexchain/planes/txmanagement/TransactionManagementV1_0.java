@@ -3,6 +3,7 @@ package pt.unl.fct.di.hyflexchain.planes.txmanagement;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
+import java.util.Collection;
 import java.util.EnumMap;
 
 import org.slf4j.Logger;
@@ -12,6 +13,7 @@ import pt.unl.fct.di.hyflexchain.planes.application.ti.InvalidTransactionExcepti
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.InvalidAddressException;
+import pt.unl.fct.di.hyflexchain.planes.data.transaction.wrapper.TxWrapper;
 import pt.unl.fct.di.hyflexchain.planes.txmanagement.txpool.TxPool;
 
 /**
@@ -53,13 +55,6 @@ public class TransactionManagementV1_0 implements TransactionManagement
 	@Override
 	public void verifyTx(HyFlexChainTransaction tx) throws InvalidTransactionException
 	{
-		if (! tx.verifyHash())
-		{
-			var msg = "Transaction invalid hash";
-			LOGGER.info(msg);
-			throw new InvalidTransactionException(msg);
-		}
-
 		try {
 			if (! tx.verifySignature())
 			{
@@ -91,24 +86,35 @@ public class TransactionManagementV1_0 implements TransactionManagement
 	}
 
 	@Override
-	public String dispatchTransaction(HyFlexChainTransaction tx) throws InvalidTransactionException
+	public String dispatchTransaction(TxWrapper tx) throws InvalidTransactionException
 	{
-		verifyTx(tx);
-		checkAddPendingTx(getTxPool(ConsensusMechanism.PoW).addTxIfAbsent(tx));
+		verifyTx(tx.tx());
+		checkAddPendingTx(getTxPool(ConsensusMechanism.PoW).addTxIfAbsent(tx.serializedTx()));
 
-		LOGGER.info("Submited tx: " + tx.getHash());
-		return tx.getHash();  
+		LOGGER.info("Submited tx: " + tx.txHash());
+		return tx.txHash().toHexString();
 	}
 
 	@Override
-	public String dispatchTransactionAndWait(HyFlexChainTransaction tx) throws InvalidTransactionException
+	public String dispatchTransactionAndWait(TxWrapper tx) throws InvalidTransactionException
 	{
-		verifyTx(tx);
-		checkAddPendingTx(getTxPool(ConsensusMechanism.PoW).addTxIfAbsentAndWait(tx, LOGGER));
+		verifyTx(tx.tx());
 
-		LOGGER.info("Finalized tx: " + tx.getHash());
+		try {
+			checkAddPendingTx(getTxPool(ConsensusMechanism.PoW)
+				.addTxIfAbsentAndWait(tx.serializedTx(), LOGGER));
+		} catch (InterruptedException e) {
+			LOGGER.error(e.getMessage(), e);
+		}
 
-		return tx.getHash();
+		LOGGER.info("Finalized tx: " + tx.txHash());
+		return tx.txHash().toHexString();
+	}
+
+	@Override
+	public void executeTransactions(Collection<HyFlexChainTransaction> txs) throws InvalidTransactionException {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'executeTransactions'");
 	}
 	
 }

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.security.KeyPair;
 import java.security.KeyStore;
 import java.security.PrivateKey;
@@ -15,12 +16,16 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.net.ssl.SSLContext;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.tuweni.bytes.Bytes;
 
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.Address;
@@ -173,6 +178,7 @@ public class MultiLedgerConfig
 
 	protected EnumMap<ConsensusMechanism, LedgerConfig> ledgerConfigs;
 
+	protected KeyStore keystore, truststore;
 	protected KeyPair selfKey;
 	protected Address selfAddress;
 
@@ -205,8 +211,7 @@ public class MultiLedgerConfig
 				)
 			);
 
-		this.selfKey = getSelfKeyPairFromKeystore();
-		this.selfAddress = Address.fromPubKey(this.selfKey.getPublic());
+		initCryptoConfig();
 	}
 
 	/**
@@ -338,23 +343,49 @@ public class MultiLedgerConfig
 		return EnumSet.copyOf(this.ledgerConfigs.keySet());
 	}
 
-	private KeyPair getSelfKeyPairFromKeystore()
+	private void initCryptoConfig()
 	{
+		File truststoreFile = new File(getConfigValueOrThrowError(GENERAL_CONFIG.TRUSTSTORE));
 		File keystoreFile = new File(getConfigValueOrThrowError(GENERAL_CONFIG.KEYSTORE));
+
 		String type = getConfigValueOrThrowError(GENERAL_CONFIG.KEYSTORE_TYPE);
         String password = getConfigValueOrThrowError(GENERAL_CONFIG.KEYSTORE_PASS);
         String alias = getConfigValueOrThrowError(GENERAL_CONFIG.KEYSTORE_ALIAS);
 
-        KeyStore ks = Crypto.getKeyStore(keystoreFile, password, type);
+        this.keystore = Crypto.getKeyStore(keystoreFile, password, type);
+		this.truststore = Crypto.getKeyStore(truststoreFile, password, type);
 
 		try {
-			PublicKey pubKey = ks.getCertificate(alias).getPublicKey();
-			PrivateKey privKey = (PrivateKey) ks.getKey(alias, password.toCharArray());
+			PublicKey pubKey = keystore.getCertificate(alias).getPublicKey();
+			PrivateKey privKey = (PrivateKey) keystore.getKey(alias, password.toCharArray());
 
-			return new KeyPair(pubKey, privKey);
+			this.selfKey = new KeyPair(pubKey, privKey);
+			this.selfAddress = Address.fromPubKey(this.selfKey.getPublic());
 		} catch (Exception e) {
 			throw new Error(e.getMessage(), e);
 		}
+	}
+
+	public SSLContext getSSLContextServer()
+	{
+		String password = getConfigValueOrThrowError(GENERAL_CONFIG.KEYSTORE_PASS);
+		return Crypto.getSSLContext(this.keystore, this.truststore, password);
+	}
+
+	public SSLContext getSSLContextClient()
+	{
+		String password = getConfigValueOrThrowError(GENERAL_CONFIG.KEYSTORE_PASS);
+		return Crypto.getSSLContext(null, this.truststore, password);
+	}
+
+	public KeyStore getKeyStore()
+	{
+		return this.keystore;
+	}
+
+	public KeyStore getTrustStore()
+	{
+		return this.truststore;
 	}
 
 	public KeyPair getSelfKeyPair()
@@ -380,7 +411,25 @@ public class MultiLedgerConfig
     }
 
 	
+	public Map<Address, Bytes> getPreInstallSmartContracts()
+	{
+		String v = getConfigValue("PRE_INSTALL_SC");
+		if (v == null)
+			return Map.of();
 
+		return Stream.of(v.split(";"))
+			.map((x) -> x.split("="))
+			.map(x -> {
+				try {
+					String content = Files.readString(new File(x[0]).toPath());
+					return new ImmutablePair<>(Address.fromHexString(x[1]), Bytes.fromHexString(content));
+				} catch (IOException e) {
+					e.printStackTrace();
+					throw new Error(e.getMessage(), e);
+				}
+			} )
+			.collect(Collectors.toMap(x -> x.getLeft(), x -> x.getRight()));
+	}
 	
 
 	
@@ -400,7 +449,9 @@ public class MultiLedgerConfig
 		KEYSTORE,
 		KEYSTORE_TYPE,
 		KEYSTORE_ALIAS,
-		KEYSTORE_PASS
+		KEYSTORE_PASS,
+
+		TRUSTSTORE
 	}
 
 

@@ -13,8 +13,10 @@ import pt.unl.fct.di.hyflexchain.planes.data.transaction.InvalidAddressException
  * A committee of nodes with the purpose of executing an instance of
  * a specific consensus mechanism.
  */
-public class Committee
+public abstract class Committee
 {
+	protected int id;
+
 	protected ConsensusMechanism consensusMechanism;
 
 	protected CommitteeElectionCriteria criteria;
@@ -24,7 +26,7 @@ public class Committee
 	/**
 	 * 
 	 */
-	public Committee() {
+	protected Committee() {
 	}
 
 	/**
@@ -33,18 +35,25 @@ public class Committee
 	 * @param criteria
 	 * @param committee
 	 */
-	public Committee(ConsensusMechanism consensusMechanism,
+	protected Committee(int id, ConsensusMechanism consensusMechanism,
 		CommitteeElectionCriteria criteria, LinkedHashSet<Address> committee) {
 		this.consensusMechanism = consensusMechanism;
 		this.criteria = criteria;
 		this.committee = committee;
+		this.id = id;
 	}
+
+	/**
+	 * Verifies the id of this committee.
+	 * @return true if valid.
+	 */
+	public abstract boolean verifyCommitteeId();
 
 	/**
 	 * The Consensus mechanism for which this committee was elected.
 	 * @return The Consensus mechanism
 	 */
-	public ConsensusMechanism getConsensusMechanism()
+	public ConsensusMechanism consensusMechanism()
 	{
 		return this.consensusMechanism;
 	}
@@ -58,6 +67,27 @@ public class Committee
 		return this.committee.size();
 	}
 
+	/**
+	 * @return the id
+	 */
+	public int getId() {
+		return id;
+	}
+
+	/**
+	 * @return the criteria
+	 */
+	public CommitteeElectionCriteria getCriteria() {
+		return criteria;
+	}
+
+	/**
+	 * @return the committee
+	 */
+	public LinkedHashSet<Address> getCommittee() {
+		return committee;
+	}
+
 	public Map<Address, PublicKey> addressesToPublicKeys() throws InvalidAddressException
 	{
 		Map<Address, PublicKey> map = new HashMap<>(this.committee.size());
@@ -69,44 +99,14 @@ public class Committee
 		return map;
 	}
 
-	/**
-	 * The addresses of the nodes in the committee.
-	 * @return Committee addresses.
-	 */
-	public LinkedHashSet<Address> getCommitteeAddresses()
+	public int getReplicaId(Address address)
 	{
-		return this.committee;
-	}
+		var it = this.committee.iterator();
+		for (int i = 0; it.hasNext(); i++) {
+			if (address.equals(it.next()))
+				return i;
+		}
 
-	/**
-	 * The election criteria used for this committee.
-	 * @return The election criteria
-	 */
-	public CommitteeElectionCriteria getCommitteeElectionCriteria()
-	{
-		return this.criteria;
+		return -1;
 	}
-
-	/**
-	 * @param consensusMechanism the consensusMechanism to set
-	 */
-	public void setConsensusMechanism(ConsensusMechanism consensusMechanism) {
-		this.consensusMechanism = consensusMechanism;
-	}
-
-	/**
-	 * @param criteria the criteria to set
-	 */
-	public void setCriteria(CommitteeElectionCriteria criteria) {
-		this.criteria = criteria;
-	}
-
-	/**
-	 * @param committee the committee to set
-	 */
-	public void setCommittee(LinkedHashSet<Address> committee) {
-		this.committee = committee;
-	}
-
-	
 }

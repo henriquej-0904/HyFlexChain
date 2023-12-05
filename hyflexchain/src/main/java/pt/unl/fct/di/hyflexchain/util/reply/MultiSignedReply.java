@@ -2,14 +2,14 @@ package pt.unl.fct.di.hyflexchain.util.reply;
 
 import java.util.LinkedHashMap;
 import pt.unl.fct.di.hyflexchain.planes.data.transaction.Address;
-import pt.unl.fct.di.hyflexchain.util.crypto.HyflexchainSignature;
+import pt.unl.fct.di.hyflexchain.util.crypto.HyFlexChainSignature;
 
 /**
  * Represents a reply signed by multiple participants.
  */
 public class MultiSignedReply
 {
-    private final LinkedHashMap<Address, HyflexchainSignature> signatures;
+    private final LinkedHashMap<Address, HyFlexChainSignature> signatures;
 
     private final byte[] replyBytes;
 
@@ -28,7 +28,7 @@ public class MultiSignedReply
      * @param signatures
      * @param replyBytes
      */
-    public MultiSignedReply(LinkedHashMap<Address, HyflexchainSignature> signatures, byte[] replyBytes) {
+    public MultiSignedReply(LinkedHashMap<Address, HyFlexChainSignature> signatures, byte[] replyBytes) {
         this.signatures = signatures;
         this.replyBytes = replyBytes;
     }
@@ -38,7 +38,7 @@ public class MultiSignedReply
      * @param signature
      * @return true if this is a new signature.
      */
-    public boolean addSignature(HyflexchainSignature signature)
+    public boolean addSignature(HyFlexChainSignature signature)
     {
         return this.signatures
             .putIfAbsent(signature.address(), signature) == null;
@@ -47,7 +47,7 @@ public class MultiSignedReply
     /**
      * @return the signatures
      */
-    public LinkedHashMap<Address, HyflexchainSignature> getSignatures() {
+    public LinkedHashMap<Address, HyFlexChainSignature> getSignatures() {
         return signatures;
     }
 

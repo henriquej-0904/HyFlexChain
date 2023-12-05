@@ -8,5 +8,6 @@ max_id=$2
 
 for (( replicaId=$min_id; replicaId <= $max_id; replicaId++ ));
 do
-    docker stop replica-$replicaId
+    docker kill blockmess-server-bft-smart-$replicaId
+    docker kill replica-$replicaId
 done

@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pt.unl.fct.di.hyflexchain.planes.consensus.ConsensusMechanism;
-import pt.unl.fct.di.hyflexchain.planes.data.block.BlockBody;
 import pt.unl.fct.di.hyflexchain.planes.txmanagement.TransactionManagement;
 import pt.unl.fct.di.hyflexchain.planes.txmanagement.txpool.TxPool;
 import pt.unl.fct.di.hyflexchain.util.config.LedgerConfig;
@@ -37,9 +36,8 @@ public class PowConsensusThread implements Runnable {
 		try {
 			while (true) {
 				var txs = txPool.waitForMinPendingTxs(this.nTxsInBlock, this.blockCreateTime);
-				// var block = this.consensus.createBlock(txs);
-				// this.consensus.orderBlock(block);
-				this.consensus.orderTxs(BlockBody.from(txs));
+				// LOG.info("PoW: Order block of {} transactions", txs.size());
+				this.consensus.orderTxs(txs);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -92,8 +92,33 @@ public class BFT_SMaRtConfig
             throw configError(Configs.STATIC_COMMITTEE.name);
 
         return Stream.of(res.split(";"))
-            .map(Address::new)
+            .map(Address::fromHexString)
             .toList();
+    }
+
+    public boolean dynamicCommittees()
+    {
+        return this.config.getConfigBooleanValueOrThrowError(Configs.COMMITTEE_DYNAMIC.name);
+    }
+
+    public boolean electDynamicCommittees()
+    {
+        return this.config.getConfigBooleanValueOrThrowError(Configs.COMMITTEE_ELECTION.name);
+    }
+
+    public int getCommitteeSamples()
+    {
+        return this.config.getConfigIntValueOrThrowError(Configs.COMMITTEE_SAMPLES.name);
+    }
+
+    public int getCommitteeElectionParamRecipientNodesOfLastFinalizedBlocks()
+    {
+        return this.config.getConfigIntValueOrThrowError(Configs.COMMITTEE_ELECTION_RECIPIENT_NODES_LAST_N_FINALIZED_BLOCKS.name);
+    }
+
+    public int getCommitteeElectionParamPreviousCommittees()
+    {
+        return this.config.getConfigIntValueOrThrowError(Configs.COMMITTEE_ELECTION_PREVIOUS_N_COMMITTEES.name);
     }
 
 
@@ -118,6 +143,11 @@ public class BFT_SMaRtConfig
          */
         ADDRESSES_CONFIG_FILE ("ADDRESSES_CONFIG_FILE"),
 
+        COMMITTEE_DYNAMIC("COMMITTEE_DYNAMIC"),
+
+        COMMITTEE_ELECTION("COMMITTEE_ELECTION"),
+
+        COMMITTEE_SAMPLES("COMMITTEE_SAMPLES"),
 
         COMMITTEE_N ("COMMITTEE_N"),
 
@@ -127,7 +157,9 @@ public class BFT_SMaRtConfig
 
         COMMITTEE_VALIDITY_N_BLOCKS("COMMITTEE_VALIDITY_N_BLOCKS"),
 
+        COMMITTEE_ELECTION_RECIPIENT_NODES_LAST_N_FINALIZED_BLOCKS("COMMITTEE_ELECTION_RECIPIENT_NODES_LAST_N_FINALIZED_BLOCKS"),
 
+        COMMITTEE_ELECTION_PREVIOUS_N_COMMITTEES ("COMMITTEE_ELECTION_PREVIOUS_N_COMMITTEES"),
 
         /**
          * A list of HyFlexChain addresses (';' separated) that belong to the static

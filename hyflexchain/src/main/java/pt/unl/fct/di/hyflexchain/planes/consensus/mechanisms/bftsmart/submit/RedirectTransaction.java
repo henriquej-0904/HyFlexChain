@@ -6,30 +6,30 @@ import org.slf4j.LoggerFactory;
 import jakarta.ws.rs.ProcessingException;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.client.InvocationCallback;
-import pt.unl.fct.di.hyflexchain.planes.data.transaction.HyFlexChainTransaction;
+import pt.unl.fct.di.hyflexchain.planes.data.transaction.SerializedTx;
 import pt.unl.fct.di.hyflexchain.planes.txmanagement.txpool.TxPool;
 
 public class RedirectTransaction implements InvocationCallback<String>
 {
     protected static final Logger LOG = LoggerFactory.getLogger(RedirectTransaction.class);
 
-    private final HyFlexChainTransaction tx;
+    private final SerializedTx tx;
 
     private final TxPool txPool;
 
     /**
      * @param tx
      */
-    public RedirectTransaction(HyFlexChainTransaction tx, TxPool txPool) {
+    public RedirectTransaction(SerializedTx tx, TxPool txPool) {
         this.tx = tx;
         this.txPool = txPool;
     }
 
     @Override
     public void completed(String response) {
-        var hash = this.tx.getHash();
+        var hash = this.tx.hash().toHexString();
         boolean ok = response.equalsIgnoreCase(hash);
-        this.txPool.removePendingTxAndNotify(hash, ok);
+        this.txPool.removePendingTxAndNotify(this.tx.hash(), ok);
 
         LOG.info("Received reply from member of committee: {}", ok);
     }
@@ -47,7 +47,7 @@ public class RedirectTransaction implements InvocationCallback<String>
                 ex.getMessage());
         }
 
-        var hash = this.tx.getHash();
+        var hash = this.tx.hash();
         this.txPool.removePendingTxAndNotify(hash, false);
     }
     

@@ -11,11 +11,22 @@
 		},
 		{
                         "path": "hyflexchain"
+                },
+                {
+                	"path": "smart-contracts-besu-evm"
+                },
+                {
+                	"path": "blockmess-wrapper/blockmess-wrapper-server"
+                },
+                {
+                	"path": "blockmess-wrapper/blockmess-wrapper-client"
                 }
 
 		
 	],
 	"settings": {
-		"java.configuration.updateBuildConfiguration": "interactive"
+		"java.configuration.updateBuildConfiguration": "interactive",
+		"java.compile.nullAnalysis.mode": "automatic",
+		"java.dependency.packagePresentation": "hierarchical"
 	}
 }

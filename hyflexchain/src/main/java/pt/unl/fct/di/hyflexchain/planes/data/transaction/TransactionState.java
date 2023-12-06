@@ -13,5 +13,10 @@ public enum TransactionState
 	/**
 	 * A pending state that can eventually become finalized
 	 */
-	PENDING;
+	PENDING,
+
+	/**
+	 * THe specified transaction was not found.
+	 */
+	NOT_FOUND;
 }

@@ -41,15 +41,15 @@ test:
       workload:
         module: lib/benchmarks/CreateTransaction.js
 
-    - label: Submit 40000 Transactions 400 tps
-      description: Test description for transfering money between accounts.
-      txNumber: 40000
-      rateControl:
-        type: fixed-rate
-        opts:
-          tps: 400
-      workload:
-        module: lib/benchmarks/CreateTransaction.js
+    # - label: Submit 40000 Transactions 400 tps
+    #   description: Test description for transfering money between accounts.
+    #   txNumber: 40000
+    #   rateControl:
+    #     type: fixed-rate
+    #     opts:
+    #       tps: 400
+    #   workload:
+    #     module: lib/benchmarks/CreateTransaction.js
   
 monitors:
   resource:

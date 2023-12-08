@@ -184,7 +184,7 @@ public final class BftSmartDynamicCommitteeConsensus extends ConsensusInterface 
 
     private Optional<Triple<CommitteeId, BftCommittee, Map<Address, Host>>> getCurrentCommittee()
     {
-        return this.currentCommittee;
+        return this.acceptProposals ? this.currentCommittee : Optional.empty();
     }
 
     @Override
@@ -295,7 +295,8 @@ public final class BftSmartDynamicCommitteeConsensus extends ConsensusInterface 
             );
             
             this.isInCommittee = true;
-        }
+        } else
+            this.acceptProposals = true;
 
         // propose again the pending blocks that were proposed when the previous committee finished.
 		TxPool txPool = TransactionManagement.getInstance().getTxPool(consensus);
@@ -637,6 +638,7 @@ public final class BftSmartDynamicCommitteeConsensus extends ConsensusInterface 
         public byte[] appExecuteOrdered(byte[] arg0, MessageContext arg1) {
 
             if (!isCommitteeActive()) {
+                acceptProposals = false;
                 LOG.info("BFT_SMART: Committee is no longer valid");
                 return FALSE;
             }
@@ -773,7 +775,7 @@ public final class BftSmartDynamicCommitteeConsensus extends ConsensusInterface 
                 }
 
                 try {
-                    Thread.sleep(Duration.ofSeconds(10));
+                    Thread.sleep(Duration.ofSeconds(1));
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

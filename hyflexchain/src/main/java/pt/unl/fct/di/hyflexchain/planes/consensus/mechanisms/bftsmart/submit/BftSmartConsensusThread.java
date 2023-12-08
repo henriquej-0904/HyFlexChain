@@ -1,7 +1,6 @@
 package pt.unl.fct.di.hyflexchain.planes.consensus.mechanisms.bftsmart.submit;
 
 import java.net.URI;
-import java.time.Duration;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
@@ -38,9 +37,6 @@ public class BftSmartConsensusThread implements Runnable {
 
 	private final Supplier<Optional<Triple<CommitteeId, BftCommittee, Map<Address, Host>>>> activeCommittee;
 
-
-	private boolean isCommitteeActive;
-
 	private BftCommittee committee;
 
 	private Host[] committeeMembers;
@@ -60,22 +56,21 @@ public class BftSmartConsensusThread implements Runnable {
 		this.nTxsInBlock = config.getNumTxsInBlock();
 		this.blockCreateTime = config.getCreateBlockTime();
 		this.activeCommittee = activeCommittee;
-		this.isCommitteeActive = false;
 	}
 
-	/* protected void updateCommittee()
-	{
-		var newCommittee = this.activeCommittee.get();
-		var currentCommittee = newCommittee.getMiddle();
-		if (currentCommittee != this.committee)
-		{
-			this.committee = currentCommittee;
-			this.committeeMembers = newCommittee.getRight().values().toArray(Host[]::new);
-			this.isInCommittee = currentCommittee.getCommittee().contains(this.selfAddress);
-		}
-	} */
-
 	protected void updateCommittee()
+	{
+		while (!updateCommittee0())
+		{
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	protected boolean updateCommittee0()
 	{
 		var newCommittee = this.activeCommittee.get();
 
@@ -84,8 +79,7 @@ public class BftSmartConsensusThread implements Runnable {
 			this.committee = null;
 			this.committeeMembers = null;
 			this.isInCommittee = false;
-			this.isCommitteeActive = false;
-			return;
+			return false;
 		}
 
 		var currentCommittee = newCommittee.get().getMiddle();
@@ -94,8 +88,9 @@ public class BftSmartConsensusThread implements Runnable {
 			this.committee = currentCommittee;
 			this.committeeMembers = newCommittee.get().getRight().values().toArray(Host[]::new);
 			this.isInCommittee = currentCommittee.getCommittee().contains(this.selfAddress);
-			this.isCommitteeActive = true;
 		}
+
+		return true;
 	}
 
 	protected Host getRandomCommitteeMember()
@@ -115,11 +110,6 @@ public class BftSmartConsensusThread implements Runnable {
 			while (true) {
 
 				updateCommittee();
-
-				if (!this.isCommitteeActive)
-				{
-					Thread.sleep(Duration.ofMillis(100));
-				}
 
 				if (this.isInCommittee)
 				{

@@ -284,7 +284,7 @@ public final class BftSmartDynamicCommitteeConsensus extends ConsensusInterface 
             
             try {
                 CommitteeReconfUtils.createBftsmartConfigFiles(committee.getMiddle(), committee.getRight());
-            } catch (FileNotFoundException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
                 throw new Error(e.getMessage(), e);
             }

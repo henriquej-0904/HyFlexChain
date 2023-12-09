@@ -2,7 +2,11 @@ package pt.unl.fct.di.hyflexchain.planes.consensus.mechanisms.bftsmart.reconfigu
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.Map;
 
 import pt.unl.fct.di.hyflexchain.planes.consensus.committees.bft.BftCommittee;
@@ -15,14 +19,14 @@ public class CommitteeReconfUtils {
     public static final File DEFAULT_BASE_CONFIG = new File(DEFAULT_CONFIG, "base-config");
 
     public static void createBftsmartConfigFiles(BftCommittee committee,
-        Map<Address, Host> committeeMembers) throws FileNotFoundException
+        Map<Address, Host> committeeMembers) throws IOException
     {
         createBftsmartConfigFiles(committee, committeeMembers, DEFAULT_BASE_CONFIG, DEFAULT_CONFIG);
     }
 
     public static void createBftsmartConfigFiles(BftCommittee committee,
         Map<Address, Host> committeeMembers,
-        File baseConfigsFolder, File destFolder) throws FileNotFoundException
+        File baseConfigsFolder, File destFolder) throws IOException
     {
         createBftsmartHostsConfig(committee, committeeMembers, destFolder);
         createBftsmartSystemConfig(committee, baseConfigsFolder, destFolder);
@@ -46,10 +50,20 @@ public class CommitteeReconfUtils {
         }
     }
 
-    private static void createBftsmartSystemConfig(BftCommittee committee, File baseConfigsFolder, File destFolder) throws FileNotFoundException
+    private static void createBftsmartSystemConfig(BftCommittee committee, File baseConfigsFolder, File destFolder) throws IOException
     {
+        var baseConfigFile = new File(baseConfigsFolder, "system.config");
+        var newConfigFile = new File(destFolder, "system.config");
+
+        Files.copy(
+            baseConfigFile.toPath(),
+            newConfigFile.toPath(),
+            StandardCopyOption.REPLACE_EXISTING
+        );
+        
         try (
-            PrintStream out = new PrintStream(new File(destFolder, "system.config"))
+
+            PrintStream out =new PrintStream(new FileOutputStream(newConfigFile, true))
         ) {
             int size = committee.size();
             int f = committee.getBftCriteria().getF();

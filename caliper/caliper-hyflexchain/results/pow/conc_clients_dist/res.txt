@@ -1,0 +1,39 @@
+c/ smart contracts:
+	2 ->
+		(latency)	avg = 97.4400; std = 4.67%
+		(throughput)	avg = 9.01000; std = 4.07%
+		
+	5 ->
+		(latency)	avg = 114.525; std = 5.82%
+		(throughput)	avg = 7.27000; std = 4.54%
+		
+	10 ->
+		(latency)	avg = 127.933; std = 6.78%
+		(throughput)	avg = 6.23000; std = 5.78%
+		
+	20 ->
+		(latency)	avg = 167.754; std = 8.62%
+		(throughput)	avg = 4.39000; std = 6.38%
+
+
+
+##################################################################
+
+referenced smart contracts:
+	2 ->
+		(latency)	avg = 104.198; std = 8.80%
+		(throughput)	avg = 8.40000; std = 7.38%
+		
+	5 ->
+		(latency)	avg = 104.428; std = 6.02%
+		(throughput)	avg = 8.44000; std = 8.89%
+		
+	10 ->
+		(latency)	avg = 126.280; std = 9.61%
+		(throughput)	avg = 6.98000; std = 6.07%
+		
+	20 ->
+		(latency)	avg = 150.710; std = 8.47%
+		(throughput)	avg = 5.98000; std = 7.36%
+	
+

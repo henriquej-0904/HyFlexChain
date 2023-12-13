@@ -1,0 +1,87 @@
+120 TPS para os 2 tipos de TX
+
+c/ smart contracts (8f):
+	5k  ->
+		(latency)	avg = 10.760; std = 6.64%
+		(throughput)	avg = 105.48; std = 2.77%
+		
+	10k ->
+		(latency)	avg = 9.8800; std = 5.85%
+		(throughput)	avg = 110.91; std = 0.74%
+		
+	20k ->
+		(latency)	avg = 10.085; std = 4.10%
+		(throughput)	avg = 112.57; std = 0.60%
+		
+	40k ->
+		(latency)	avg = 10.212; std = 6.11%
+		(throughput)	avg = 112.23; std = 0.21%
+		
+	80k ->
+		##(latency)	avg = 18.704; std = 19.0%
+		##(latency)	avg = 20.718; std = 6.83%
+		##(throughput)	avg = 101.97; std = 5.62%
+		##(throughput)	avg = 102.00; std = 6.10%
+		
+		(latency)	avg = 12.530; std = 7.74%
+		(throughput)	avg = 110.41; std = 0.85%
+		
+	160k ->
+		(latency)	avg = 12.270; std = 9.71%
+		(throughput)	avg = 110.13; std = 1.02%
+		
+
+referenced smart contracts (8f):
+	
+	5k ->
+		(latency)	avg = 0.7480; std = 1.23%
+		(throughput)	avg = 112.50; std = 0%
+		
+	10k ->
+		(latency)	avg = 0.7700; std = 1.69%
+		(throughput)	avg = 112.50; std = 0%
+		
+	20k ->
+		(latency)	avg = 0.7540; std = 1.11%
+		(throughput)	avg = 112.70; std = 0.04%
+		
+	40k ->
+		(latency)	avg = 0.9780; std = 0.94%
+		(throughput)	avg = 112.69; std = 0.08%
+		
+	80k ->
+		(latency)	avg = 1.5270; std = 0.44%
+		(throughput)	avg = 113.25; std = 0.09%
+		
+	160k ->
+		(latency)	avg = 2.5170; std = 0.97%
+		(throughput)	avg = 114.42; std = 0.07%
+		
+(old) referenced smart contracts (8f):
+	
+	5k ->
+		(latency)	avg = 0.6660; std = 1.20%
+		(throughput)	avg = 115.30; std = 0%
+		
+	10k ->
+		(latency)	avg = 0.6800; std = 0%
+		(throughput)	avg = 115.30; std = 0%
+		
+	20k ->
+		(latency)	avg = 0.6720; std = 1.18%
+		(throughput)	avg = 115.32; std = 0.04%
+		
+	40k ->
+		(latency)	avg = 0.9000; std = 1.60%
+		(throughput)	avg = 115.40; std = 0.09%
+		
+	80k ->
+		(latency)	avg = 1.4100; std = 0.50%
+		(throughput)	avg = 115.34; std = 0.05%
+		(latency)	avg = 1.5060; std = 1.86%
+		(throughput)	avg = 113.07; std = 0.30%
+		
+	160k ->
+		(latency)	avg = 2.5160; std = 0.87%
+		(throughput)	avg = 114.25; std = 0.54%
+	

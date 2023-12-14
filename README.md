@@ -17,3 +17,8 @@ Additionally, in folder keys, you encounter the keystores for each replica, whic
 
 ## Execution
 The execution is based on running a docker solution with hyflexchain and related configurations. A script named run-server.sh is available to run the system in a easy way.
+
+## Caliper Workloads
+
+One can also launch our modified version of Hyperledger Caliper available in the folder caliper/caliper-hyflexchain.
+Caliper is configured through 2 configuration files. One is named networkconfig.json, which configures the available HyFlexChain Endpoints (HTTPS) and if smart contracts should be piggybacked or referenced when submitting transactions. Another one is the workload configuration (.yaml files), where some examples are placed in that folder, where a consensus mechanism can be specified, the send rate of transactions, the number of transactions to submit, etc. 
